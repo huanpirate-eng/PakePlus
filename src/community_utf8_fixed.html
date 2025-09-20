@@ -1,0 +1,1195 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUITTR - 社区</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/utils.js"></script>
+    <script src="js/loading.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/performance.js"></script>
+    <script src="js/validation.js"></script>
+    <script src="js/offline.js"></script>
+    <script src="js/darkmode.js"></script>
+    <style>
+        /* 分类选择器交互样式 */
+        .segment {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        .segment:hover {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        .segment.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        /* 社区帖子交互样式 */
+        .community-post {
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(76, 175, 80, 0.02) 100%);
+        }
+        .community-post:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.1);
+            border-color: var(--primary-color);
+        }
+        
+        /* 帖子操作按钮交互样式 */
+        .post-action {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 20px;
+        }
+        .post-action:hover {
+            color: var(--primary-color);
+            background-color: rgba(76, 175, 80, 0.1);
+            transform: scale(1.05);
+        }
+        
+        /* 点赞效果 */
+        .post-action.liked i {
+            color: var(--danger-color);
+            animation: heartBeat 0.5s ease;
+        }
+        
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1.4); }
+            75% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 挑战卡片交互样式 */
+        .card {
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(255, 152, 0, 0.02) 100%);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.15);
+            border-color: var(--warning-color);
+        }
+        
+        /* 按钮交互样式 */
+        .btn {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 600;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        }
+        .btn-outline {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* 底部标签栏交互样式 */
+        .tab-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-item:hover {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        /* 紧急求助按钮交互样式 */
+        .emergency-button {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--danger-color) 0%, #D32F2F 100%);
+        }
+        .emergency-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+        }
+        
+        /* 用户头像增强 */
+        .post-avatar {
+            transition: all 0.3s ease;
+        }
+        .post-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        /* 发帖按钮样式 */
+        .floating-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+        .floating-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
+        }
+        
+        .emergency-button:hover {
+            transform: scale(1.05);
+            background-color: #d9534f;
+        }
+        
+        /* Toast动画 */
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+              }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        @keyframes toastSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        }
+        
+        /* 分享选项样式 */
+        .share-option {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .share-option:hover {
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+        
+        .share-option i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        
+        /* 评论区样式 */
+        .comment {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .comment:hover {
+            background-color: rgba(76, 175, 80, 0.02);
+        }
+        
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .comment-action {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 5px 8px;
+            border-radius: 15px;
+        }
+        
+        .comment-action:hover {
+            color: var(--primary-color);
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        
+        /* 模态框动画 */
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            transform: translateY(-50px);
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        /* 加载动画 */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(76, 175, 80, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 搜索框动画 */
+        .search-input {
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--primary-color);
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .tag:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* 徽章样式 */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .badge-primary {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .badge-warning {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .badge:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* 进度条样式 */
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: rgba(76, 175, 80, 0.1);
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* 提示工具样式 */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 120px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .community-container {
+                padding: 10px;
+            }
+            
+            .community-post {
+                padding: 15px;
+            }
+            
+            .floating-btn {
+                bottom: 80px;
+                right: 15px;
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <img src="https://via.placeholder.com/40" alt="QUITTR Logo">
+                <h1>QUITTR</h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="搜索..." class="search-input">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" id="darkModeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="btn-icon">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="user-profile">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" alt="User Profile">
+                </div>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="community-container">
+                <div class="section-header">
+                    <h2>社区</h2>
+                    <div class="emergency-help">
+                        <button class="emergency-button">
+                            <i class="fas fa-exclamation-circle"></i> 紧急求助
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="segments-container">
+                    <div class="segment active" data-category="all">全部</div>
+                    <div class="segment" data-category="experience">经验分享</div>
+                    <div class="segment" data-category="question">问题求助</div>
+                    <div class="segment" data-category="success">成功故事</div>
+                    <div class="segment" data-category="motivation">激励</div>
+                </div>
+                
+                <div class="community-posts">
+                    <!-- 帖子1 -->
+                    <div class="community-post" data-category="experience">
+                        <div class="post-header">
+                            <div class="post-user">
+                                <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" alt="User Avatar" class="post-avatar">
+                                <div>
+                                    <h4>郑宇</h4>
+                                    <span class="post-time">1小时前</span>
+                                    <span class="badge badge-primary">120天</span>
+                                </div>
+                            </div>
+                            <div class="post-menu">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <p>分享一个实用技巧：当感到强烈冲动时，试试"延迟15分钟"策略。告诉自己只需等待15分钟再做决定。这段时间做点别的事，大多数时候冲动会自然消退。这个简单方法帮我度过了很多困难时刻！</p>
+                        </div>
+                        <div class="post-actions">
+                            <div class="post-action" data-post-id="1">
+                                <i class="far fa-heart"></i> <span>47</span>
+                            </div>
+                            <div class="post-action" data-post-id="1">
+                                <i class="far fa-comment"></i> <span>2</span>
+                            </div>
+                            <div class="post-action" data-post-id="1">
+                                <i class="far fa-share-square"></i> <span>分享</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 帖子2 -->
+                    <div class="community-post" data-category="question">
+                        <div class="post-header">
+                            <div class="post-user">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" alt="User Avatar" class="post-avatar">
+                                <div>
+                                    <h4>张丽</h4>
+                                    <span class="post-time">3小时前</span>
+                                    <span class="badge badge-primary">45天</span>
+                                </div>
+                            </div>
+                            <div class="post-menu">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <p>大家好，我最近在社交场合特别容易复吸，尤其是朋友聚会。有什么好方法能在不显得奇怪的情况下拒绝吗？我不想总是找借口不参加活动，但每次参加都很挣扎。</p>
+                            <div class="tags">
+                                <span class="tag">#社交场合</span>
+                                <span class="tag">#拒绝技巧</span>
+                            </div>
+                        </div>
+                        <div class="post-actions">
+                            <div class="post-action" data-post-id="2">
+                                <i class="far fa-heart"></i> <span>23</span>
+                            </div>
+                            <div class="post-action" data-post-id="2">
+                                <i class="far fa-comment"></i> <span>8</span>
+                            </div>
+                            <div class="post-action" data-post-id="2">
+                                <i class="far fa-share-square"></i> <span>分享</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 帖子3 -->
+                    <div class="community-post" data-category="success">
+                        <div class="post-header">
+                            <div class="post-user">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" alt="User Avatar" class="post-avatar">
+                                <div>
+                                    <h4>刘强</h4>
+                                    <span class="post-time">昨天</span>
+                                    <span class="badge badge-primary">365天</span>
+                                </div>
+                            </div>
+                            <div class="post-menu">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <p>今天是我戒色一周年的日子！一年前我还以为自己永远无法摆脱这个习惯的控制，但现在我已经365天保持清醒了。身体状况明显改善，精神更加集中，生活也更加充实。感谢这个社区的支持，你们的鼓励给了我坚持下去的力量！</p>
+                            <img src="https://images.unsplash.com/photo-1529008922463-fd89b925364e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Success Image" class="post-image">
+                        </div>
+                        <div class="post-actions">
+                            <div class="post-action liked" data-post-id="3">
+                                <i class="fas fa-heart"></i> <span>156</span>
+                            </div>
+                            <div class="post-action" data-post-id="3">
+                                <i class="far fa-comment"></i> <span>42</span>
+                            </div>
+                            <div class="post-action" data-post-id="3">
+                                <i class="far fa-share-square"></i> <span>分享</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 帖子4 -->
+                    <div class="community-post" data-category="motivation">
+                        <div class="post-header">
+                            <div class="post-user">
+                                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" alt="User Avatar" class="post-avatar">
+                                <div>
+                                    <h4>王芳</h4>
+                                    <span class="post-time">2天前</span>
+                                    <span class="badge badge-primary">90天</span>
+                                </div>
+                            </div>
+                            <div class="post-menu">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <p>"每一次拒绝诱惑，都是在强化你的意志力。每一天的坚持，都让你离目标更近一步。不要低估每一个微小的胜利，它们会累积成巨大的成就。"</p>
+                            <p>这句话一直激励着我，希望也能帮助到你们！</p>
+                        </div>
+                        <div class="post-actions">
+                            <div class="post-action" data-post-id="4">
+                                <i class="far fa-heart"></i> <span>89</span>
+                            </div>
+                            <div class="post-action" data-post-id="4">
+                                <i class="far fa-comment"></i> <span>12</span>
+                            </div>
+                            <div class="post-action" data-post-id="4">
+                                <i class="far fa-share-square"></i> <span>分享</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 帖子5 -->
+                    <div class="community-post" data-category="experience">
+                        <div class="post-header">
+                            <div class="post-user">
+                                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" alt="User Avatar" class="post-avatar">
+                                <div>
+                                    <h4>陈伟</h4>
+                                    <span class="post-time">3天前</span>
+                                    <span class="badge badge-primary">60天</span>
+                                </div>
+                            </div>
+                            <div class="post-menu">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <p>我发现冥想对控制戒断症状特别有效。开始时每天只做5分钟，现在已经能坚持20分钟了。推荐大家试试"正念呼吸"练习，当感到焦虑或渴望时特别有用。</p>
+                            <p>有人也在尝试冥想吗？欢迎分享经验！</p>
+                        </div>
+                        <div class="post-actions">
+                            <div class="post-action" data-post-id="5">
+                                <i class="far fa-heart"></i> <span>56</span>
+                            </div>
+                            <div class="post-action" data-post-id="5">
+                                <i class="far fa-comment"></i> <span>15</span>
+                            </div>
+                            <div class="post-action" data-post-id="5">
+                                <i class="far fa-share-square"></i> <span>分享</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="load-more">
+                    <button class="btn btn-outline">加载更多</button>
+                </div>
+            </div>
+        </main>
+        
+        <div class="floating-btn" id="newPostBtn">
+            <i class="fas fa-plus"></i>
+        </div>
+        
+        <footer class="footer">
+            <div class="tab-bar">
+                <div class="tab-item">
+                    <a href="home.html">
+                        <i class="fas fa-home"></i>
+                        <span>首页</span>
+                    </a>
+                </div>
+                <div class="tab-item active">
+                    <a href="community.html">
+                        <i class="fas fa-users"></i>
+                        <span>社区</span>
+                    </a>
+                </div>
+                <div class="tab-item">
+                    <a href="practice.html">
+                        <i class="fas fa-dumbbell"></i>
+                        <span>练习</span>
+                    </a>
+                </div>
+                <div class="tab-item">
+                    <a href="learning.html">
+                        <i class="fas fa-book"></i>
+                        <span>学习</span>
+                    </a>
+                </div>
+                <div class="tab-item">
+                    <a href="settings.html">
+                        <i class="fas fa-cog"></i>
+                        <span>设置</span>
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- 发帖模态框 -->
+    <div class="modal" id="newPostModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>发布新帖</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="postCategory">分类</label>
+                    <select id="postCategory" class="form-control">
+                        <option value="experience">经验分享</option>
+                        <option value="question">问题求助</option>
+                        <option value="success">成功故事</option>
+                        <option value="motivation">激励</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="postContent">内容</label>
+                    <textarea id="postContent" class="form-control" rows="5" placeholder="分享你的经验、问题或故事..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="postTags">标签（用逗号分隔）</label>
+                    <input type="text" id="postTags" class="form-control" placeholder="例如：技巧,戒断,冥想">
+                </div>
+                <div class="form-group">
+                    <label>添加图片（可选）</label>
+                    <div class="file-upload">
+                        <button class="btn btn-outline"><i class="fas fa-image"></i> 选择图片</button>
+                        <input type="file" id="postImage" accept="image/*">
+                    </div>
+                    <div class="image-preview" id="imagePreview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">取消</button>
+                <button class="btn btn-primary" id="submitPost">发布</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 帖子详情模态框 -->
+    <div class="modal" id="postDetailModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>帖子详情</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="post-detail">
+                    <div class="post-header">
+                        <div class="post-user">
+                            <img src="" alt="User Avatar" class="post-avatar" id="modalUserAvatar">
+                            <div>
+                                <h4 id="modalUsername"></h4>
+                                <span class="post-time" id="modalPostTime"></span>
+                                <span class="badge badge-primary" id="modalUserDays"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content" id="modalPostContent">
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action" id="modalLikeAction">
+                            <i class="far fa-heart"></i> <span id="modalLikes"></span>
+                        </div>
+                        <div class="post-action">
+                            <i class="far fa-comment"></i> <span id="modalComments"></span>
+                        </div>
+                        <div class="post-action" id="modalShareAction">
+                            <i class="far fa-share-square"></i> <span>分享</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comments-section">
+                    <h4>评论</h4>
+                    <div class="comments-list" id="commentsList">
+                        <!-- 评论将通过JavaScript动态添加 -->
+                    </div>
+                    <div class="add-comment">
+                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" alt="Your Avatar" class="comment-avatar">
+                        <div class="comment-input-container">
+                            <input type="text" id="commentInput" class="form-control" placeholder="添加评论...">
+                            <button class="btn btn-primary" id="submitComment">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 分享模态框 -->
+    <div class="modal" id="shareModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>分享</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="share-options">
+                    <div class="share-option" data-platform="wechat">
+                        <i class="fab fa-weixin" style="color: #07C160;"></i>
+                        <span>微信</span>
+                    </div>
+                    <div class="share-option" data-platform="weibo">
+                        <i class="fab fa-weibo" style="color: #E6162D;"></i>
+                        <span>微博</span>
+                    </div>
+                    <div class="share-option" data-platform="qq">
+                        <i class="fab fa-qq" style="color: #12B7F5;"></i>
+                        <span>QQ</span>
+                    </div>
+                    <div class="share-option" data-platform="copy">
+                        <i class="fas fa-link" style="color: #333;"></i>
+                        <span>复制链接</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast通知 -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <i class="fas fa-check-circle toast-icon"></i>
+            <div class="toast-message">操作成功！</div>
+        </div>
+    </div>
+    
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener("DOMContentLoaded", function() {
+            // 获取DOM元素
+            const segments = document.querySelectorAll(".segment");
+            const posts = document.querySelectorAll(".community-post");
+            const newPostBtn = document.getElementById("newPostBtn");
+            const newPostModal = document.getElementById("newPostModal");
+            const postDetailModal = document.getElementById("postDetailModal");
+            const shareModal = document.getElementById("shareModal");
+            const closeModalBtns = document.querySelectorAll(".close-modal");
+            const modalOverlays = document.querySelectorAll(".modal-overlay");
+            const submitPostBtn = document.getElementById("submitPost");
+            const submitCommentBtn = document.getElementById("submitComment");
+            const commentInput = document.getElementById("commentInput");
+            const postActions = document.querySelectorAll(".post-action");
+            const shareOptions = document.querySelectorAll(".share-option");
+            const toast = document.getElementById("toast");
+            
+            // 设置初始状态 - 默认选中"全部"分类
+            const allSegment = document.querySelector('.segment[data-category="all"]');
+            if (allSegment) {
+                allSegment.classList.add("active");
+            }
+            
+            // 分类切换
+            segments.forEach(segment => {
+                segment.addEventListener("click", function() {
+                    // 移除所有分类的active类
+                    segments.forEach(s => s.classList.remove("active"));
+                    // 给当前点击的分类添加active类
+                    this.classList.add("active");
+                    
+                    const category = this.getAttribute("data-category");
+                    
+                    // 显示或隐藏帖子
+                    posts.forEach(post => {
+                        if (category === "all" || post.getAttribute("data-category") === category) {
+                            post.style.display = "block";
+                        } else {
+                            post.style.display = "none";
+                        }
+                    });
+                });
+            });
+            
+            // 打开发帖模态框
+            newPostBtn.addEventListener("click", function() {
+                newPostModal.classList.add("active");
+            });
+            
+            // 关闭模态框
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener("click", function() {
+                    newPostModal.classList.remove("active");
+                    postDetailModal.classList.remove("active");
+                    shareModal.classList.remove("active");
+                });
+            });
+            
+            modalOverlays.forEach(overlay => {
+                overlay.addEventListener("click", function() {
+                    newPostModal.classList.remove("active");
+                    postDetailModal.classList.remove("active");
+                    shareModal.classList.remove("active");
+                });
+            });
+            
+            // 提交帖子
+            submitPostBtn.addEventListener("click", function() {
+                const category = document.getElementById("postCategory").value;
+                const content = document.getElementById("postContent").value;
+                const tags = document.getElementById("postTags").value;
+                
+                if (content.trim() === "") {
+                    showToast("请输入帖子内容", "error");
+                    return;
+                }
+                
+                // 这里可以添加发布帖子的逻辑
+                // 模拟发布成功
+                showToast("帖子发布成功！");
+                newPostModal.classList.remove("active");
+                
+                // 清空表单
+                document.getElementById("postContent").value = "";
+                document.getElementById("postTags").value = "";
+                document.getElementById("imagePreview").innerHTML = "";
+            });
+            
+            // 帖子点赞
+            posts.forEach(post => {
+                const likeBtn = post.querySelector(".post-action:first-child");
+                likeBtn.addEventListener("click", function() {
+                    const likeIcon = this.querySelector("i");
+                    const likeCount = this.querySelector("span");
+                    
+                    if (likeIcon.classList.contains("far")) {
+                        likeIcon.classList.remove("far");
+                        likeIcon.classList.add("fas");
+                        likeIcon.classList.add("liked");
+                        likeCount.textContent = parseInt(likeCount.textContent) + 1;
+                    } else {
+                        likeIcon.classList.remove("fas");
+                        likeIcon.classList.remove("liked");
+                        likeIcon.classList.add("far");
+                        likeCount.textContent = parseInt(likeCount.textContent) - 1;
+                    }
+                });
+            });
+            
+            // 打开帖子详情
+            posts.forEach(post => {
+                post.addEventListener("click", function(e) {
+                    // 如果点击的是操作按钮，不打开详情
+                    if (e.target.closest(".post-action")) {
+                        return;
+                    }
+                    
+                    const postId = this.getAttribute("data-post-id") || "1";
+                    const username = this.querySelector("h4").textContent;
+                    const avatar = this.querySelector(".post-avatar").src;
+                    const time = this.querySelector(".post-time").textContent;
+                    const days = this.querySelector(".badge").textContent;
+                    const content = this.querySelector(".post-content").innerHTML;
+                    const likes = this.querySelector(".post-action:first-child span").textContent;
+                    const comments = this.querySelector(".post-action:nth-child(2) span").textContent;
+                    
+                    try {
+                        // 填充模态框内容
+                        document.getElementById("modalUsername").textContent = username;
+                        document.getElementById("modalUserAvatar").src = avatar;
+                        document.getElementById("modalPostTime").textContent = time;
+                        document.getElementById("modalUserDays").textContent = days;
+                        document.getElementById("modalPostContent").innerHTML = content;
+                        document.getElementById("modalLikes").textContent = likes;
+                        document.getElementById("modalComments").textContent = comments;
+                        
+                        // 加载评论
+                        loadComments(postId);
+                        
+                        // 打开模态框
+                        postDetailModal.classList.add("active");
+                    } catch (error) {
+                        console.error("加载帖子详情时出错:", error);
+                        showToast("加载帖子详情失败，请稍后再试", "error");
+                    }
+                });
+            });
+            
+            // 分享按钮点击事件
+            postActions.forEach(action => {
+                if (action.textContent.includes("分享")) {
+                    action.addEventListener("click", function() {
+                        shareModal.classList.add("active");
+                    });
+                }
+            });
+            
+            // 模态框中的分享按钮
+            document.getElementById("modalShareAction").addEventListener("click", function() {
+                shareModal.classList.add("active");
+            });
+            
+            // 分享选项点击事件
+            shareOptions.forEach(option => {
+                option.addEventListener("click", function() {
+                    const platform = this.getAttribute("data-platform");
+                    
+                    // 根据不同平台执行不同的分享逻辑
+                    switch (platform) {
+                        case "wechat":
+                            // 微信分享逻辑
+                            showToast("微信分享功能即将上线");
+                            break;
+                        case "weibo":
+                            // 微博分享逻辑
+                            showToast("微博分享功能即将上线");
+                            break;
+                        case "qq":
+                            // QQ分享逻辑
+                            showToast("QQ分享功能即将上线");
+                            break;
+                        case "copy":
+                            // 复制链接逻辑
+                            navigator.clipboard.writeText(window.location.href)
+                                .then(() => showToast("链接已复制到剪贴板"))
+                                .catch(() => showToast("复制失败，请手动复制", "error"));
+                            break;
+                    }
+                    
+                    shareModal.classList.remove("active");
+                });
+            });
+            
+            // 提交评论
+            submitCommentBtn.addEventListener("click", function() {
+                const commentText = commentInput.value.trim();
+                
+                if (commentText === "") {
+                    showToast("请输入评论内容", "error");
+                    return;
+                }
+                
+                // 创建新评论
+                const newComment = {
+                    id: "new-comment",
+                    username: "我",
+                    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                    text: commentText,
+                    time: "刚刚",
+                    likes: 0
+                };
+                
+                // 添加评论到列表
+                addComment(newComment);
+                
+                // 清空输入框
+                commentInput.value = "";
+                
+                // 更新评论数量
+                const commentCount = document.getElementById("modalComments");
+                commentCount.textContent = parseInt(commentCount.textContent) + 1;
+                
+                showToast("评论发布成功！");
+            });
+            
+            // 加载评论
+            function loadComments(postId) {
+                // 清空评论列表
+                const commentsList = document.getElementById("commentsList");
+                commentsList.innerHTML = "";
+                
+                // 根据帖子ID加载评论
+                // 这里使用模拟数据
+                let comments = [];
+                
+                // 确保postId是字符串类型
+                postId = String(postId || "1");
+                
+                // 默认评论数据，用于任何帖子ID
+                const defaultComments = [
+                    { username: "李明", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "这个方法真的很有效！我也在用。", time: "30分钟前", likes: 5 },
+                    { username: "王芳", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "谢谢分享，我要试试这个方法！", time: "15分钟前", likes: 3 }
+                ];
+                
+                if (postId === "1") {
+                    comments = [
+                        { username: "李明", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "这个方法真的很有效！我也在用。", time: "30分钟前", likes: 5 },
+                        { username: "王芳", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "谢谢分享，我要试试这个方法！", time: "15分钟前", likes: 3 }
+                    ];
+                } else if (postId === "2") {
+                    comments = [
+                        { username: "张伟", avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "我通常会提前告诉朋友我在戒色，大多数人都会理解和支持。", time: "2小时前", likes: 8 },
+                        { username: "刘芳", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "可以尝试带一些无酒精饮料，或者主动担任司机的角色。", time: "1小时前", likes: 6 },
+                        { username: "王刚", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "找一个也在戒色的伙伴一起参加活动，互相支持。", time: "45分钟前", likes: 4 }
+                    ];
+                } else if (postId === "3") {
+                    comments = [
+                        { username: "张明", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "恭喜你！一年是个了不起的里程碑！", time: "12小时前", likes: 15 },
+                        { username: "李华", avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "你的经历给了我很大鼓励，我现在才坚持了两周，希望也能像你一样成功！", time: "10小时前", likes: 12 },
+                        { username: "王丽", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "能分享一下你是如何度过最初那段最困难的时期的吗？", time: "8小时前", likes: 9 }
+                    ];
+                } else {
+                    // 对于未知的帖子ID，使用默认评论
+                    comments = defaultComments;
+                }
+                
+                // 添加评论到列表
+                comments.forEach(comment => {
+                    addComment(comment);
+                });
+            }
+            
+            // 添加评论
+            function addComment(comment) {
+                const commentsList = document.getElementById("commentsList");
+                
+                const commentHTML = `
+                    <div class="comment">
+                        <div class="comment-header">
+                            <div class="comment-user">
+                                <img src="${comment.avatar}" alt="${comment.username}" class="comment-avatar">
+                                <div>
+                                    <h5>${comment.username}</h5>
+                                    <span class="comment-time">${comment.time}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comment-content">
+                            <p>${comment.text}</p>
+                        </div>
+                        <div class="comment-actions">
+                            <div class="comment-action" data-comment-id="${comment.id}">
+                                <i class="far fa-heart"></i> <span>${comment.likes}</span>
+                            </div>
+                            <div class="comment-action">
+                                <i class="far fa-reply"></i> <span>回复</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                commentsList.insertAdjacentHTML("beforeend", commentHTML);
+                
+                // 添加评论点赞事件
+                const commentActions = commentsList.querySelectorAll(".comment-action");
+                commentActions.forEach(action => {
+                    if (action.querySelector("i").classList.contains("fa-heart")) {
+                        action.addEventListener("click", function() {
+                            likeComment(this.getAttribute("data-comment-id"));
+                        });
+                    }
+                });
+            }
+            
+            // 评论点赞
+            function likeComment(commentId) {
+                const commentAction = document.querySelector(`[data-comment-id="${commentId}"]`);
+                const likeIcon = commentAction.querySelector("i");
+                const likeCount = commentAction.querySelector("span");
+                
+                if (likeIcon.classList.contains("far")) {
+                    likeIcon.classList.remove("far");
+                    likeIcon.classList.add("fas");
+                    likeCount.textContent = parseInt(likeCount.textContent) + 1;
+                } else {
+                    likeIcon.classList.remove("fas");
+                    likeIcon.classList.add("far");
+                    likeCount.textContent = parseInt(likeCount.textContent) - 1;
+                }
+            }
+            
+            // 显示Toast通知
+            function showToast(message, type = "success") {
+                const toast = document.getElementById("toast");
+                const toastIcon = toast.querySelector(".toast-icon");
+                const toastMessage = toast.querySelector(".toast-message");
+                
+                // 设置消息
+                toastMessage.textContent = message;
+                
+                // 设置图标
+                if (type === "success") {
+                    toastIcon.className = "fas fa-check-circle toast-icon";
+                    toastIcon.style.color = "var(--primary-color)";
+                } else if (type === "error") {
+                    toastIcon.className = "fas fa-exclamation-circle toast-icon";
+                    toastIcon.style.color = "var(--danger-color)";
+                }
+                
+                // 显示Toast
+                toast.style.display = "block";
+                toast.style.animation = "toastSlideIn 0.3s forwards";
+                
+                // 3秒后隐藏
+                setTimeout(() => {
+                    toast.style.animation = "toastSlideOut 0.3s forwards";
+                    setTimeout(() => {
+                        toast.style.display = "none";
+                    }, 300);
+                }, 3000);
+            }
+            
+            // 图片预览
+            const postImage = document.getElementById("postImage");
+            const imagePreview = document.getElementById("imagePreview");
+            
+            postImage.addEventListener("change", function() {
+                const file = this.files[0];
+                
+                if (file) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        imagePreview.innerHTML = `
+                            <div class="preview-container">
+                                <img src="${e.target.result}" alt="Preview" class="preview-image">
+                                <button class="remove-image"><i class="fas fa-times"></i></button>
+                            </div>
+                        `;
+                        
+                        // 添加删除图片事件
+                        const removeBtn = imagePreview.querySelector(".remove-image");
+                        removeBtn.addEventListener("click", function() {
+                            imagePreview.innerHTML = "";
+                            postImage.value = "";
+                        });
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
