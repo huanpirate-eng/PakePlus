@@ -1,0 +1,184 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+  
+  <!-- 二维码模拟 -->
+  <g transform="translate(20, 20)">
+    <!-- 左上角定位点 -->
+    <rect x="0" y="0" width="21" height="21" fill="#000000"/>
+    <rect x="3" y="3" width="15" height="15" fill="#ffffff"/>
+    <rect x="6" y="6" width="9" height="9" fill="#000000"/>
+    
+    <!-- 右上角定位点 -->
+    <rect x="139" y="0" width="21" height="21" fill="#000000"/>
+    <rect x="142" y="3" width="15" height="15" fill="#ffffff"/>
+    <rect x="145" y="6" width="9" height="9" fill="#000000"/>
+    
+    <!-- 左下角定位点 -->
+    <rect x="0" y="139" width="21" height="21" fill="#000000"/>
+    <rect x="3" y="142" width="15" height="15" fill="#ffffff"/>
+    <rect x="6" y="145" width="9" height="9" fill="#000000"/>
+    
+    <!-- 数据模块 -->
+    <rect x="30" y="30" width="3" height="3" fill="#000000"/>
+    <rect x="36" y="30" width="3" height="3" fill="#000000"/>
+    <rect x="48" y="30" width="3" height="3" fill="#000000"/>
+    <rect x="54" y="30" width="3" height="3" fill="#000000"/>
+    <rect x="66" y="30" width="3" height="3" fill="#000000"/>
+    <rect x="72" y="30" width="3" height="3" fill="#000000"/>
+    <rect x="84" y="30" width="3" height="3" fill="#000000"/>
+    <rect x="96" y="30" width="3" height="3" fill="#000000"/>
+    <rect x="108" y="30" width="3" height="3" fill="#000000"/>
+    <rect x="120" y="30" width="3" height="3" fill="#000000"/>
+    
+    <rect x="30" y="36" width="3" height="3" fill="#000000"/>
+    <rect x="42" y="36" width="3" height="3" fill="#000000"/>
+    <rect x="54" y="36" width="3" height="3" fill="#000000"/>
+    <rect x="60" y="36" width="3" height="3" fill="#000000"/>
+    <rect x="72" y="36" width="3" height="3" fill="#000000"/>
+    <rect x="84" y="36" width="3" height="3" fill="#000000"/>
+    <rect x="96" y="36" width="3" height="3" fill="#000000"/>
+    <rect x="108" y="36" width="3" height="3" fill="#000000"/>
+    <rect x="120" y="36" width="3" height="3" fill="#000000"/>
+    
+    <!-- 更多数据模块 -->
+    <rect x="30" y="42" width="3" height="3" fill="#000000"/>
+    <rect x="42" y="42" width="3" height="3" fill="#000000"/>
+    <rect x="48" y="42" width="3" height="3" fill="#000000"/>
+    <rect x="60" y="42" width="3" height="3" fill="#000000"/>
+    <rect x="72" y="42" width="3" height="3" fill="#000000"/>
+    <rect x="84" y="42" width="3" height="3" fill="#000000"/>
+    <rect x="96" y="42" width="3" height="3" fill="#000000"/>
+    <rect x="108" y="42" width="3" height="3" fill="#000000"/>
+    <rect x="120" y="42" width="3" height="3" fill="#000000"/>
+    <rect x="132" y="42" width="3" height="3" fill="#000000"/>
+    
+    <!-- 中心区域数据 -->
+    <rect x="66" y="66" width="9" height="9" fill="#000000"/>
+    <rect x="69" y="69" width="3" height="3" fill="#ffffff"/>
+    
+    <!-- 更多随机数据模块 -->
+    <rect x="30" y="60" width="3" height="3" fill="#000000"/>
+    <rect x="42" y="60" width="3" height="3" fill="#000000"/>
+    <rect x="54" y="60" width="3" height="3" fill="#000000"/>
+    <rect x="66" y="60" width="3" height="3" fill="#000000"/>
+    <rect x="78" y="60" width="3" height="3" fill="#000000"/>
+    <rect x="90" y="60" width="3" height="3" fill="#000000"/>
+    <rect x="102" y="60" width="3" height="3" fill="#000000"/>
+    <rect x="114" y="60" width="3" height="3" fill="#000000"/>
+    <rect x="126" y="60" width="3" height="3" fill="#000000"/>
+    
+    <rect x="36" y="66" width="3" height="3" fill="#000000"/>
+    <rect x="48" y="66" width="3" height="3" fill="#000000"/>
+    <rect x="90" y="66" width="3" height="3" fill="#000000"/>
+    <rect x="102" y="66" width="3" height="3" fill="#000000"/>
+    <rect x="114" y="66" width="3" height="3" fill="#000000"/>
+    <rect x="126" y="66" width="3" height="3" fill="#000000"/>
+    
+    <rect x="30" y="72" width="3" height="3" fill="#000000"/>
+    <rect x="42" y="72" width="3" height="3" fill="#000000"/>
+    <rect x="54" y="72" width="3" height="3" fill="#000000"/>
+    <rect x="90" y="72" width="3" height="3" fill="#000000"/>
+    <rect x="102" y="72" width="3" height="3" fill="#000000"/>
+    <rect x="114" y="72" width="3" height="3" fill="#000000"/>
+    <rect x="126" y="72" width="3" height="3" fill="#000000"/>
+    
+    <!-- 底部数据 -->
+    <rect x="30" y="90" width="3" height="3" fill="#000000"/>
+    <rect x="36" y="90" width="3" height="3" fill="#000000"/>
+    <rect x="48" y="90" width="3" height="3" fill="#000000"/>
+    <rect x="60" y="90" width="3" height="3" fill="#000000"/>
+    <rect x="72" y="90" width="3" height="3" fill="#000000"/>
+    <rect x="84" y="90" width="3" height="3" fill="#000000"/>
+    <rect x="96" y="90" width="3" height="3" fill="#000000"/>
+    <rect x="108" y="90" width="3" height="3" fill="#000000"/>
+    <rect x="120" y="90" width="3" height="3" fill="#000000"/>
+    <rect x="132" y="90" width="3" height="3" fill="#000000"/>
+    
+    <rect x="30" y="96" width="3" height="3" fill="#000000"/>
+    <rect x="42" y="96" width="3" height="3" fill="#000000"/>
+    <rect x="54" y="96" width="3" height="3" fill="#000000"/>
+    <rect x="66" y="96" width="3" height="3" fill="#000000"/>
+    <rect x="78" y="96" width="3" height="3" fill="#000000"/>
+    <rect x="90" y="96" width="3" height="3" fill="#000000"/>
+    <rect x="102" y="96" width="3" height="3" fill="#000000"/>
+    <rect x="114" y="96" width="3" height="3" fill="#000000"/>
+    <rect x="126" y="96" width="3" height="3" fill="#000000"/>
+    
+    <rect x="30" y="102" width="3" height="3" fill="#000000"/>
+    <rect x="36" y="102" width="3" height="3" fill="#000000"/>
+    <rect x="48" y="102" width="3" height="3" fill="#000000"/>
+    <rect x="60" y="102" width="3" height="3" fill="#000000"/>
+    <rect x="72" y="102" width="3" height="3" fill="#000000"/>
+    <rect x="84" y="102" width="3" height="3" fill="#000000"/>
+    <rect x="96" y="102" width="3" height="3" fill="#000000"/>
+    <rect x="108" y="102" width="3" height="3" fill="#000000"/>
+    <rect x="120" y="102" width="3" height="3" fill="#000000"/>
+    <rect x="132" y="102" width="3" height="3" fill="#000000"/>
+    
+    <rect x="30" y="108" width="3" height="3" fill="#000000"/>
+    <rect x="42" y="108" width="3" height="3" fill="#000000"/>
+    <rect x="54" y="108" width="3" height="3" fill="#000000"/>
+    <rect x="66" y="108" width="3" height="3" fill="#000000"/>
+    <rect x="78" y="108" width="3" height="3" fill="#000000"/>
+    <rect x="90" y="108" width="3" height="3" fill="#000000"/>
+    <rect x="102" y="108" width="3" height="3" fill="#000000"/>
+    <rect x="114" y="108" width="3" height="3" fill="#000000"/>
+    <rect x="126" y="108" width="3" height="3" fill="#000000"/>
+    
+    <rect x="30" y="114" width="3" height="3" fill="#000000"/>
+    <rect x="36" y="114" width="3" height="3" fill="#000000"/>
+    <rect x="48" y="114" width="3" height="3" fill="#000000"/>
+    <rect x="60" y="114" width="3" height="3" fill="#000000"/>
+    <rect x="72" y="114" width="3" height="3" fill="#000000"/>
+    <rect x="84" y="114" width="3" height="3" fill="#000000"/>
+    <rect x="96" y="114" width="3" height="3" fill="#000000"/>
+    <rect x="108" y="114" width="3" height="3" fill="#000000"/>
+    <rect x="120" y="114" width="3" height="3" fill="#000000"/>
+    <rect x="132" y="114" width="3" height="3" fill="#000000"/>
+    
+    <rect x="30" y="120" width="3" height="3" fill="#000000"/>
+    <rect x="42" y="120" width="3" height="3" fill="#000000"/>
+    <rect x="54" y="120" width="3" height="3" fill="#000000"/>
+    <rect x="66" y="120" width="3" height="3" fill="#000000"/>
+    <rect x="78" y="120" width="3" height="3" fill="#000000"/>
+    <rect x="90" y="120" width="3" height="3" fill="#000000"/>
+    <rect x="102" y="120" width="3" height="3" fill="#000000"/>
+    <rect x="114" y="120" width="3" height="3" fill="#000000"/>
+    <rect x="126" y="120" width="3" height="3" fill="#000000"/>
+    
+    <rect x="30" y="126" width="3" height="3" fill="#000000"/>
+    <rect x="36" y="126" width="3" height="3" fill="#000000"/>
+    <rect x="48" y="126" width="3" height="3" fill="#000000"/>
+    <rect x="60" y="126" width="3" height="3" fill="#000000"/>
+    <rect x="72" y="126" width="3" height="3" fill="#000000"/>
+    <rect x="84" y="126" width="3" height="3" fill="#000000"/>
+    <rect x="96" y="126" width="3" height="3" fill="#000000"/>
+    <rect x="108" y="126" width="3" height="3" fill="#000000"/>
+    <rect x="120" y="126" width="3" height="3" fill="#000000"/>
+    <rect x="132" y="126" width="3" height="3" fill="#000000"/>
+    
+    <rect x="30" y="132" width="3" height="3" fill="#000000"/>
+    <rect x="42" y="132" width="3" height="3" fill="#000000"/>
+    <rect x="54" y="132" width="3" height="3" fill="#000000"/>
+    <rect x="66" y="132" width="3" height="3" fill="#000000"/>
+    <rect x="78" y="132" width="3" height="3" fill="#000000"/>
+    <rect x="90" y="132" width="3" height="3" fill="#000000"/>
+    <rect x="102" y="132" width="3" height="3" fill="#000000"/>
+    <rect x="114" y="132" width="3" height="3" fill="#000000"/>
+    <rect x="126" y="132" width="3" height="3" fill="#000000"/>
+  </g>
+  
+  <!-- 支付宝图标 -->
+  <g transform="translate(85, 170)">
+    <circle cx="15" cy="15" r="15" fill="#1677FF"/>
+    <path d="M8 8h14c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2V10c0-1.1.9-2 2-2z" fill="white"/>
+    <path d="M10 12h10M10 15h6" stroke="#1677FF" stroke-width="1" stroke-linecap="round"/>
+    <circle cx="19" cy="17" r="2" fill="#1677FF"/>
+  </g>
+  
+  <!-- 提示文字 -->
+  <text x="100" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">
+    支付宝扫码支付
+  </text>
+</svg>
