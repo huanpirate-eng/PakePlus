@@ -1,0 +1,797 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUITTR - 每日练习</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/darkmode.js"></script>
+    <style>
+        /* 练习项目交互样式 */
+        .practice-item {
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(76, 175, 80, 0.02) 100%);
+        }
+        
+        .practice-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.1);
+            border-color: var(--primary-color);
+        }
+        
+        .practice-item.completed {
+            border-left: 4px solid var(--success-color);
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(76, 175, 80, 0.05) 100%);
+        }
+        
+        .practice-item.current {
+            border-left: 4px solid var(--primary-color);
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(33, 150, 243, 0.05) 100%);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+        }
+        
+        .btn {
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 600;
+        }
+        
+        .btn:hover:not([disabled]) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+        
+        .btn-outline {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--danger-color) 0%, #D32F2F 100%);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+        }
+        
+        /* 练习详情弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(255, 255, 255, 0.95) 100%);
+            padding: 25px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-icon {
+            font-size: 24px;
+            color: #007AFF;
+            margin-right: 10px;
+        }
+        
+        .modal-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .modal-time {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .modal-description {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .modal-button {
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            border: none;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .modal-button.primary {
+            background-color: #007AFF;
+            color: white;
+        }
+        
+        .modal-button.secondary {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+        
+        /* 搜索框样式 */
+        .header-with-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .search-container {
+            position: relative;
+            width: 140px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 30px 8px 10px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            background-color: #f5f5f5;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        /* 分类标签样式 */
+        .category-tabs {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .category-tab {
+            padding: 8px 15px;
+            margin-right: 10px;
+            border-radius: 20px;
+            background-color: #f1f1f1;
+            color: #666;
+            font-size: 14px;
+            white-space: nowrap;
+            border: none;
+        }
+        
+        .category-tab.active {
+            background-color: #efeff09e;
+            color: white;
+        }
+        
+        /* 进度条动画 */
+        .progress-fill {
+            transition: width 0.5s ease-in-out;
+        }
+        
+        /* 练习项目标签 */
+        .practice-tag {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-right: 5px;
+            background-color: #f0f0f0;
+            color: #666;
+        }
+        
+        .practice-tag.mindfulness {
+            background-color: #E1F5FE;
+            color: #0288D1;
+        }
+        
+        .practice-tag.reflection {
+            background-color: #F3E5F5;
+            color: #7B1FA2;
+        }
+        
+        .practice-tag.skills {
+            background-color: #E8F5E9;
+            color: #388E3C;
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        /* 适配深色模式 - 使用CSS变量保持一致性 */
+        body.dark-mode {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+        }
+        
+        body.dark-mode .modal-content {
+            background-color: var(--card-color);
+            color: var(--text-primary);
+        }
+        
+        body.dark-mode .modal-description {
+            color: var(--text-secondary);
+        }
+        
+        body.dark-mode .modal-button.secondary {
+            background-color: var(--card-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        body.dark-mode .search-input {
+            background-color: var(--card-color);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        body.dark-mode .search-input::placeholder {
+            color: var(--text-hint);
+        }
+        
+        body.dark-mode .category-tab {
+            background-color: var(--card-color);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        
+        body.dark-mode .category-tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        body.dark-mode .practice-tag {
+            background-color: var(--card-color);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        
+        body.dark-mode .practice-item {
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        body.dark-mode .practice-item:hover {
+            background-color: var(--divider-color);
+        }
+        
+        body.dark-mode .practice-title {
+            color: var(--text-primary);
+        }
+        
+        body.dark-mode .practice-description {
+            color: var(--text-secondary);
+        }
+        
+        body.dark-mode .tab-bar {
+            background-color: var(--card-color);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        body.dark-mode .tab-item {
+            color: var(--text-hint);
+        }
+        
+        body.dark-mode .tab-item.active {
+            color: var(--primary-color);
+        }
+        
+        .mt-15 {
+            margin-top: 15px;
+        }
+    </style>
+<body>
+    <!-- 练习详情弹窗 -->
+    <div class="modal" id="exerciseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-dumbbell"></i></div>
+                <div class="modal-title" id="modalTitle">练习详情</div>
+            </div>
+            <div class="modal-time" id="modalTime">预计时间：10分钟</div>
+            <div class="modal-description" id="modalDescription">
+                练习详细说明将显示在这里...
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button secondary" onclick="closeModal()">关闭</button>
+                <button class="modal-button primary" id="modalAction" onclick="startSelectedExercise()">开始练习</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content">
+            <div class="header-with-actions">
+                <h1>今日练习</h1>
+                <div class="search-container">
+                    <input type="text" id="searchExercise" placeholder="搜索练习..." class="search-input">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+            <p>完成这些练习来强化你的恢复之旅</p>
+
+            <!-- 练习进度 -->
+            <div class="progress-container mt-20">
+                <div class="progress-text">
+                    <span>今日进度</span>
+                    <span id="progressText">2/6</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 33%;"></div>
+                </div>
+            </div>
+            
+            <!-- 练习分类标签 -->
+            <div class="category-tabs mt-15">
+                <button class="category-tab active" data-category="all">全部</button>
+                <button class="category-tab" data-category="mindfulness">正念</button>
+                <button class="category-tab" data-category="reflection">反思</button>
+                <button class="category-tab" data-category="skills">技能</button>
+            </div>
+
+            <!-- 练习列表 -->
+            <div class="practice-list mt-20">
+                <!-- 已完成练习 -->
+                <div class="card practice-item completed" data-category="reflection">
+                    <div class="practice-header">
+                        <div class="practice-title">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>晨间反思</h3>
+                        </div>
+                        <span class="badge">5分钟</span>
+                    </div>
+                    <p class="practice-desc">记录你的睡眠质量和今天的目标</p>
+                    <div class="practice-tags">
+                        <span class="practice-tag reflection">反思</span>
+                    </div>
+                    <div class="practice-footer">
+                        <span class="practice-time">已完成 · 今天 07:15</span>
+                        <button class="btn btn-sm btn-outline" onclick="viewExercise('晨间反思')">查看</button>
+                    </div>
+                </div>
+
+                <!-- 已完成练习 -->
+                <div class="card practice-item completed" data-category="mindfulness">
+                    <div class="practice-header">
+                        <div class="practice-title">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>引导式冥想</h3>
+                        </div>
+                        <span class="badge">10分钟</span>
+                    </div>
+                    <p class="practice-desc">专注呼吸，缓解压力与焦虑</p>
+                    <div class="practice-tags">
+                        <span class="practice-tag mindfulness">正念</span>
+                    </div>
+                    <div class="practice-footer">
+                        <span class="practice-time">已完成 · 今天 08:30</span>
+                        <button class="btn btn-sm btn-outline" onclick="startExercise('引导式冥想')">重做</button>
+                    </div>
+                </div>
+
+                <!-- 当前练习 -->
+                <div class="card practice-item current" data-category="skills">
+                    <div class="practice-header">
+                        <div class="practice-title">
+                            <i class="fas fa-play-circle"></i>
+                            <h3>触发因素识别</h3>
+                        </div>
+                        <span class="badge">15分钟</span>
+                    </div>
+                    <p class="practice-desc">识别并记录可能导致你复发的情境和情绪</p>
+                    <div class="practice-tags">
+                        <span class="practice-tag skills">技能</span>
+                    </div>
+                    <div class="practice-footer">
+                        <span class="practice-time">推荐时间 · 下午</span>
+                        <button class="btn btn-sm btn-primary" onclick="startExercise('触发因素识别')">开始</button>
+                    </div>
+                </div>
+
+                <!-- 待完成练习 -->
+                <div class="card practice-item" data-category="reflection">
+                    <div class="practice-header">
+                        <div class="practice-title">
+                            <i class="far fa-circle"></i>
+                            <h3>晚间回顾</h3>
+                        </div>
+                        <span class="badge">5分钟</span>
+                    </div>
+                    <p class="practice-desc">回顾今天的成就和挑战，为明天做准备</p>
+                    <div class="practice-tags">
+                        <span class="practice-tag reflection">反思</span>
+                    </div>
+                    <div class="practice-footer">
+                        <span class="practice-time">推荐时间 · 晚上9:00</span>
+                        <button class="btn btn-sm btn-outline" disabled>稍后</button>
+                    </div>
+                </div>
+
+                <!-- 新增练习项目1 -->
+                <div class="card practice-item" data-category="mindfulness">
+                    <div class="practice-header">
+                        <div class="practice-title">
+                            <i class="far fa-circle"></i>
+                            <h3>身体扫描冥想</h3>
+                        </div>
+                        <span class="badge">12分钟</span>
+                    </div>
+                    <p class="practice-desc">从头到脚扫描身体，释放紧张和压力</p>
+                    <div class="practice-tags">
+                        <span class="practice-tag mindfulness">正念</span>
+                    </div>
+                    <div class="practice-footer">
+                        <span class="practice-time">推荐时间 · 下午</span>
+                        <button class="btn btn-sm btn-outline" onclick="startExercise('身体扫描冥想')">开始</button>
+                    </div>
+                </div>
+
+                <!-- 新增练习项目2 -->
+                <div class="card practice-item" data-category="skills">
+                    <div class="practice-header">
+                        <div class="practice-title">
+                            <i class="far fa-circle"></i>
+                            <h3>应对策略练习</h3>
+                        </div>
+                        <span class="badge">8分钟</span>
+                    </div>
+                    <p class="practice-desc">学习和练习健康的应对机制，替代不良习惯</p>
+                    <div class="practice-tags">
+                        <span class="practice-tag skills">技能</span>
+                    </div>
+                    <div class="practice-footer">
+                        <span class="practice-time">推荐时间 · 随时</span>
+                        <button class="btn btn-sm btn-outline" onclick="startExercise('应对策略练习')">开始</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 推荐练习 -->
+            <h2 class="mt-20">推荐练习</h2>
+            <div class="practice-list">
+                <div class="card practice-item">
+                    <div class="practice-header">
+                        <div class="practice-title">
+                            <i class="fas fa-star"></i>
+                            <h3>价值观探索</h3>
+                        </div>
+                        <span class="badge">20分钟</span>
+                    </div>
+                    <p class="practice-desc">探索你的核心价值观，强化改变的动机</p>
+                    <div class="practice-footer">
+                        <span class="practice-time">可选练习</span>
+                        <button class="btn btn-sm btn-outline">查看</button>
+                    </div>
+                </div>
+
+                <div class="card practice-item">
+                    <div class="practice-header">
+                        <div class="practice-title">
+                            <i class="fas fa-star"></i>
+                            <h3>呼吸控制练习</h3>
+                        </div>
+                        <span class="badge">5分钟</span>
+                    </div>
+                    <p class="practice-desc">4-7-8呼吸法，快速缓解焦虑和冲动</p>
+                    <div class="practice-footer">
+                        <span class="practice-time">可选练习</span>
+                        <button class="btn btn-sm btn-outline">查看</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 紧急求助按钮 -->
+            <button class="btn btn-danger mt-20 mb-20">
+                <i class="fas fa-exclamation-circle"></i>
+                紧急求助
+            </button>
+        </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tab-bar">
+            <div class="tab-item active">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-tree"></i>
+                <span>生命树</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-book"></i>
+                <span>学习</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-users"></i>
+                <span>社区</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-cog"></i>
+                <span>设置</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 练习数据
+        const exercises = [
+            {
+                id: 1,
+                title: '晨间反思',
+                description: '记录你的睡眠质量和今天的目标，设定积极的心态面对新的一天。通过反思昨天的成就和挑战，为今天制定明确的目标和计划。',
+                time: '5分钟',
+                category: 'reflection',
+                status: 'completed',
+                completedTime: '今天 07:15',
+                recommendedTime: '早晨'
+            },
+            {
+                id: 2,
+                title: '引导式冥想',
+                description: '专注呼吸，缓解压力与焦虑。这个冥想练习将帮助你平静心绪，增强专注力，减轻戒断症状带来的不适感。',
+                time: '10分钟',
+                category: 'mindfulness',
+                status: 'completed',
+                completedTime: '今天 08:30',
+                recommendedTime: '任意时间'
+            },
+            {
+                id: 3,
+                title: '触发因素识别',
+                description: '识别并记录可能导致你复发的情境和情绪。了解你的触发因素是预防复发的关键一步，这将帮助你制定应对策略。',
+                time: '15分钟',
+                category: 'skills',
+                status: 'current',
+                recommendedTime: '下午'
+            },
+            {
+                id: 4,
+                title: '晚间回顾',
+                description: '回顾今天的成就和挑战，为明天做准备。反思你今天的进步，记录任何困难时刻以及你是如何应对的。',
+                time: '5分钟',
+                category: 'reflection',
+                status: 'pending',
+                recommendedTime: '晚上9:00'
+            }
+        ];
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化搜索功能
+            const searchInput = document.getElementById('searchExercise');
+            searchInput.addEventListener('input', filterExercises);
+            
+            // 初始化分类标签点击事件
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有标签的active类
+                    categoryTabs.forEach(t => t.classList.remove('active'));
+                    // 给当前点击的标签添加active类
+                    this.classList.add('active');
+                    // 根据分类过滤练习
+                    filterExercises();
+                });
+            });
+            
+            // 检查深色模式
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+            
+            // 更新进度显示
+            updateProgress();
+            
+            // 为已完成练习的按钮添加交互
+            document.querySelectorAll('.practice-item.completed .btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const exerciseName = this.closest('.practice-item').querySelector('h3').textContent;
+                    if (this.textContent.includes('重做')) {
+                        startExercise(exerciseName);
+                    } else {
+                        viewExercise(exerciseName);
+                    }
+                });
+            });
+            
+            // 为推荐练习的按钮添加交互
+            document.querySelectorAll('.practice-item:not(.completed):not(.current) .btn:not([disabled])').forEach(button => {
+                button.addEventListener('click', function() {
+                    const exerciseName = this.closest('.practice-item').querySelector('h3').textContent;
+                    startExercise(exerciseName);
+                });
+            });
+            
+            // 为练习项添加点击效果
+            document.querySelectorAll('.practice-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // 如果点击的是按钮，不触发整个卡片的点击事件
+                    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                        return;
+                    }
+                    
+                    const exerciseName = this.querySelector('h3').textContent;
+                    const canStart = this.classList.contains('current');
+                    if (canStart) {
+                        startExercise(exerciseName);
+                    } else {
+                        viewExercise(exerciseName);
+                    }
+                });
+            });
+            
+            // 为紧急求助按钮添加交互
+            document.querySelector('.btn-danger').addEventListener('click', function() {
+                alert("已发送紧急求助信号，请保持冷静，支持人员将尽快联系你。");
+            });
+        });
+        
+        // 过滤练习项目
+        function filterExercises() {
+            const searchTerm = document.getElementById('searchExercise').value.toLowerCase();
+            const activeCategory = document.querySelector('.category-tab.active').getAttribute('data-category');
+            
+            const practiceItems = document.querySelectorAll('.practice-item');
+            let visibleCount = 0;
+            
+            practiceItems.forEach(item => {
+                const title = item.querySelector('h3').textContent.toLowerCase();
+                const description = item.querySelector('.practice-desc').textContent.toLowerCase();
+                const category = item.getAttribute('data-category');
+                
+                const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+                const matchesCategory = activeCategory === 'all' || category === activeCategory;
+                
+                if (matchesSearch && matchesCategory) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // 如果没有匹配项，显示空状态提示
+            const emptyState = document.getElementById('emptyState');
+            if (visibleCount === 0 && emptyState) {
+                emptyState.style.display = 'flex';
+            } else if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+        }
+        
+        // 更新进度显示
+        function updateProgress() {
+            const completed = exercises.filter(ex => ex.status === 'completed').length;
+            const total = exercises.length;
+            const progressPercent = (completed / total) * 100;
+            
+            document.getElementById('progressText').textContent = `${completed}/${total}`;
+            document.getElementById('progressFill').style.width = `${progressPercent}%`;
+        }
+        
+        // 练习交互功能
+        function startExercise(exerciseName) {
+            const exercise = exercises.find(ex => ex.title === exerciseName);
+            if (!exercise) return;
+            
+            // 更新弹窗内容
+            document.getElementById('modalTitle').textContent = exerciseName;
+            document.getElementById('modalTime').textContent = `预计时间：${exercise.time}`;
+            document.getElementById('modalDescription').textContent = exercise.description;
+            
+            // 设置按钮状态
+            const actionButton = document.getElementById('modalAction');
+            actionButton.textContent = "开始练习";
+            actionButton.style.display = "block";
+            
+            // 显示弹窗
+            document.getElementById('exerciseModal').style.display = 'flex';
+        }
+        
+        // 查看练习详情
+        function viewExercise(exerciseName) {
+            const exercise = exercises.find(ex => ex.title === exerciseName);
+            if (!exercise) return;
+            
+            // 更新弹窗内容
+            document.getElementById('modalTitle').textContent = exerciseName;
+            document.getElementById('modalTime').textContent = `预计时间：${exercise.time}`;
+            document.getElementById('modalDescription').textContent = exercise.description;
+            
+            // 设置按钮状态
+            const actionButton = document.getElementById('modalAction');
+            actionButton.textContent = "查看详情";
+            actionButton.style.display = "block";
+            
+            // 显示弹窗
+            document.getElementById('exerciseModal').style.display = 'flex';
+        }
+        
+        // 开始选中的练习
+        function startSelectedExercise() {
+            const exerciseName = document.getElementById('modalTitle').textContent;
+            alert(`开始练习: ${exerciseName}\n\n请按照指引完成练习。`);
+            closeModal();
+        }
+        
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('exerciseModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
