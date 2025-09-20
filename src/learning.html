@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUITTR - 学习中心</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/utils.js"></script>
+    <script src="js/loading.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/performance.js"></script>
+    <script src="js/validation.js"></script>
+    <script src="js/offline.js"></script>
+    <script src="js/darkmode.js"></script>
+    <style>
+        /* 分类选择器交互样式 */
+        .segment {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        .segment:hover {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        .segment.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        /* 课程卡片交互样式 */
+        .course-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(76, 175, 80, 0.02) 100%);
+        }
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.15);
+            border-color: var(--primary-color);
+        }
+        
+        /* 知识库卡片交互样式 */
+        .card {
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(33, 150, 243, 0.02) 100%);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.15);
+            border-color: var(--info-color);
+        }
+        
+        /* 按钮交互样式 */
+        .btn {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 600;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        }
+        .btn-outline {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* 底部标签栏交互样式 */
+        .tab-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-item:hover {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        /* 紧急求助按钮交互样式 */
+        .emergency-button {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--danger-color) 0%, #D32F2F 100%);
+        }
+        .emergency-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+        }
+        
+        /* 课程详情弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .course-detail-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .course-detail-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .course-detail-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: #666;
+        }
+        
+        .course-detail-description {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .course-chapters {
+            margin-top: 20px;
+        }
+        
+        .chapter-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .chapter-item:last-child {
+            border-bottom: none;
+        }
+        
+        .chapter-item i {
+            margin-right: 10px;
+            color: #0056b3;
+        }
+        
+        .chapter-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .btn-primary {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .btn-primary:hover {
+            background-color: #004494;
+        }
+        
+        /* 内容切换动画 */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 文章详情样式 */
+        .article-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .article-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .article-content {
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        
+        .article-content p {
+            margin-bottom: 15px;
+        }
+        
+        .article-content h3 {
+            margin: 25px 0 15px;
+            font-size: 18px;
+        }
+        
+        .article-content img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 课程详情弹窗 -->
+    <div id="courseModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <img id="courseDetailImage" src="" alt="课程图片" class="course-detail-image">
+            <div class="course-detail-title" id="courseDetailTitle"></div>
+            <div class="course-detail-meta">
+                <span id="courseDetailDuration"><i class="fas fa-clock"></i> 时长</span>
+                <span id="courseDetailRating"><i class="fas fa-star"></i> 评分</span>
+            </div>
+            <div class="course-detail-description" id="courseDetailDescription"></div>
+            <div class="course-chapters">
+                <h3>课程章节</h3>
+                <div class="chapter-item">
+                    <i class="fas fa-play-circle"></i>
+                    <span>第1章：基础概念介绍</span>
+                </div>
+                <div class="chapter-item">
+                    <i class="fas fa-play-circle"></i>
+                    <span>第2章：神经科学原理</span>
+                </div>
+                <div class="chapter-item">
+                    <i class="fas fa-play-circle"></i>
+                    <span>第3章：实践应用</span>
+                </div>
+                <div class="chapter-item">
+                    <i class="fas fa-play-circle"></i>
+                    <span>第4章：案例分析</span>
+                </div>
+            </div>
+            <button class="btn-primary" id="startCourseBtn">开始学习</button>
+        </div>
+    </div>
+    
+    <!-- 文章详情弹窗 -->
+    <div id="articleModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeArticleModal()">&times;</span>
+            <div class="article-header">
+                <span id="articleCategory" class="badge badge-outline"></span>
+                <h2 id="articleTitle" class="article-title"></h2>
+                <div class="article-meta">
+                    <span><i class="fas fa-calendar-alt"></i> 发布于 2023年10月15日</span>
+                    <span><i class="fas fa-eye"></i> 2,345次阅读</span>
+                </div>
+            </div>
+            <div class="article-content" id="articleContent"></div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content">
+            <h1>学习中心</h1>
+            <p>科学知识，助你重塑健康关系</p>
+
+            <!-- 搜索功能 -->
+            <div id="learning-search-container"></div>
+
+            <!-- 分类选择器 -->
+            <div class="segmented-control">
+                <div class="segment active">推荐</div>
+                <div class="segment">课程</div>
+                <div class="segment">知识库</div>
+                <div class="segment">已完成</div>
+            </div>
+
+            <!-- 进行中的课程 -->
+            <h2 class="mt-20">继续学习</h2>
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="多巴胺与成瘾">
+                <div class="course-content">
+                    <div class="course-title">多巴胺与成瘾：理解大脑奖励机制</div>
+                    <div class="course-description">了解多巴胺如何影响成瘾行为，以及如何重塑奖励回路</div>
+                    <div class="progress-container mt-10">
+                        <div class="progress-bar" style="width: 60%;"></div>
+                    </div>
+                    <div class="flex-between">
+                        <span class="text-small">60% 完成</span>
+                        <span class="text-small"><i class="fas fa-clock"></i> 6分钟剩余</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 推荐课程 -->
+            <h2 class="mt-20">推荐课程</h2>
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1507413245164-6160d8298b31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="神经可塑性">
+                <div class="course-content">
+                    <div class="course-title">神经可塑性：重塑大脑的能力</div>
+                    <div class="course-description">探索大脑如何通过新的体验和学习来改变自身结构</div>
+                    <div class="course-meta">
+                        <span><i class="fas fa-clock"></i> 12分钟</span>
+                        <span><i class="fas fa-star"></i> 4.9</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="触发因素管理">
+                <div class="course-content">
+                    <div class="course-title">触发因素管理：识别与应对</div>
+                    <div class="course-meta">
+                        <span><i class="fas fa-clock"></i> 18分钟</span>
+                        <span><i class="fas fa-star"></i> 4.7</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1490730141103-6cac27aaab94?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="健康关系建立">
+                <div class="course-content">
+                    <div class="course-title">健康关系建立：亲密关系的重建</div>
+                    <div class="course-description">探索如何在恢复过程中重建健康的亲密关系</div>
+                    <div class="course-meta">
+                        <span><i class="fas fa-clock"></i> 15分钟</span>
+                        <span><i class="fas fa-star"></i> 4.8</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 推荐学习 -->
+            <h2 class="mt-20">推荐学习</h2>
+            <div class="card recommended-article-card" data-title="触发因素识别指南" data-category="指南">
+                <div class="flex-between mb-10">
+                    <h3>触发因素识别指南</h3>
+                    <span class="badge badge-outline">指南</span>
+                </div>
+                <p>系统识别个人触发因素，构建专属的触发因素地图，提升自我觉察与应对能力。</p>
+            </div>
+
+            <div class="card recommended-article-card" data-title="健康替代行为的建立" data-category="指南">
+                <div class="flex-between mb-10">
+                    <h3>健康替代行为的建立</h3>
+                    <span class="badge badge-outline">指南</span>
+                </div>
+                <p>设计可行、健康、可持续的替代行为体系，替换原有成瘾行为，重塑积极生活方式。</p>
+            </div>
+
+            <!-- 知识库精选 -->
+            <h2 class="mt-20">知识库精选</h2>
+            <div class="card">
+                <div class="flex-between mb-10">
+                    <h3>成瘾的神经科学基础</h3>
+                    <span class="badge badge-outline">科学</span>
+                </div>
+                <p>成瘾是一种复杂的大脑状态，涉及多个神经系统的改变。了解这些基础知识有助于理解恢复过程中的挑战和机遇。</p>
+                <button class="btn btn-outline">阅读全文</button>
+            </div>
+
+            <div class="card">
+                <div class="flex-between mb-10">
+                    <h3>案例分析：90天恢复历程</h3>
+                    <span class="badge badge-outline">案例</span>
+                </div>
+                <p>通过真实用户的90天恢复历程，了解可能遇到的挑战、突破点和有效策略。</p>
+                <button class="btn btn-outline">阅读全文</button>
+            </div>
+        </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tab-bar">
+            <div class="tab-item">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-tree"></i>
+                <span>生命树</span>
+            </div>
+            <div class="tab-item active">
+                <i class="fas fa-book"></i>
+                <span>学习</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-users"></i>
+                <span>社区</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-cog"></i>
+                <span>设置</span>
+            </div>
+        </div>
+
+        <!-- 紧急求助按钮 -->
+        <div class="emergency-button" onclick="window.location.href='emergency.html'">
+            <i class="fas fa-life-ring"></i>
+        </div>
+    </div>
+
+    <script>
+        // 课程数据
+        const courses = {
+            "dopamine": {
+                title: "多巴胺与成瘾：理解大脑奖励机制",
+                image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                duration: "15分钟",
+                rating: "4.9",
+                description: "这门课程深入探讨了多巴胺如何影响成瘾行为，以及如何通过理解大脑奖励机制来重塑健康习惯。你将学习到多巴胺在大脑中的作用、成瘾形成的神经机制，以及如何利用这些知识来帮助恢复过程。"
+            },
+            "neuroplasticity": {
+                title: "神经可塑性：重塑大脑的能力",
+                image: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                duration: "12分钟",
+                rating: "4.9",
+                description: "神经可塑性是大脑改变和适应的能力。这门课程将探索大脑如何通过新的体验和学习来改变自身结构，以及如何利用这一特性来帮助恢复过程。你将了解到神经元连接的形成和强化，以及如何通过特定练习来促进积极的大脑变化。"
+            },
+            "triggers": {
+                title: "触发因素管理：识别与应对",
+                image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                duration: "18分钟",
+                rating: "4.7",
+                description: "触发因素是可能导致渴望和复发的情境、情绪或想法。这门课程将帮助你识别个人触发因素，并制定有效的应对策略。你将学习到如何创建触发因素地图，以及如何开发针对特定触发因素的应对计划。"
+            },
+            "relationships": {
+                title: "健康关系建立：亲密关系的重建",
+                image: "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                duration: "15分钟",
+                rating: "4.8",
+                description: "成瘾行为常常会对亲密关系造成损害。这门课程将探索如何在恢复过程中重建健康的亲密关系，包括沟通技巧、信任重建和边界设定。你将学习到如何处理关系中的冲突，以及如何建立支持性的社交网络。"
+            }
+        };
+
+        // 分类内容
+        const categories = {
+            "recommended": document.querySelector(".content"),
+            "courses": createCoursesSection(),
+            "knowledge": createKnowledgeSection(),
+            "completed": createCompletedSection()
+        };
+
+        // 初始化页面
+        document.addEventListener("DOMContentLoaded", function() {
+            // 设置分类选择器点击事件
+            const segments = document.querySelectorAll(".segment");
+            segments.forEach(segment => {
+                segment.addEventListener("click", function() {
+                    switchCategory(this.textContent.trim());
+                });
+            });
+
+            // 设置课程卡片点击事件
+            const courseCards = document.querySelectorAll(".course-card");
+            courseCards.forEach(card => {
+                card.addEventListener("click", function() {
+                    const courseTitle = this.querySelector(".course-title").textContent;
+                    let courseId;
+                    
+                    if (courseTitle.includes("多巴胺")) {
+                        courseId = "dopamine";
+                    } else if (courseTitle.includes("神经可塑性")) {
+                        courseId = "neuroplasticity";
+                    } else if (courseTitle.includes("触发因素")) {
+                        courseId = "triggers";
+                    } else if (courseTitle.includes("健康关系")) {
+                        courseId = "relationships";
+                    }
+                    
+                    if (courseId) {
+                        showCourseDetail(courseId);
+                    }
+                });
+            });
+
+            // 设置知识库卡片按钮点击事件
+            const knowledgeButtons = document.querySelectorAll(".card .btn");
+            knowledgeButtons.forEach(button => {
+                button.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    const articleTitle = this.closest(".card").querySelector("h3").textContent;
+                    const articleCategory = this.closest(".card").querySelector(".badge").textContent;
+                    showArticleDetail(articleTitle, articleCategory);
+                });
+            });
+
+            // 设置推荐学习卡片点击事件
+            const recommendedCards = document.querySelectorAll('.recommended-article-card');
+            recommendedCards.forEach(card => {
+                card.addEventListener('click', function () {
+                    const title = this.dataset.title || this.querySelector('h3')?.textContent || '';
+                    const category = this.dataset.category || this.querySelector('.badge')?.textContent || '';
+                    showArticleDetail(title, category);
+                });
+            });
+            
+            // 设置底部标签栏点击事件
+            const tabItems = document.querySelectorAll(".tab-item");
+            tabItems.forEach(tab => {
+                tab.addEventListener("click", function() {
+                    const tabName = this.querySelector("span").textContent;
+                    switch(tabName) {
+                        case "首页":
+                            window.location.href = "home.html";
+                            break;
+                        case "生命树":
+                            window.location.href = "tree.html";
+                            break;
+                        case "学习":
+                            // 已在当前页面
+                            break;
+                        case "社区":
+                            window.location.href = "community.html";
+                            break;
+                        case "设置":
+                            window.location.href = "settings.html";
+                            break;
+                    }
+                });
+            });
+
+            // 设置开始学习按钮点击事件
+            document.getElementById("startCourseBtn").addEventListener("click", function() {
+                const courseTitle = document.getElementById("courseDetailTitle").textContent;
+                alert(`开始学习课程：${courseTitle}`);
+                closeModal();
+            });
+
+            // 设置章节项点击事件
+            const chapterItems = document.querySelectorAll(".chapter-item");
+            chapterItems.forEach((item, index) => {
+                item.addEventListener("click", function() {
+                    alert(`正在播放第${index + 1}章`);
+                });
+            });
+
+            // 初始化学习中心搜索功能
+            if (window.QuittrSearch) {
+                const learningSearch = window.QuittrSearch.createSearchComponent('#learning-search-container', {
+                    placeholder: '搜索课程、知识库或学习资料...',
+                    showFilters: true,
+                    filters: [
+                        { label: '课程', value: 'course' },
+                        { label: '知识库', value: 'knowledge' },
+                        { label: '指南', value: 'guide' },
+                        { label: '已完成', value: 'completed' }
+                    ],
+                    onSearch: function(query, filters) {
+                        searchLearningContent(query, filters);
+                    },
+                    onFilter: function(filters, query) {
+                        if (query) {
+                            searchLearningContent(query, filters);
+                        } else {
+                            filterLearningContent(filters);
+                        }
+                    }
+                });
+
+                // 搜索学习内容函数
+                function searchLearningContent(query, filters = []) {
+                    const results = [];
+                    
+                    // 搜索课程
+                    const courseCards = document.querySelectorAll('.course-card');
+                    courseCards.forEach((card, index) => {
+                        const title = card.querySelector('.course-title')?.textContent || '';
+                        const description = card.querySelector('.course-description')?.textContent || '';
+                        const duration = card.querySelector('.course-meta span')?.textContent || '';
+                        
+                        // 检查是否匹配搜索关键词
+                        const matchesQuery = !query || 
+                            title.toLowerCase().includes(query.toLowerCase()) ||
+                            description.toLowerCase().includes(query.toLowerCase());
+                        
+                        // 检查是否匹配过滤器
+                        const matchesFilter = filters.length === 0 || filters.includes('course');
+                        
+                        if (matchesQuery && matchesFilter) {
+                            results.push({
+                                id: `course-${index}`,
+                                title: title,
+                                snippet: description || '专业课程内容，助您深入了解相关知识',
+                                type: '课程',
+                                date: duration,
+                                tags: ['课程'],
+                                onClick: function(result) {
+                                    // 触发课程卡片点击事件
+                                    card.click();
+                                }
+                            });
+                        }
+                    });
+
+                    // 搜索知识库文章
+                    const knowledgeCards = document.querySelectorAll('.card');
+                    knowledgeCards.forEach((card, index) => {
+                        const title = card.querySelector('h3')?.textContent || '';
+                        const description = card.querySelector('p')?.textContent || '';
+                        const category = card.querySelector('.badge')?.textContent || '';
+                        
+                        // 检查是否匹配搜索关键词
+                        const matchesQuery = !query || 
+                            title.toLowerCase().includes(query.toLowerCase()) ||
+                            description.toLowerCase().includes(query.toLowerCase());
+                        
+                        // 检查是否匹配过滤器
+                        const categoryFilter = category === '指南' ? 'guide' : 'knowledge';
+                        const matchesFilter = filters.length === 0 || 
+                            filters.includes('knowledge') || 
+                            filters.includes(categoryFilter);
+                        
+                        if (matchesQuery && matchesFilter) {
+                            results.push({
+                                id: `knowledge-${index}`,
+                                title: title,
+                                snippet: description || '实用知识内容，帮助您更好地理解相关概念',
+                                type: category || '知识库',
+                                date: '随时学习',
+                                tags: [category || '知识库'],
+                                onClick: function(result) {
+                                    // 触发知识库卡片点击事件
+                                    const button = card.querySelector('.btn');
+                                    if (button) {
+                                        button.click();
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                    // 显示搜索结果
+                    const stats = {
+                        total: results.length,
+                        time: Math.floor(Math.random() * 50) + 10
+                    };
+                    
+                    learningSearch.setResults(results, stats);
+                    
+                    // 隐藏原始内容，显示搜索结果
+                    hideOriginalContent();
+                }
+
+                // 根据过滤器过滤学习内容
+                function filterLearningContent(filters) {
+                    if (filters.length === 0) {
+                        showOriginalContent();
+                        learningSearch.clearResults();
+                        return;
+                    }
+
+                    // 根据过滤器切换到相应的分类
+                    if (filters.includes('course')) {
+                        switchCategory('课程');
+                    } else if (filters.includes('knowledge') || filters.includes('guide')) {
+                        switchCategory('知识库');
+                    } else if (filters.includes('completed')) {
+                        switchCategory('已完成');
+                    }
+                    
+                    learningSearch.clearResults();
+                }
+
+                // 隐藏原始内容
+                function hideOriginalContent() {
+                    const contentSections = document.querySelectorAll('.content > h2, .content > .course-card, .content > .card');
+                    contentSections.forEach(section => {
+                        section.style.display = 'none';
+                    });
+                }
+
+                // 显示原始内容
+                function showOriginalContent() {
+                    const contentSections = document.querySelectorAll('.content > h2, .content > .course-card, .content > .card');
+                    contentSections.forEach(section => {
+                        section.style.display = '';
+                    });
+                }
+            }
+        });
+
+        // 切换分类
+        function switchCategory(categoryName) {
+            // 更新分类选择器状态
+            const segments = document.querySelectorAll(".segment");
+            segments.forEach(segment => {
+                if (segment.textContent.trim() === categoryName) {
+                    segment.classList.add("active");
+                } else {
+                    segment.classList.remove("active");
+                }
+            });
+
+            // 隐藏所有内容
+            Object.values(categories).forEach(section => {
+                if (section) {
+                    section.style.display = "none";
+                }
+            });
+
+            // 显示选中分类的内容
+            let categoryKey;
+            switch(categoryName) {
+                case "推荐":
+                    categoryKey = "recommended";
+                    break;
+                case "课程":
+                    categoryKey = "courses";
+                    break;
+                case "知识库":
+                    categoryKey = "knowledge";
+                    break;
+                case "已完成":
+                    categoryKey = "completed";
+                    break;
+            }
+
+            if (categoryKey && categories[categoryKey]) {
+                categories[categoryKey].style.display = "block";
+                
+                // 如果是第一次切换到该分类，将其添加到DOM
+                if (categoryKey !== "recommended" && !document.body.contains(categories[categoryKey])) {
+                    document.querySelector(".container").appendChild(categories[categoryKey]);
+                }
+            }
+        }
+
+        // 课程进度跟踪
+        let courseProgress = JSON.parse(localStorage.getItem('courseProgress')) || {};
+        let learningStats = JSON.parse(localStorage.getItem('learningStats')) || {
+            coursesCompleted: 0,
+            articlesRead: 0,
+            totalHours: 0,
+            currentStreak: 0,
+            lastStudyDate: null
+        };
+
+        // 更新学习统计
+        function updateLearningStats(type, duration = 0) {
+            const today = new Date().toDateString();
+            
+            if (learningStats.lastStudyDate !== today) {
+                if (learningStats.lastStudyDate === new Date(Date.now() - 86400000).toDateString()) {
+                    learningStats.currentStreak++;
+                } else {
+                    learningStats.currentStreak = 1;
+                }
+                learningStats.lastStudyDate = today;
+            }
+            
+            if (type === 'course') {
+                learningStats.coursesCompleted++;
+            } else if (type === 'article') {
+                learningStats.articlesRead++;
+            }
+            
+            learningStats.totalHours += duration / 60; // 转换为小时
+            
+            localStorage.setItem('learningStats', JSON.stringify(learningStats));
+            showToast(`学习统计已更新！连续学习 ${learningStats.currentStreak} 天`);
+        }
+
+        // 开始课程学习
+        function startCourse(courseId) {
+            if (!courseProgress[courseId]) {
+                courseProgress[courseId] = {
+                    started: true,
+                    progress: 0,
+                    completedChapters: [],
+                    startDate: new Date().toISOString(),
+                    lastAccessed: new Date().toISOString()
+                };
+            } else {
+                courseProgress[courseId].lastAccessed = new Date().toISOString();
+            }
+            
+            localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
+            showToast('课程已开始，祝你学习愉快！');
+            closeModal();
+            
+            // 模拟课程学习界面
+            showCoursePlayer(courseId);
+        }
+
+        // 显示课程播放器
+        function showCoursePlayer(courseId) {
+            const playerHTML = `
+                <div id="coursePlayer" class="modal" style="display: flex;">
+                    <div class="modal-content" style="max-width: 800px; height: 80vh;">
+                        <span class="modal-close" onclick="closeCoursePlayer()">&times;</span>
+                        <div class="course-player-header">
+                            <h3>多巴胺与成瘾：理解大脑奖励机制</h3>
+                            <div class="progress-container">
+                                <div class="progress-bar" id="courseProgressBar" style="width: ${courseProgress[courseId]?.progress || 0}%;"></div>
+                            </div>
+                            <span class="progress-text">${courseProgress[courseId]?.progress || 0}% 完成</span>
+                        </div>
+                        <div class="course-video-area">
+                            <div class="video-placeholder">
+                                <i class="fas fa-play-circle" style="font-size: 60px; color: #007bff;"></i>
+                                <p>课程视频播放区域</p>
+                            </div>
+                        </div>
+                        <div class="course-controls">
+                            <button class="btn btn-outline" onclick="previousChapter()">
+                                <i class="fas fa-step-backward"></i> 上一章
+                            </button>
+                            <button class="btn btn-primary" onclick="playPause()" id="playBtn">
+                                <i class="fas fa-play"></i> 播放
+                            </button>
+                            <button class="btn btn-outline" onclick="nextChapter()">
+                                下一章 <i class="fas fa-step-forward"></i>
+                            </button>
+                        </div>
+                        <div class="course-notes">
+                            <h4>学习笔记</h4>
+                            <textarea placeholder="在这里记录你的学习心得..." rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;"></textarea>
+                            <button class="btn btn-outline mt-10" onclick="saveNotes()">保存笔记</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', playerHTML);
+        }
+
+        // 关闭课程播放器
+        function closeCoursePlayer() {
+            const player = document.getElementById('coursePlayer');
+            if (player) {
+                player.remove();
+            }
+        }
+
+        // 播放/暂停控制
+        let isPlaying = false;
+        function playPause() {
+            const playBtn = document.getElementById('playBtn');
+            if (isPlaying) {
+                playBtn.innerHTML = '<i class="fas fa-play"></i> 播放';
+                isPlaying = false;
+            } else {
+                playBtn.innerHTML = '<i class="fas fa-pause"></i> 暂停';
+                isPlaying = true;
+                // 模拟学习进度更新
+                simulateProgress();
+            }
+        }
+
+        // 模拟学习进度
+        function simulateProgress() {
+            if (!isPlaying) return;
+            
+            const progressBar = document.getElementById('courseProgressBar');
+            const progressText = document.querySelector('.progress-text');
+            let currentProgress = parseInt(progressBar.style.width) || 0;
+            
+            const interval = setInterval(() => {
+                if (!isPlaying || currentProgress >= 100) {
+                    clearInterval(interval);
+                    if (currentProgress >= 100) {
+                        completeCourse();
+                    }
+                    return;
+                }
+                
+                currentProgress += 2;
+                progressBar.style.width = currentProgress + '%';
+                progressText.textContent = currentProgress + '% 完成';
+                
+                // 更新本地存储
+                if (courseProgress['dopamine']) {
+                    courseProgress['dopamine'].progress = currentProgress;
+                    localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
+                }
+            }, 1000);
+        }
+
+        // 完成课程
+        function completeCourse() {
+            showToast('恭喜！课程学习完成！');
+            updateLearningStats('course', 15); // 15分钟课程
+            
+            // 更新课程状态
+            courseProgress['dopamine'].completed = true;
+            courseProgress['dopamine'].completedDate = new Date().toISOString();
+            localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
+        }
+
+        // 保存学习笔记
+        function saveNotes() {
+            const notesTextarea = document.querySelector('.course-notes textarea');
+            const notes = notesTextarea.value.trim();
+            
+            if (notes) {
+                let courseNotes = JSON.parse(localStorage.getItem('courseNotes')) || {};
+                courseNotes['dopamine'] = courseNotes['dopamine'] || [];
+                courseNotes['dopamine'].push({
+                    content: notes,
+                    timestamp: new Date().toISOString()
+                });
+                
+                localStorage.setItem('courseNotes', JSON.stringify(courseNotes));
+                showToast('笔记已保存');
+                notesTextarea.value = '';
+            } else {
+                showToast('请输入笔记内容');
+            }
+        }
+
+        // 章节导航
+        function previousChapter() {
+            showToast('已切换到上一章');
+        }
+
+        function nextChapter() {
+            showToast('已切换到下一章');
+        }
+
+        // Toast 提示功能
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #333;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 25px;
+                z-index: 10000;
+                font-size: 14px;
+                animation: toastSlideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        // 修改开始学习按钮的点击事件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 更新继续学习卡片的进度
+            updateContinueLearningCard();
+        });
+
+        // 更新继续学习卡片
+        function updateContinueLearningCard() {
+            const progressBar = document.querySelector('.progress-bar');
+            const progressText = document.querySelector('.flex-between .text-small');
+            
+            if (courseProgress['dopamine']) {
+                const progress = courseProgress['dopamine'].progress || 0;
+                progressBar.style.width = progress + '%';
+                progressText.textContent = progress + '% 完成';
+                
+                const remainingMinutes = Math.max(0, 15 - Math.floor(progress * 15 / 100));
+                const timeText = progressText.nextElementSibling;
+                timeText.innerHTML = `<i class="fas fa-clock"></i> ${remainingMinutes}分钟剩余`;
+            }
+        }
+        
+        // 显示课程详情
+        function showCourseDetail(courseId) {
+            const course = courses[courseId];
+            if (!course) return;
+
+            // 设置课程详情
+            document.getElementById("courseDetailImage").src = course.image;
+            document.getElementById("courseDetailTitle").textContent = course.title;
+            document.getElementById("courseDetailDuration").innerHTML = `<i class="fas fa-clock"></i> ${course.duration}`;
+            document.getElementById("courseDetailRating").innerHTML = `<i class="fas fa-star"></i> ${course.rating}`;
+            document.getElementById("courseDetailDescription").textContent = course.description;
+
+            // 设置开始学习按钮
+            const startBtn = document.getElementById("startCourseBtn");
+            startBtn.onclick = () => startCourse(courseId);
+            
+            // 检查课程进度
+            if (courseProgress[courseId]) {
+                if (courseProgress[courseId].completed) {
+                    startBtn.textContent = "重新学习";
+                    startBtn.className = "btn-outline";
+                } else if (courseProgress[courseId].started) {
+                    startBtn.textContent = "继续学习";
+                    startBtn.className = "btn-primary";
+                }
+            } else {
+                startBtn.textContent = "开始学习";
+                startBtn.className = "btn-primary";
+            }
+
+            // 显示弹窗
+            const modal = document.getElementById("courseModal");
+            modal.style.display = "flex";
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById("courseModal").style.display = "none";
+        }
+        
+        // 关闭文章弹窗
+        function closeArticleModal() {
+            document.getElementById("articleModal").style.display = "none";
+        }
+        
+        // 显示文章详情
+        function showArticleDetail(title, category) {
+            // 设置文章标题和分类
+            document.getElementById("articleTitle").textContent = title;
+            document.getElementById("articleCategory").textContent = category;
+            
+            // 根据文章标题获取内容
+            let content = "";
+            switch(title) {
+                case "成瘾的神经科学基础":
+                    content = `
+                        <p>成瘾是一种复杂的大脑状态，涉及多个神经系统的改变。这些变化影响大脑的奖励回路、决策能力和情绪调节功能。</p>
+                        
+                        <h3>奖励回路与多巴胺</h3>
+                        <p>成瘾行为会导致大脑奖励回路中的多巴胺水平异常升高。多巴胺是一种神经递质，与愉悦感和动机密切相关。随着成瘾行为的重复，大脑会逐渐适应这种高水平的多巴胺刺激，导致对自然奖励（如食物、社交互动）的反应减弱，同时对成瘾物质或行为的渴望增强。</p>
+                        
+                        <h3>前额叶皮质与决策能力</h3>
+                        <p>成瘾还会影响前额叶皮质的功能，这一区域负责决策、冲动控制和长期规划。研究表明，长期成瘾会导致前额叶皮质的灰质体积减少，影响个体做出理性决策的能力，特别是在面对与成瘾相关的线索时。</p>
+                        
+                        <h3>杏仁核与情绪调节</h3>
+                        <p>杏仁核是大脑中负责情绪处理的关键区域，在成瘾过程中也会发生变化。这些变化可能导致情绪调节能力下降，使个体更容易在面对压力或负面情绪时寻求成瘾行为作为应对策略。</p>
+                        
+                        <h3>神经可塑性与恢复</h3>
+                        <p>尽管成瘾会导致大脑结构和功能的变化，但大脑具有神经可塑性，能够通过新的体验和学习来重塑自身。这意味着通过适当的干预和支持，这些变化是可以逆转的。恢复过程中，大脑会逐渐重建健康的神经连接，恢复正常的奖励处理和决策能力。</p>
+                        
+                        <h3>恢复过程中的神经变化</h3>
+                        <p>研究表明，在戒断初期，大脑的奖励系统可能会经历一段"低谷期"，这是因为大脑需要时间来调整和重建正常的多巴胺反应。这一阶段可能伴随着情绪波动、注意力不集中和渴望感。随着时间的推移，这些症状会逐渐减轻，大脑功能会逐步恢复。</p>
+                        
+                        <p>了解成瘾的神经科学基础有助于我们理解恢复过程中可能遇到的挑战，同时也为我们提供了希望——大脑是可以改变和恢复的。通过科学的干预方法和持续的支持，个体可以重建健康的神经回路，实现长期恢复。</p>
+                    `;
+                    break;
+                case "案例分析：90天恢复历程":
+                    content = `
+                        <p>本文记录了一位用户（化名小王）在QUITTR平台上90天的恢复历程，展示了恢复过程中的关键阶段、挑战和突破点。</p>
+                        
+                        <h3>背景</h3>
+                        <p>小王，32岁，IT行业工作者，有5年的网络游戏成瘾史。工作压力大、社交圈狭窄是他沉迷游戏的主要诱因。在工作表现下滑、健康状况恶化后，他决定寻求帮助并加入了QUITTR平台。</p>
+                        
+                        <h3>第1-30天：戒断期</h3>
+                        <p>初始阶段是最具挑战性的。小王报告了强烈的渴望感、注意力不集中和情绪波动。他采用的策略包括：</p>
+                        <p>1. 删除所有游戏账号和应用</p>
+                        <p>2. 每天完成QUITTR平台上的正念练习</p>
+                        <p>3. 建立详细的触发因素日志</p>
+                        <p>4. 制定替代活动清单，包括阅读、散步和烹饪</p>
+                        <p>关键突破：在第18天，小王成功应对了一次强烈的渴望，这极大提高了他的信心。</p>
+                        
+                        <h3>第31-60天：稳定期</h3>
+                        <p>这一阶段，渴望感开始减轻，但社交挑战变得突出。小王开始：</p>
+                        <p>1. 参加线下兴趣小组，扩展社交圈</p>
+                        <p>2. 学习沟通技巧，修复与家人的关系</p>
+                        <p>3. 建立健康的作息时间表</p>
+                        <p>4. 开始一项新的体育活动（游泳）</p>
+                        <p>关键突破：在第45天，小王成功地与朋友一起度过了一个周末，而没有感到对游戏的渴望。</p>
+                        
+                        <h3>第61-90天：成长期</h3>
+                        <p>最后阶段，小王的重点转向长期健康习惯的建立和意义感的构建：</p>
+                        <p>1. 开始志愿服务，帮助其他有类似经历的人</p>
+                        <p>2. 学习新技能，提升职业发展</p>
+                        <p>3. 制定复发预防计划</p>
+                        <p>4. 建立支持性的社交网络</p>
+                        <p>关键突破：在第75天，小王获得了工作上的晋升，这验证了他生活质量的全面提升。</p>
+                        
+                        <h3>成果与反思</h3>
+                        <p>90天后，小王报告了以下变化：</p>
+                        <p>- 工作效率提升40%</p>
+                        <p>- 睡眠质量显著改善</p>
+                        <p>- 建立了5个新的有意义的社交关系</p>
+                        <p>- 开发了3项新的兴趣爱好</p>
+                        <p>- 自我效能感和生活满意度大幅提高</p>
+                        
+                        <p>小王的经历表明，恢复是一个渐进的过程，需要全面的策略和持续的支持。每个阶段都有其独特的挑战和机遇，通过科学的方法和坚持不懈的努力，成功恢复是可以实现的。</p>
+                    `;
+                    break;
+                case "触发因素识别指南":
+                    content = `
+                        <p>触发因素是可能引发渴望或导致复发的情境、情绪、想法或感觉。准确识别个人触发因素是制定有效应对策略的基础。本指南提供了系统识别和记录触发因素的方法。</p>
+                        
+                        <h3>触发因素的类型</h3>
+                        <p><strong>1. 外部触发因素</strong>：环境中的刺激，如特定场所、物品、人物或时间。</p>
+                        <p><strong>2. 内部触发因素</strong>：个人的情绪状态、想法或身体感觉。</p>
+                        <p><strong>3. 复合触发因素</strong>：多种因素的组合，如特定情绪与特定环境的结合。</p>
+                        
+                        <h3>触发因素识别步骤</h3>
+                        <p><strong>步骤1：回顾历史</strong></p>
+                        <p>思考过去的复发或强烈渴望经历，记录以下信息：</p>
+                        <p>- 事件发生的时间和地点</p>
+                        <p>- 当时的情绪状态</p>
+                        <p>- 周围的人</p>
+                        <p>- 之前发生的事情</p>
+                        <p>- 身体感觉</p>
+                        
+                        <p><strong>步骤2：日常监测</strong></p>
+                        <p>建立触发因素日志，每当感到渴望时记录：</p>
+                        <p>- 日期和时间</p>
+                        <p>- 渴望强度（1-10分）</p>
+                        <p>- 当前情绪</p>
+                        <p>- 所在环境</p>
+                        <p>- 正在进行的活动</p>
+                        <p>- 脑海中的想法</p>
+                        
+                        <p><strong>步骤3：模式分析</strong></p>
+                        <p>每周回顾日志，寻找模式：</p>
+                        <p>- 特定时间段是否更容易出现渴望？</p>
+                        <p>- 某些情绪是否频繁与渴望相关？</p>
+                        <p>- 特定环境或活动是否常引发渴望？</p>
+                        <p>- 社交因素是否影响渴望强度？</p>
+                        
+                        <p><strong>步骤4：创建触发因素地图</strong></p>
+                        <p>根据分析结果，创建个人触发因素地图，将触发因素按类型和强度分类。这有助于直观了解自己的高风险情境。</p>
+                        
+                        <h3>触发因素记录工具</h3>
+                        <p>QUITTR应用提供了触发因素记录工具，包括：</p>
+                        <p>- 快速记录功能</p>
+                        <p>- 情绪和环境标签</p>
+                        <p>- 渴望强度滑块</p>
+                        <p>- 模式分析图表</p>
+                        <p>- 触发因素地图生成器</p>
+                        
+                        <h3>后续步骤</h3>
+                        <p>识别触发因素后，下一步是为每个主要触发因素制定具体的应对策略。这些策略可能包括避免某些触发因素、准备替代行为或运用认知技巧来改变对触发因素的反应。</p>
+                        
+                        <p>记住，触发因素识别是一个持续的过程。随着恢复的进展，某些触发因素可能会减弱，而新的触发因素可能会出现。定期更新触发因素地图有助于保持警觉并调整应对策略。</p>
+                    `;
+                    break;
+                case "健康替代行为的建立":
+                    content = `
+                        <p>建立健康的替代行为是恢复过程中的关键环节。这些行为不仅可以填补成瘾行为留下的空白，还能提供新的奖励来源，帮助重建积极的生活方式。</p>
+                        
+                        <h3>替代行为的原则</h3>
+                        <p><strong>1. 满足相同需求</strong>：有效的替代行为应满足成瘾行为曾经满足的基本脑筋需求，如放松、刺激、社交连接或逃避。</p>
+                        <p><strong>2. 可行性</strong>：替代行为应该是现实可行的，考虑到个人的时间、资源和能力。</p>
+                        <p><strong>3. 健康性</strong>：替代行为应促进身心健康，而不是简单地用另一种潜在有害的行为替代原有成瘾。</p>
+                        <p><strong>4. 个人兴趣</strong>：替代行为应与个人兴趣和价值观相符，这样更容易坚持。</p>
+                        
+                        <h3>替代行为的类型</h3>
+                        <p><strong>放松型替代行为</strong>：适合当成瘾行为主要用于缓解压力或焦虑时。</p>
+                        <p>例如：冥想、深呼吸练习、瑜伽、泡温水澡、听放松音乐、园艺、阅读。</p>
+                        
+                        <p><strong>刺激型替代行为</strong>：适合当成瘾行为主要用于寻求刺激或对抗无聊时。</p>
+                        <p>例如：体育活动、冒险旅行、学习新技能、解决挑战性问题、参与竞赛。</p>
+                        
+                        <p><strong>社交型替代行为</strong>：适合当成瘾行为与社交需求相关时。</p>
+                        <p>例如：参加兴趣小组、志愿服务、团队运动、与朋友定期聚会、参与社区活动。</p>
+                        
+                        <p><strong>创造型替代行为</strong>：适合寻求自我表达和成就感。</p>
+                        <p>例如：艺术创作、写作、音乐、手工艺、烹饪、园艺设计。</p>
+                        
+                        <h3>建立替代行为的步骤</h3>
+                        <p><strong>步骤1：需求分析</strong></p>
+                        <p>思考成瘾行为满足了哪些脑筋需求：</p>
+                        <p>- 是为了放松还是刺激？</p>
+                        <p>- 是为了社交还是逃避？</p>
+                        <p>- 是为了处理特定情绪还是填补时间？</p>
+                        
+                        <p><strong>步骤2：头脑风暴</strong></p>
+                        <p>列出可能的替代行为，不要急于评判，先尽可能多地收集想法。</p>
+                        
+                        <p><strong>步骤3：评估与选择</strong></p>
+                        <p>根据以下标准评估每个潜在的替代行为：</p>
+                        <p>- 满足相同需求的程度</p>
+                        <p>- 实施的可行性</p>
+                        <p>- 对健康的促进作用</p>
+                        <p>- 与个人兴趣的匹配度</p>
+                        <p>- 持续性的可能性</p>
+                        
+                        <p><strong>步骤4：试验与调整</strong></p>
+                        <p>选择2-3个最有希望的替代行为进行试验，记录体验和效果。根据反馈调整或尝试新的选项。</p>
+                        
+                        <p><strong>步骤5：整合到日常生活</strong></p>
+                        <p>将有效的替代行为纳入日常生活，可以：</p>
+                        <p>- 创建常规时间表</p>
+                        <p>- 准备必要的工具或环境</p>
+                        <p>- 设置提醒或线索</p>
+                        <p>- 邀请支持者一起参与</p>
+                        
+                        <h3>案例示例</h3>
+                        <p>张先生过去常在工作压力大时沉迷手机游戏。通过分析，他发现游戏提供了即时的成就感和暂时的压力逃避。在尝试多种替代行为后，他发现以下组合最有效：</p>
+                        <p>1. 压力大时：15分钟的快步走加上5分钟的深呼吸练习</p>
+                        <p>2. 寻求成就感时：学习编程，完成小项目</p>
+                        <p>3. 需要放松时：听有声书或播客</p>
+                        <p>4. 社交需求时：参加本地的棋牌俱乐部</p>
+                        
+                        <p>通过这些替代行为，张先生不仅减少了对游戏的依赖，还提升了身体健康，学习了新技能，扩展了社交圈。</p>
+                        
+                        <p>记住，建立健康替代行为是一个过程，需要时间和耐心。尝试不同的活动，找到真正适合自己的替代行为，是恢复旅程中的重要一步。</p>
+                    `;
+                    break;
+                default:
+                    content = "<p>文章内容正在加载中...</p>";
+            }
+            
+            // 设置文章内容
+            document.getElementById("articleContent").innerHTML = content;
+            
+            // 显示弹窗
+            document.getElementById("articleModal").style.display = "flex";
+            // 阅读统计自增：一次阅读一次
+            if (typeof updateLearningStats === 'function') {
+                updateLearningStats('article');
+            }
+        }
+
+        // 创建课程分类内容
+        function createCoursesSection() {
+            const section = document.createElement("div");
+            section.className = "content content-section";
+            section.innerHTML = `
+                <h1>课程</h1>
+                <p>系统化学习，科学指导恢复</p>
+                
+                <div class="filter-bar">
+                    <span class="filter active">全部</span>
+                    <span class="filter">神经科学</span>
+                    <span class="filter">心理健康</span>
+                    <span class="filter">关系修复</span>
+                </div>
+                
+                <div class="course-grid">
+                    <div class="course-card" onclick="showCourseDetail('dopamine')">
+                        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="多巴胺与成瘾">
+                        <div class="course-content">
+                            <div class="course-title">多巴胺与成瘾：理解大脑奖励机制</div>
+                            <div class="course-meta">
+                                <span><i class="fas fa-clock"></i> 15分钟</span>
+                                <span><i class="fas fa-star"></i> 4.9</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="course-card" onclick="showCourseDetail('neuroplasticity')">
+                        <img src="https://images.unsplash.com/photo-1507413245164-6160d8298b31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="神经可塑性">
+                        <div class="course-content">
+                            <div class="course-title">神经可塑性：重塑大脑的能力</div>
+                            <div class="course-meta">
+                                <span><i class="fas fa-clock"></i> 12分钟</span>
+                                <span><i class="fas fa-star"></i> 4.9</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="course-card" onclick="showCourseDetail('triggers')">
+                        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="触发因素管理">
+                        <div class="course-content">
+                            <div class="course-title">触发因素管理：识别与应对</div>
+                            <div class="course-meta">
+                                <span><i class="fas fa-clock"></i> 18分钟</span>
+                                <span><i class="fas fa-star"></i> 4.7</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="course-card" onclick="showCourseDetail('relationships')">
+                        <img src="https://images.unsplash.com/photo-1490730141103-6cac27aaab94?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="健康关系建立">
+                        <div class="course-content">
+                            <div class="course-title">健康关系建立：亲密关系的重建</div>
+                            <div class="course-meta">
+                                <span><i class="fas fa-clock"></i> 15分钟</span>
+                                <span><i class="fas fa-star"></i> 4.8</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return section;
+        }
+
+        // 创建知识库分类内容
+        function createKnowledgeSection() {
+            const section = document.createElement("div");
+            section.className = "content content-section";
+            section.innerHTML = `
+                <h1>知识库</h1>
+                <p>科学文章，深度解析</p>
+                
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索知识库...">
+                    <i class="fas fa-search"></i>
+                </div>
+                
+                <div class="filter-bar">
+                    <span class="filter active">全部</span>
+                    <span class="filter">科学</span>
+                    <span class="filter">案例</span>
+                    <span class="filter">指南</span>
+                </div>
+                
+                <div class="card">
+                    <div class="flex-between mb-10">
+                        <h3>成瘾的神经科学基础</h3>
+                        <span class="badge badge-outline">科学</span>
+                    </div>
+                    <p>成瘾是一种复杂的大脑状态，涉及多个神经系统的改变。了解这些基础知识有助于理解恢复过程中的挑战和机遇。</p>
+                    <button class="btn btn-outline">阅读全文</button>
+                </div>
+                
+                <div class="card">
+                    <div class="flex-between mb-10">
+                        <h3>案例分析：90天恢复历程</h3>
+                        <span class="badge badge-outline">案例</span>
+                    </div>
+                    <p>通过真实用户的90天恢复历程，了解可能遇到的挑战、突破点和有效策略。</p>
+                    <button class="btn btn-outline">阅读全文</button>
+                </div>
+                
+                <div class="card">
+                    <div class="flex-between mb-10">
+                        <h3>触发因素识别指南</h3>
+                        <span class="badge badge-outline">指南</span>
+                    </div>
+                    <p>学习如何系统地识别和记录个人触发因素，为制定有效的应对策略打下基础。</p>
+                    <button class="btn btn-outline">阅读全文</button>
+                </div>
+                
+                <div class="card">
+                    <div class="flex-between mb-10">
+                        <h3>健康替代行为的建立</h3>
+                        <span class="badge badge-outline">指南</span>
+                    </div>
+                    <p>探索如何建立健康的替代行为，以取代成瘾行为并重建积极的生活方式。</p>
+                    <button class="btn btn-outline">阅读全文</button>
+                </div>
+            `;
+            return section;
+        }
+
+        // 创建已完成分类内容
+        function createCompletedSection() {
+            const section = document.createElement("div");
+            section.className = "content content-section";
+            section.innerHTML = `
+                <h1>已完成</h1>
+                <p>你的学习历程</p>
+                
+                <div class="stats-card">
+                    <div class="stat-item">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">课程完成</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">文章阅读</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">5.2</div>
+                        <div class="stat-label">学习小时</div>
+                    </div>
+                </div>
+                
+                <h2 class="mt-20">已完成课程</h2>
+                <div class="course-card">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="正念冥想基础">
+                    <div class="course-content">
+                        <div class="course-title">正念冥想基础：专注与觉察</div>
+                        <div class="course-meta">
+                            <span><i class="fas fa-check-circle"></i> 已完成</span>
+                            <span><i class="fas fa-calendar-alt"></i> 3天前</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="course-card">
+                    <img src="https://images.unsplash.com/photo-1517021897933-0e0319cfbc28?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="压力管理">
+                    <div class="course-content">
+                        <div class="course-title">压力管理：识别与缓解</div>
+                        <div class="course-meta">
+                            <span><i class="fas fa-check-circle"></i> 已完成</span>
+                            <span><i class="fas fa-calendar-alt"></i> 1周前</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="course-card">
+                    <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="情绪调节">
+                    <div class="course-content">
+                        <div class="course-title">情绪调节：理解与管理情绪</div>
+                        <div class="course-meta">
+                            <span><i class="fas fa-check-circle"></i> 已完成</span>
+                            <span><i class="fas fa-calendar-alt"></i> 2周前</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return section;
+        }
+    </script>
+</body>
+</html>
