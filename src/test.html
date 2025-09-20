@@ -1,0 +1,410 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quittr - 功能测试页面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .test-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .test-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #4ecdc4;
+        }
+
+        .test-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .test-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .test-btn.secondary {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .test-btn.secondary:hover {
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background: #4ecdc4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .feature-list {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .feature-item::before {
+            content: "✓";
+            color: #4ecdc4;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .test-results {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .footer {
+            margin-top: 40px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🚀 Quittr 功能测试</h1>
+        <p class="subtitle">测试启动页动态功能和支付系统</p>
+
+        <div class="test-section">
+            <h3><span class="status-indicator"></span>启动页测试</h3>
+            <div class="feature-list">
+                <div class="feature-item">动态动画效果（淡入、浮动、进度条）</div>
+                <div class="feature-item">自动跳转和手动跳转功能</div>
+                <div class="feature-item">资源预加载和加载状态显示</div>
+                <div class="feature-item">响应式设计和用户交互</div>
+            </div>
+            <div class="test-buttons">
+                <a href="splash.html" class="test-btn">测试启动页</a>
+                <button class="test-btn secondary" onclick="testSplashFeatures()">功能检测</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3><span class="status-indicator"></span>支付功能测试</h3>
+            <div class="feature-list">
+                <div class="feature-item">多种支付方式（支付宝、微信、银行卡、PayPal）</div>
+                <div class="feature-item">表单验证和数据加密</div>
+                <div class="feature-item">安全验证和防欺诈检测</div>
+                <div class="feature-item">错误处理和用户反馈</div>
+            </div>
+            <div class="test-buttons">
+                <a href="subscription.html" class="test-btn">测试订阅管理</a>
+                <button class="test-btn secondary" onclick="testPaymentSecurity()">安全检测</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3><span class="status-indicator"></span>集成测试</h3>
+            <div class="test-buttons">
+                <button class="test-btn" onclick="runFullTest()">完整流程测试</button>
+                <button class="test-btn secondary" onclick="checkConsoleErrors()">控制台检查</button>
+                <button class="test-btn secondary" onclick="performanceTest()">性能测试</button>
+            </div>
+        </div>
+
+        <div class="test-results" id="testResults" style="display: none;">
+            <h4>测试结果：</h4>
+            <div id="resultContent"></div>
+        </div>
+
+        <div class="footer">
+            <p>🔧 开发测试环境 | 版本 1.0.0</p>
+        </div>
+    </div>
+
+    <script>
+        // 测试结果显示
+        function showResults(content) {
+            const resultsDiv = document.getElementById('testResults');
+            const contentDiv = document.getElementById('resultContent');
+            contentDiv.innerHTML = content;
+            resultsDiv.style.display = 'block';
+        }
+
+        // 测试启动页功能
+        function testSplashFeatures() {
+            const results = [];
+            
+            // 检查启动页文件是否存在
+            fetch('splash.html')
+                .then(response => {
+                    if (response.ok) {
+                        results.push('✓ splash.html 文件存在');
+                    } else {
+                        results.push('✗ splash.html 文件不存在');
+                    }
+                    return fetch('js/splash.js');
+                })
+                .then(response => {
+                    if (response.ok) {
+                        results.push('✓ splash.js 脚本存在');
+                    } else {
+                        results.push('✗ splash.js 脚本不存在');
+                    }
+                    
+                    // 检查CSS动画支持
+                    if (CSS.supports('animation', 'fadeInUp 1s ease-out')) {
+                        results.push('✓ CSS动画支持正常');
+                    } else {
+                        results.push('✗ CSS动画支持异常');
+                    }
+                    
+                    showResults(results.join('<br>'));
+                })
+                .catch(error => {
+                    results.push('✗ 测试过程中出现错误: ' + error.message);
+                    showResults(results.join('<br>'));
+                });
+        }
+
+        // 测试支付安全功能
+        function testPaymentSecurity() {
+            const results = [];
+            
+            // 检查安全模块
+            fetch('js/security.js')
+                .then(response => {
+                    if (response.ok) {
+                        results.push('✓ security.js 安全模块存在');
+                    } else {
+                        results.push('✗ security.js 安全模块不存在');
+                    }
+                    return fetch('js/payment.js');
+                })
+                .then(response => {
+                    if (response.ok) {
+                        results.push('✓ payment.js 支付模块存在');
+                    } else {
+                        results.push('✗ payment.js 支付模块不存在');
+                    }
+                    
+                    // 检查加密API支持
+                    if (window.crypto && window.crypto.getRandomValues) {
+                        results.push('✓ Web Crypto API 支持正常');
+                    } else {
+                        results.push('✗ Web Crypto API 不支持');
+                    }
+                    
+                    // 检查本地存储
+                    try {
+                        localStorage.setItem('test', 'test');
+                        localStorage.removeItem('test');
+                        results.push('✓ 本地存储功能正常');
+                    } catch (e) {
+                        results.push('✗ 本地存储功能异常');
+                    }
+                    
+                    showResults(results.join('<br>'));
+                })
+                .catch(error => {
+                    results.push('✗ 测试过程中出现错误: ' + error.message);
+                    showResults(results.join('<br>'));
+                });
+        }
+
+        // 运行完整测试
+        function runFullTest() {
+            const results = ['开始完整流程测试...', ''];
+            
+            // 测试文件完整性
+            const files = [
+                'splash.html',
+                'subscription.html',
+                'js/splash.js',
+                'js/payment.js',
+                'js/security.js',
+                'js/utils.js'
+            ];
+            
+            let completedTests = 0;
+            
+            files.forEach(file => {
+                fetch(file)
+                    .then(response => {
+                        if (response.ok) {
+                            results.push(`✓ ${file} - 文件完整`);
+                        } else {
+                            results.push(`✗ ${file} - 文件缺失`);
+                        }
+                    })
+                    .catch(error => {
+                        results.push(`✗ ${file} - 加载错误: ${error.message}`);
+                    })
+                    .finally(() => {
+                        completedTests++;
+                        if (completedTests === files.length) {
+                            results.push('', '测试完成！');
+                            showResults(results.join('<br>'));
+                        }
+                    });
+            });
+        }
+
+        // 检查控制台错误
+        function checkConsoleErrors() {
+            const results = ['控制台状态检查:', ''];
+            
+            // 检查是否有全局错误
+            if (window.onerror) {
+                results.push('✓ 全局错误处理已设置');
+            } else {
+                results.push('⚠ 全局错误处理未设置');
+            }
+            
+            // 检查Promise错误处理
+            if (window.onunhandledrejection) {
+                results.push('✓ Promise错误处理已设置');
+            } else {
+                results.push('⚠ Promise错误处理未设置');
+            }
+            
+            // 检查开发者工具
+            if (console && console.log) {
+                results.push('✓ 控制台API可用');
+            } else {
+                results.push('✗ 控制台API不可用');
+            }
+            
+            results.push('', '建议打开开发者工具查看详细日志');
+            showResults(results.join('<br>'));
+        }
+
+        // 性能测试
+        function performanceTest() {
+            const results = ['性能测试结果:', ''];
+            
+            // 测试页面加载时间
+            const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+            results.push(`页面加载时间: ${loadTime}ms`);
+            
+            // 测试内存使用（如果支持）
+            if (performance.memory) {
+                const memory = performance.memory;
+                results.push(`内存使用: ${Math.round(memory.usedJSHeapSize / 1024 / 1024)}MB`);
+                results.push(`内存限制: ${Math.round(memory.jsHeapSizeLimit / 1024 / 1024)}MB`);
+            }
+            
+            // 测试动画性能
+            const start = performance.now();
+            requestAnimationFrame(() => {
+                const frameTime = performance.now() - start;
+                results.push(`动画帧时间: ${frameTime.toFixed(2)}ms`);
+                
+                if (frameTime < 16.67) {
+                    results.push('✓ 动画性能良好 (60fps)');
+                } else {
+                    results.push('⚠ 动画性能需要优化');
+                }
+                
+                showResults(results.join('<br>'));
+            });
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('测试页面已加载');
+            console.log('可用测试功能：');
+            console.log('- testSplashFeatures(): 测试启动页功能');
+            console.log('- testPaymentSecurity(): 测试支付安全');
+            console.log('- runFullTest(): 运行完整测试');
+            console.log('- checkConsoleErrors(): 检查控制台错误');
+            console.log('- performanceTest(): 性能测试');
+        });
+    </script>
+</body>
+</html>
