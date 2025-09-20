@@ -1,0 +1,2484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUITTR - 设置</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/darkmode.js"></script>
+    <style>
+        /* 设置项交互样式 */
+        .settings-item {
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        
+        .settings-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 深色模式样式 - 使用CSS变量保持一致性 */
+        .dark-mode {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+        }
+        
+        .dark-mode .card {
+            background-color: var(--card-color);
+            border-color: var(--border-color);
+        }
+        
+        .dark-mode .settings-item {
+            border-color: var(--border-color);
+        }
+        
+        .dark-mode .settings-item:hover {
+            background-color: var(--divider-color);
+        }
+        
+        .dark-mode .tab-bar {
+            background-color: var(--card-color);
+            border-color: var(--border-color);
+        }
+        
+        .dark-mode .modal-content {
+            background-color: var(--card-color);
+            color: var(--text-primary);
+        }
+        
+        .dark-mode .form-control {
+            background-color: var(--bg-color);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .dark-mode .form-control::placeholder {
+            color: var(--text-hint);
+        }
+        
+        .dark-mode .btn-outline {
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .dark-mode .btn-outline:hover {
+            background-color: var(--divider-color);
+        }
+        
+        /* 开关按钮样式 */
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #4CAF50;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* 按钮交互样式 */
+        .btn {
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .modal-close {
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* 底部标签栏样式 */
+        .tab-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: white;
+            border-top: 1px solid #eee;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            font-size: 12px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .tab-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        .tab-item.active {
+            color: #4CAF50;
+        }
+        
+        .tab-item:hover {
+            color: #4CAF50;
+        }
+        
+        /* 紧急求助按钮样式 */
+        .emergency-button {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #ff4757;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4);
+            cursor: pointer;
+            z-index: 99;
+            transition: all 0.3s;
+        }
+        
+        .emergency-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(255, 71, 87, 0.5);
+        }
+        
+        .emergency-button i {
+            font-size: 24px;
+        }
+        
+        /* 订阅相关样式 */
+        .subscription-status {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .current-plan h3 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+        }
+        
+        .subscription-plans {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .plan-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .plan-card:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+        }
+        
+        .plan-card.selected {
+            border-color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+        
+        .plan-card.recommended {
+            border-color: #ff9800;
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 193, 7, 0.1) 100%);
+        }
+        
+        .plan-badge {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #ff9800;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .plan-header h4 {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .plan-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .plan-price span {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .plan-save {
+            font-size: 12px;
+            color: #ff9800;
+            font-weight: bold;
+        }
+        
+        .plan-features {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .feature {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .payment-methods {
+            margin-top: 20px;
+        }
+        
+        .payment-methods h4 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+        }
+        
+        .payment-options {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .payment-option {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .payment-option:hover {
+            border-color: #4CAF50;
+        }
+        
+        .payment-option.selected {
+            border-color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+        
+        .payment-option i {
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: #4CAF50;
+        }
+        
+        .payment-option span {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .dark-mode .plan-card {
+            border-color: var(--border-color);
+            background-color: var(--card-color);
+        }
+        
+        .dark-mode .plan-card:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .dark-mode .plan-card.selected {
+            border-color: var(--primary-color);
+            background-color: var(--bg-color);
+        }
+        
+        .dark-mode .payment-option {
+            border-color: var(--border-color);
+            background-color: var(--card-color);
+        }
+        
+        .dark-mode .payment-option:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .dark-mode .payment-option.selected {
+            border-color: var(--primary-color);
+            background-color: var(--bg-color);
+        }
+        
+        .dark-mode .feature {
+             color: var(--text-secondary);
+         }
+         
+         .dark-mode .plan-price {
+             color: var(--text-primary);
+         }
+         
+         .dark-mode .plan-save {
+             color: var(--success-color);
+         }
+         
+         .dark-mode .subscription-info .info-item {
+             color: var(--text-secondary);
+         }
+         
+         .dark-mode .status-active {
+             color: var(--success-color);
+         }
+         
+         /* 时间选择器样式 */
+         .time-picker {
+             display: flex;
+             justify-content: center;
+             gap: 10px;
+             margin: 20px 0;
+         }
+         
+         .time-picker select {
+             padding: 8px;
+             border-radius: 5px;
+             border: 1px solid #ddd;
+             background-color: white;
+         }
+         
+         /* 账号切换相关样式 */
+         .account-item {
+             display: flex;
+             align-items: center;
+             padding: 15px;
+             border: 2px solid #e0e0e0;
+             border-radius: 10px;
+             margin-bottom: 10px;
+             cursor: pointer;
+             transition: all 0.3s;
+             position: relative;
+         }
+         
+         .account-item:hover {
+             border-color: #4CAF50;
+             background-color: rgba(76, 175, 80, 0.05);
+         }
+         
+         .account-item.selected {
+             border-color: #4CAF50;
+             background-color: rgba(76, 175, 80, 0.1);
+         }
+         
+         .account-item.current {
+             border-color: #2196F3;
+             background-color: rgba(33, 150, 243, 0.1);
+             cursor: default;
+         }
+         
+         .account-avatar {
+             width: 50px;
+             height: 50px;
+             border-radius: 50%;
+             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: white;
+             font-weight: bold;
+             font-size: 18px;
+             margin-right: 15px;
+         }
+         
+         .account-info h4 {
+             margin: 0 0 5px 0;
+             font-size: 16px;
+             color: #333;
+         }
+         
+         .account-info p {
+             margin: 0;
+             font-size: 14px;
+             color: #666;
+         }
+         
+         .current-badge {
+             position: absolute;
+             top: 10px;
+             right: 15px;
+             background: #2196F3;
+             color: white;
+             padding: 3px 8px;
+             border-radius: 12px;
+             font-size: 12px;
+             font-weight: bold;
+         }
+         
+         .add-account-btn {
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             padding: 15px;
+             border: 2px dashed #ccc;
+             border-radius: 10px;
+             color: #666;
+             cursor: pointer;
+             transition: all 0.3s;
+             margin-bottom: 20px;
+         }
+         
+         .add-account-btn:hover {
+             border-color: #4CAF50;
+             color: #4CAF50;
+         }
+         
+         .add-account-btn i {
+             margin-right: 10px;
+             font-size: 18px;
+         }
+         
+         .switch-note {
+             background-color: #f5f5f5;
+             padding: 15px;
+             border-radius: 8px;
+             margin-bottom: 20px;
+             font-size: 14px;
+             color: #666;
+             line-height: 1.5;
+         }
+         
+         .remember-option {
+             display: flex;
+             align-items: center;
+             margin: 15px 0;
+             font-size: 14px;
+         }
+         
+         .remember-option input[type="checkbox"] {
+             margin-right: 10px;
+             transform: scale(1.2);
+         }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content">
+            <h1>设置</h1>
+            <p>个性化你的恢复之旅</p>
+
+            <!-- 账户设置 -->
+            <h2 class="mt-20">账户</h2>
+            <div class="card">
+                <div class="settings-item" onclick="showModal('profile')">
+                    <div class="settings-label">个人资料</div>
+                    <div class="settings-value">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="window.location.href='subscription.html'">
+                    <div class="settings-label">订阅管理</div>
+                    <div class="settings-value">
+                        <span class="badge">免费版</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="showModal('privacySettings')">
+                    <div class="settings-label">隐私设置</div>
+                    <div class="settings-value">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 应用设置 -->
+            <h2 class="mt-20">应用设置</h2>
+            <div class="card">
+                <div class="settings-item">
+                    <div class="settings-label">通知</div>
+                    <div class="settings-value">
+                        <label class="toggle">
+                            <input type="checkbox" checked onchange="toggleSetting('notifications', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-label">内容过滤</div>
+                    <div class="settings-value">
+                        <label class="toggle">
+                            <input type="checkbox" checked onchange="toggleSetting('contentFilter', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-label">AI诱惑阻断</div>
+                    <div class="settings-value">
+                        <label class="toggle">
+                            <input type="checkbox" checked onchange="toggleSetting('aiBlocker', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-label">深色模式</div>
+                    <div class="settings-value">
+                        <label class="toggle">
+                            <input type="checkbox" onchange="toggleDarkMode(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 恢复计划设置 -->
+            <h2 class="mt-20">恢复计划</h2>
+            <div class="card">
+                <div class="settings-item" onclick="showModal('reminderTime')">
+                    <div class="settings-label">每日任务提醒时间</div>
+                    <div class="settings-value">
+                        <span>早上8:00</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="showModal('meditationReminder')">
+                    <div class="settings-label">冥想提醒</div>
+                    <div class="settings-value">
+                        <span>每天</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="showModal('resetProgress')">
+                    <div class="settings-label">重置进度</div>
+                    <div class="settings-value text-danger">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 隐私设置 -->
+            <h2 class="mt-20">隐私设置</h2>
+            <div class="card">
+                <div class="settings-item">
+                    <div class="settings-label">数据收集</div>
+                    <div class="settings-value">
+                        <label class="toggle">
+                            <input type="checkbox" id="dataCollection" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-label">匿名使用统计</div>
+                    <div class="settings-value">
+                        <label class="toggle">
+                            <input type="checkbox" id="anonymousStats" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="showModal('privacySettings')">
+                    <div class="settings-label">隐私偏好设置</div>
+                    <div class="settings-value">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="showModal('dataExport')">
+                    <div class="settings-label">导出我的数据</div>
+                    <div class="settings-value">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="showModal('deleteAccount')">
+                    <div class="settings-label">删除账号</div>
+                    <div class="settings-value text-danger">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 支持与帮助 -->
+            <h2 class="mt-20">支持与帮助</h2>
+            <div class="card">
+                <div class="settings-item" onclick="showModal('faq')">
+                    <div class="settings-label">常见问题</div>
+                    <div class="settings-value">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="showModal('support')">
+                    <div class="settings-label">联系客服</div>
+                    <div class="settings-value">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="showModal('privacyPolicy')">
+                    <div class="settings-label">隐私政策</div>
+                    <div class="settings-value">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="showModal('terms')">
+                    <div class="settings-label">使用条款</div>
+                    <div class="settings-value">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 退出登录 -->
+            <button class="btn btn-outline mt-20" onclick="showModal('logout')">退出登录</button>
+            
+            <!-- 切换账号 -->
+            <button class="btn btn-link mt-10" onclick="showModal('switchAccount')">
+                <i class="fas fa-exchange-alt mr-5"></i>切换账号
+            </button>
+            
+            <div class="text-center text-xs mt-10 mb-20">版本 1.0.0</div>
+        </div>
+
+    <!-- 弹窗 - 切换账号 -->
+    <div id="switchAccountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">切换账号</div>
+                <div class="modal-close" onclick="closeModal('switchAccount')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <div class="account-list">
+                    <div class="account-item current-account">
+                        <div class="account-avatar">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23007AFF'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-size='16' font-weight='bold'%3E007%3C/text%3E%3C/svg%3E" alt="当前账号">
+                        </div>
+                        <div class="account-info">
+                            <div class="account-name">007玊小海盗</div>
+                            <div class="account-email">huanpirate@gmail.com</div>
+                            <div class="account-status">当前账号</div>
+                        </div>
+                        <div class="account-badge">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="account-item" onclick="selectAccount('user2')">
+                        <div class="account-avatar">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%2334C759'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-size='14' font-weight='bold'%3E小明%3C/text%3E%3C/svg%3E" alt="账号2">
+                        </div>
+                        <div class="account-info">
+                            <div class="account-name">小明</div>
+                            <div class="account-email">xiaoming@example.com</div>
+                            <div class="account-status">戒断第15天</div>
+                        </div>
+                        <div class="account-badge">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="account-item" onclick="selectAccount('user3')">
+                        <div class="account-avatar">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23FF9500'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-size='14' font-weight='bold'%3E小红%3C/text%3E%3C/svg%3E" alt="账号3">
+                        </div>
+                        <div class="account-info">
+                            <div class="account-name">小红</div>
+                            <div class="account-email">xiaohong@example.com</div>
+                            <div class="account-status">戒断第3天</div>
+                        </div>
+                        <div class="account-badge">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="account-actions">
+                    <button class="btn btn-outline btn-block" onclick="addNewAccount()">
+                        <i class="fas fa-plus mr-5"></i>添加新账号
+                    </button>
+                </div>
+                
+                <div class="switch-note">
+                    <p class="text-xs text-muted">
+                        <i class="fas fa-info-circle mr-5"></i>
+                        切换账号后，您将使用选中账号的数据和设置。当前账号的数据将被保存。
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('switchAccount')">取消</button>
+                <button class="btn btn-primary" onclick="confirmSwitchAccount()" id="switchBtn" disabled>切换账号</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 - 退出登录确认 -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">退出登录</div>
+                <div class="modal-close" onclick="closeModal('logout')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <div class="logout-content">
+                    <div class="logout-icon">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <h3>确认退出登录？</h3>
+                    <p class="text-muted">退出后您需要重新登录才能使用应用功能</p>
+                    
+                    <div class="logout-options">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="rememberAccount">
+                            <span class="checkmark"></span>
+                            <span class="checkbox-text">记住账号信息，下次快速登录</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('logout')">取消</button>
+                <button class="btn btn-danger" onclick="confirmLogout()">确认退出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 - 冥想提醒 -->
+    <div id="meditationReminderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">冥想提醒设置</div>
+                <div class="modal-close" onclick="closeModal('meditationReminder')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>提醒频率</label>
+                    <select class="form-control" id="meditationFrequency">
+                        <option value="daily" selected>每天</option>
+                        <option value="weekdays">工作日</option>
+                        <option value="weekends">周末</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+                <div class="form-group mt-10">
+                    <label>提醒时间</label>
+                    <input type="time" class="form-control" id="meditationTime" value="20:00">
+                </div>
+                <div class="form-group mt-10">
+                    <div class="flex-between">
+                        <label>启用提醒</label>
+                        <label class="toggle">
+                            <input type="checkbox" id="meditationEnabled" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('meditationReminder')">取消</button>
+                <button class="btn btn-primary" onclick="saveMeditationReminder()">保存</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tab-bar">
+            <div class="tab-item" onclick="navigateTo('home.html')">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="tab-item" onclick="navigateTo('tree.html')">
+                <i class="fas fa-tree"></i>
+                <span>生命树</span>
+            </div>
+            <div class="tab-item" onclick="navigateTo('learning.html')">
+                <i class="fas fa-book-open"></i>
+                <span>学习</span>
+            </div>
+            <div class="tab-item" onclick="navigateTo('community.html')">
+                <i class="fas fa-users"></i>
+                <span>社区</span>
+            </div>
+            <div class="tab-item active">
+                <i class="fas fa-cog"></i>
+                <span>设置</span>
+            </div>
+        </div>
+
+        <!-- 紧急求助按钮 -->
+        <div class="emergency-button" onclick="showEmergencyHelp()">
+            <i class="fas fa-life-ring"></i>
+        </div>
+    </div>
+
+    <!-- 弹窗 - 个人资料 -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">个人资料</div>
+                <div class="modal-close" onclick="closeModal('profile')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>头像</label>
+                    <div class="avatar-upload">
+                        <div class="avatar-preview" id="avatarPreview" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80');">
+                            <div class="avatar-overlay">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="previewAvatar(this)">
+                        <button type="button" class="btn btn-outline btn-sm mt-5" onclick="document.getElementById('avatarInput').click()">更换头像</button>
+                    </div>
+                </div>
+                <div class="form-group mt-15">
+                    <label>用户名</label>
+                    <input type="text" id="usernameInput" value="007玊小海盗" class="form-control" placeholder="请输入用户名">
+                </div>
+                <div class="form-group mt-10">
+                    <label>电子邮箱</label>
+                    <input type="email" id="emailInput" value="huanpirate@gmail.com" class="form-control" placeholder="请输入邮箱地址">
+                </div>
+                <div class="form-group mt-10">
+                    <label>手机号码</label>
+                    <input type="tel" id="phoneInput" value="17827052289" class="form-control" placeholder="请输入手机号码">
+                </div>
+                <div class="form-group mt-10">
+                    <label>个人简介</label>
+                    <textarea id="bioInput" class="form-control" rows="3" placeholder="介绍一下自己吧...">正在努力戒除不良习惯，希望能够重新掌控自己的生活。</textarea>
+                </div>
+                <div class="form-group mt-10">
+                    <label>恢复目标</label>
+                    <select id="goalInput" class="form-control">
+                        <option value="30">30天挑战</option>
+                        <option value="90" selected>90天重塑</option>
+                        <option value="365">一年新生</option>
+                        <option value="custom">自定义目标</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('profile')">取消</button>
+                <button class="btn btn-primary" onclick="saveProfile()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 - 每日任务提醒时间 -->
+    <div id="reminderTimeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">每日任务提醒时间</div>
+                <div class="modal-close" onclick="closeModal('reminderTime')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <div class="time-picker">
+                    <select id="hourSelect">
+                        <option value="0">00</option>
+                        <option value="1">01</option>
+                        <option value="2">02</option>
+                        <option value="3">03</option>
+                        <option value="4">04</option>
+                        <option value="5">05</option>
+                        <option value="6">06</option>
+                        <option value="7">07</option>
+                        <option value="8" selected>08</option>
+                        <option value="9">09</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                    </select>
+                    <span>:</span>
+                    <select id="minuteSelect">
+                        <option value="0" selected>00</option>
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="45">45</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('reminderTime')">取消</button>
+                <button class="btn btn-primary" onclick="saveReminderTime()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 - 重置进度 -->
+    <div id="resetProgressModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">重置进度</div>
+                <div class="modal-close" onclick="closeModal('resetProgress')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <p>确定要重置您的恢复进度吗？</p>
+                <p class="text-danger">警告：此操作无法撤销，您的所有进度数据将被清除。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('resetProgress')">取消</button>
+                <button class="btn btn-danger" onclick="resetProgress()">确认重置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 - 常见问题 -->
+    <div id="faqModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">常见问题</div>
+                <div class="modal-close" onclick="closeModal('faq')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <div class="faq-item">
+                    <h3>如何开始我的戒瘾之旅？</h3>
+                    <p>首先完成个人评估，然后系统会为您生成个性化的90天恢复计划。每天完成计划中的任务，逐步建立健康习惯。建议从简单的任务开始，如每日冥想5分钟、记录情绪日记等。</p>
+                </div>
+                <div class="faq-item mt-10">
+                    <h3>遇到强烈渴望怎么办？</h3>
+                    <p>点击首页的"紧急求助"按钮，使用呼吸引导和替代活动来缓解渴望。您也可以与AI辅导进行对话获取支持。记住：渴望是暂时的，通常在15-20分钟内会自然消退。</p>
+                </div>
+                <div class="faq-item mt-10">
+                    <h3>生命树是如何成长的？</h3>
+                    <p>完成每日任务和挑战会增加生命树的成长值。随着树的成长，您将解锁新的成就和里程碑，记录您的恢复进程。每个阶段的完成都会让树变得更加茂盛，象征着您内在力量的增长。</p>
+                </div>
+                <div class="faq-item mt-10">
+                    <h3>如何修改我的恢复计划？</h3>
+                    <p>在"恢复计划"页面，您可以查看和调整当前阶段的任务。如需重大调整，请在设置中重置进度或联系客服获取帮助。我们建议在专业指导下进行计划调整。</p>
+                </div>
+                <div class="faq-item mt-10">
+                    <h3>数据安全和隐私如何保障？</h3>
+                    <p>我们采用端到端加密技术保护您的数据安全。您的个人信息和恢复记录绝不会被分享给第三方。详情请查看隐私政策。所有数据存储均符合国际安全标准。</p>
+                </div>
+                <div class="faq-item mt-10">
+                    <h3>如何与社区其他成员互动？</h3>
+                    <p>在社区页面，您可以分享经验、参与讨论、给他人点赞和评论。我们鼓励积极正面的互动，共同营造支持性的恢复环境。您也可以设置隐私偏好控制信息可见性。</p>
+                </div>
+                <div class="faq-item mt-10">
+                    <h3>学习模块的课程如何安排？</h3>
+                    <p>学习模块包含科学的戒瘾知识、心理技巧和实用工具。课程按难度递进，建议按顺序学习。每个课程约10-15分钟，可以随时暂停和重复观看。</p>
+                </div>
+                <div class="faq-item mt-10">
+                    <h3>如果复发了怎么办？</h3>
+                    <p>复发是恢复过程中的常见现象，不要因此自责。重要的是尽快重新开始，分析复发原因，调整应对策略。您可以使用"紧急求助"功能或联系客服获取专业支持。</p>
+                </div>
+                <div class="faq-item mt-10">
+                    <h3>如何邀请朋友或家人支持我？</h3>
+                    <p>在设置中可以添加支持者联系方式，他们会收到您的进度更新（需您授权）。您也可以分享特定的成就和里程碑，让亲友了解您的努力和进步。</p>
+                </div>
+                <div class="faq-item mt-10">
+                    <h3>应用是否收费？有哪些付费功能？</h3>
+                    <p>基础功能完全免费，包括恢复计划、社区互动和基础学习内容。高级功能如个性化AI辅导、专业课程和详细数据分析需要订阅会员。我们提供7天免费试用。</p>
+                </div>
+                <div class="faq-item mt-10">
+                    <h3>如何备份和恢复我的数据？</h3>
+                    <p>您可以在"数据管理"中导出个人数据，包括进度记录、日记和设置。更换设备时，使用相同账号登录即可自动同步数据。建议定期备份重要信息。</p>
+                </div>
+                <div class="faq-item mt-10">
+                    <h3>遇到技术问题如何解决？</h3>
+                    <p>首先尝试重启应用或检查网络连接。如问题持续，请通过"联系客服"提交详细的问题描述和设备信息。我们的技术团队会在24小时内回复。</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('faq')">我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 - 联系客服 -->
+    <div id="supportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">联系客服</div>
+                <div class="modal-close" onclick="closeModal('support')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <p>如有任何问题或需要帮助，请通过以下方式联系我们：</p>
+                <div class="contact-item mt-10">
+                    <i class="fas fa-envelope"></i>
+                    <span>客服邮箱：2452299466@qq.com</span>
+                </div>
+                <div class="contact-item mt-10">
+                    <i class="fas fa-headset"></i>
+                    <span>在线客服：工作日 9:00-18:00</span>
+                </div>
+                <div class="contact-item mt-10">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>反馈建议：点击下方按钮提交</span>
+                </div>
+                <button class="btn btn-outline w-100 mt-15" onclick="showFeedbackForm()">提交反馈</button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('support')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 - 隐私偏好设置 -->
+    <div id="privacySettingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">隐私偏好设置</div>
+                <div class="modal-close" onclick="closeModal('privacySettings')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>社区可见性</label>
+                    <select id="visibilitySelect" class="form-control">
+                        <option value="public">公开</option>
+                        <option value="friends" selected>仅好友可见</option>
+                        <option value="private">完全隐私</option>
+                    </select>
+                </div>
+                <div class="form-group mt-10">
+                    <label>进度分享</label>
+                    <select id="progressSharingSelect" class="form-control">
+                        <option value="auto">自动分享里程碑</option>
+                        <option value="manual" selected>手动选择分享</option>
+                        <option value="none">不分享</option>
+                    </select>
+                </div>
+                <div class="form-group mt-10">
+                    <div class="flex-between">
+                        <label>活动状态</label>
+                        <label class="toggle">
+                            <input type="checkbox" id="activityStatusToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-muted">允许其他用户查看您的在线状态</p>
+                </div>
+                <div class="form-group mt-10">
+                    <div class="flex-between">
+                        <label>个人资料搜索</label>
+                        <label class="toggle">
+                            <input type="checkbox" id="profileSearchToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-muted">允许其他用户通过搜索找到您</p>
+                </div>
+                <div class="form-group mt-10">
+                    <div class="flex-between">
+                        <label>数据收集</label>
+                        <label class="toggle">
+                            <input type="checkbox" id="dataCollectionToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-muted">允许收集匿名使用数据以改善服务</p>
+                </div>
+                <div class="form-group mt-10">
+                    <div class="flex-between">
+                        <label>推送通知</label>
+                        <label class="toggle">
+                            <input type="checkbox" id="pushNotificationToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-muted">接收应用推送通知和提醒</p>
+                </div>
+                <div class="form-group mt-10">
+                    <div class="flex-between">
+                        <label>邮件通知</label>
+                        <label class="toggle">
+                            <input type="checkbox" id="emailNotificationToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-muted">接收重要更新和恢复建议邮件</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('privacySettings')">取消</button>
+                <button class="btn btn-primary" onclick="savePrivacySettings()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 - 导出数据 -->
+    <div id="dataExportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">导出我的数据</div>
+                <div class="modal-close" onclick="closeModal('dataExport')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <p>您可以导出以下数据：</p>
+                <div class="checkbox-group mt-10">
+                    <label class="checkbox-item">
+                        <input type="checkbox" checked>
+                        <span>个人资料</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" checked>
+                        <span>恢复进度记录</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" checked>
+                        <span>日记与笔记</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" checked>
+                        <span>完成的课程与练习</span>
+                    </label>
+                </div>
+                <p class="text-xs text-muted mt-10">数据将以JSON格式导出，处理可能需要几分钟时间</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('dataExport')">取消</button>
+                <button class="btn btn-primary" onclick="exportUserData()">导出数据</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 - 删除账号 -->
+    <div id="deleteAccountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">删除账号</div>
+                <div class="modal-close" onclick="closeModal('deleteAccount')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <p class="text-danger">警告：此操作将永久删除您的账号和所有相关数据，无法恢复。</p>
+                <div class="form-group mt-15">
+                    <label>请输入您的密码确认</label>
+                    <input type="password" class="form-control" placeholder="输入密码">
+                </div>
+                <div class="form-group mt-10">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="confirmDelete">
+                        <span>我确认要永久删除我的账号和所有数据</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('deleteAccount')">取消</button>
+                <button class="btn btn-danger" onclick="deleteAccount()" disabled id="deleteAccountBtn">删除账号</button>
+            </div>
+        </div>
+    </div>
+    <!-- 弹窗 - 隐私政策 -->
+    <div id="privacyPolicyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">隐私政策</div>
+                <div class="modal-close" onclick="closeModal('privacyPolicy')">&times;</div>
+            </div>
+            <div class="modal-body privacy-content">
+                <h3>QUITTR隐私政策</h3>
+                <p class="text-xs text-muted">最后更新：2024年1月15日</p>
+                
+                <div class="privacy-intro">
+                    <p>QUITTR（以下简称"我们"）深知您的隐私对您的重要性，并会尽全力保护您的隐私安全。本隐私政策详细说明了我们如何收集、使用、存储和保护您的个人信息。</p>
+                </div>
+                
+                <h4 class="mt-15">1. 信息收集</h4>
+                <p>我们收集的个人信息包括：</p>
+                <ul>
+                    <li><strong>账户信息：</strong>用户名、电子邮件地址、手机号码、头像、生日等基本资料</li>
+                    <li><strong>使用数据：</strong>应用使用频率、功能使用情况、访问时间、设备信息、IP地址</li>
+                    <li><strong>恢复进度：</strong>完成任务记录、里程碑达成、成就解锁、戒断天数统计</li>
+                    <li><strong>社区互动：</strong>发布的内容、评论、点赞记录、关注关系</li>
+                    <li><strong>健康数据：</strong>心情记录、睡眠质量、压力水平等自愿提供的健康信息</li>
+                    <li><strong>技术信息：</strong>设备型号、操作系统版本、应用版本、崩溃日志</li>
+                </ul>
+                
+                <h4 class="mt-15">2. 信息使用</h4>
+                <p>我们使用收集的信息用于：</p>
+                <ul>
+                    <li><strong>服务提供：</strong>提供个性化恢复计划、智能提醒、进度跟踪</li>
+                    <li><strong>功能改进：</strong>分析用户行为，优化应用功能和用户体验</li>
+                    <li><strong>安全保障：</strong>检测和防范欺诈行为，保护账户安全</li>
+                    <li><strong>客户服务：</strong>响应用户咨询，提供技术支持</li>
+                    <li><strong>合规要求：</strong>遵守法律法规，配合监管部门调查</li>
+                    <li><strong>营销推广：</strong>在您同意的前提下，发送产品更新和推广信息</li>
+                </ul>
+                
+                <h4 class="mt-15">3. 信息保护</h4>
+                <p>我们采取业界领先的安全措施保护您的个人信息：</p>
+                <ul>
+                    <li><strong>加密技术：</strong>采用AES-256端到端加密，确保数据传输和存储安全</li>
+                    <li><strong>访问控制：</strong>实施严格的内部权限管理，仅授权人员可访问必要数据</li>
+                    <li><strong>安全审计：</strong>定期进行安全评估和渗透测试，及时发现并修复漏洞</li>
+                    <li><strong>数据备份：</strong>建立多重备份机制，防止数据丢失</li>
+                    <li><strong>员工培训：</strong>定期对员工进行隐私保护和数据安全培训</li>
+                    <li><strong>合规认证：</strong>通过ISO27001信息安全管理体系认证</li>
+                </ul>
+                
+                <h4 class="mt-15">4. 信息共享</h4>
+                <p>我们承诺不会出售您的个人信息。仅在以下情况下可能共享您的信息：</p>
+                <ul>
+                    <li><strong>明确授权：</strong>获得您的明确同意</li>
+                    <li><strong>法律要求：</strong>应政府部门、司法机关要求</li>
+                    <li><strong>服务提供：</strong>与可信的第三方服务商（如云存储、推送服务）共享必要信息</li>
+                    <li><strong>业务转让：</strong>在公司合并、收购或资产转让时，确保接收方遵守本政策</li>
+                    <li><strong>紧急情况：</strong>为保护用户或公众的生命安全</li>
+                </ul>
+                
+                <h4 class="mt-15">5. 您的权利</h4>
+                <p>根据相关法律法规，您对个人信息享有以下权利：</p>
+                <ul>
+                    <li><strong>知情权：</strong>了解个人信息的收集、使用情况</li>
+                    <li><strong>访问权：</strong>查看我们持有的您的个人信息</li>
+                    <li><strong>更正权：</strong>要求更正不准确或不完整的个人信息</li>
+                    <li><strong>删除权：</strong>在特定情况下要求删除个人信息</li>
+                    <li><strong>限制权：</strong>限制对特定个人信息的处理</li>
+                    <li><strong>携带权：</strong>以结构化、常用格式获取个人信息副本</li>
+                    <li><strong>撤回权：</strong>随时撤回对个人信息处理的同意</li>
+                </ul>
+                
+                <h4 class="mt-15">6. Cookie和类似技术</h4>
+                <p>我们使用Cookie和类似技术来改善用户体验：</p>
+                <ul>
+                    <li>记住您的登录状态和偏好设置</li>
+                    <li>分析应用使用情况，优化性能</li>
+                    <li>提供个性化内容和推荐</li>
+                    <li>您可以通过设备设置管理Cookie偏好</li>
+                </ul>
+                
+                <h4 class="mt-15">7. 数据保留</h4>
+                <p>我们仅在必要期间保留您的个人信息：</p>
+                <ul>
+                    <li>账户信息：账户存续期间及注销后30天</li>
+                    <li>使用数据：收集后24个月</li>
+                    <li>恢复进度：用户主动删除前永久保存</li>
+                    <li>法律要求的其他保留期限</li>
+                </ul>
+                
+                <h4 class="mt-15">8. 未成年人保护</h4>
+                <p>我们特别关注未成年人的隐私保护：</p>
+                <ul>
+                    <li>不会故意收集14岁以下儿童的个人信息</li>
+                    <li>14-18岁用户需获得监护人同意</li>
+                    <li>发现收集了儿童信息将立即删除</li>
+                </ul>
+                
+                <h4 class="mt-15">9. 跨境传输</h4>
+                <p>您的个人信息主要存储在中国境内。如需跨境传输，我们将：</p>
+                <ul>
+                    <li>遵守相关法律法规要求</li>
+                    <li>确保接收方提供同等级别的保护</li>
+                    <li>在必要时获得您的明确同意</li>
+                </ul>
+                
+                <h4 class="mt-15">10. 政策更新</h4>
+                <p>我们可能会不时更新本隐私政策。重大变更时，我们将：</p>
+                <ul>
+                    <li>通过应用内通知、邮件等方式告知您</li>
+                    <li>在显著位置发布更新公告</li>
+                    <li>对于重大变更，可能需要重新获得您的同意</li>
+                </ul>
+                
+                <h4 class="mt-15">11. 联系我们</h4>
+                <p>如有任何隐私相关问题或投诉，请通过以下方式联系我们：</p>
+                <ul>
+                    <li><strong>邮箱：</strong>2452299466@qq.com</li>
+                    <li><strong>地址：</strong>中国北京市朝阳区xxx大厦xxx室</li>
+                    <li><strong>电话：</strong>400-xxx-xxxx（工作日9:00-18:00）</li>
+                    <li><strong>在线客服：</strong>应用内客服功能</li>
+                </ul>
+                <p>我们将在收到您的请求后15个工作日内回复。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('privacyPolicy')">我已阅读</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 - 使用条款 -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">使用条款</div>
+                <div class="modal-close" onclick="closeModal('terms')">&times;</div>
+            </div>
+            <div class="modal-body terms-content">
+                <h3>QUITTR使用条款</h3>
+                <p class="text-xs text-muted">最后更新：2024年1月15日</p>
+                
+                <div class="terms-intro">
+                    <p>欢迎使用QUITTR应用！本使用条款（以下简称"条款"）是您与QUITTR之间的法律协议。请仔细阅读本条款，使用我们的服务即表示您同意遵守这些条款。</p>
+                </div>
+                
+                <h4 class="mt-15">1. 接受条款</h4>
+                <p>通过下载、安装、访问或使用QUITTR应用，您确认：</p>
+                <ul>
+                    <li>您已年满18周岁，或已获得监护人同意</li>
+                    <li>您具有完全民事行为能力</li>
+                    <li>您同意遵守本条款的所有规定</li>
+                    <li>如不同意任何条款，请立即停止使用本应用</li>
+                </ul>
+                
+                <h4 class="mt-15">2. 服务描述</h4>
+                <p>QUITTR是一款专注于戒断成瘾行为的健康应用，提供：</p>
+                <ul>
+                    <li>个性化戒断计划和进度跟踪</li>
+                    <li>专业的心理健康内容和指导</li>
+                    <li>支持性社区平台和互动功能</li>
+                    <li>数据分析和洞察报告</li>
+                    <li>提醒和激励功能</li>
+                </ul>
+                
+                <h4 class="mt-15">3. 账户责任</h4>
+                <p>关于您的账户，您需要：</p>
+                <ul>
+                    <li><strong>真实信息：</strong>提供准确、完整的注册信息</li>
+                    <li><strong>安全保护：</strong>妥善保管账户密码，不与他人共享</li>
+                    <li><strong>及时更新：</strong>保持个人信息的准确性和时效性</li>
+                    <li><strong>责任承担：</strong>对账户下的所有活动承担责任</li>
+                    <li><strong>异常报告：</strong>发现账户异常时立即通知我们</li>
+                </ul>
+                
+                <h4 class="mt-15">4. 用户行为规范</h4>
+                <p>使用本应用时，您承诺不会：</p>
+                <ul>
+                    <li><strong>违法行为：</strong>从事任何违反法律法规的活动</li>
+                    <li><strong>有害内容：</strong>发布虚假、误导、诽谤、骚扰或有害信息</li>
+                    <li><strong>侵权行为：</strong>侵犯他人知识产权、隐私权或其他合法权益</li>
+                    <li><strong>技术破坏：</strong>干扰应用正常运行，传播恶意软件或病毒</li>
+                    <li><strong>商业滥用：</strong>未经授权进行商业推广或营销活动</li>
+                    <li><strong>数据滥用：</strong>爬取、复制或滥用应用数据</li>
+                    <li><strong>冒充他人：</strong>冒充其他用户、机构或QUITTR工作人员</li>
+                </ul>
+                
+                <h4 class="mt-15">5. 内容所有权</h4>
+                <p>关于知识产权：</p>
+                <ul>
+                    <li><strong>应用权利：</strong>QUITTR及其许可方拥有应用的所有知识产权</li>
+                    <li><strong>用户内容：</strong>您保留对自己创建内容的权利，但授予我们使用许可</li>
+                    <li><strong>使用限制：</strong>未经许可，不得复制、修改、分发或商业使用应用内容</li>
+                    <li><strong>商标保护：</strong>QUITTR商标和标识受法律保护</li>
+                </ul>
+                
+                <h4 class="mt-15">6. 隐私保护</h4>
+                <p>我们重视您的隐私：</p>
+                <ul>
+                    <li>请参阅我们的《隐私政策》了解详细信息</li>
+                    <li>我们采用行业标准的安全措施保护您的数据</li>
+                    <li>您可以控制个人信息的收集和使用</li>
+                </ul>
+                
+                <h4 class="mt-15">7. 付费服务</h4>
+                <p>关于VIP订阅和付费功能：</p>
+                <ul>
+                    <li><strong>订阅费用：</strong>按照应用内显示的价格收费</li>
+                    <li><strong>自动续费：</strong>订阅将自动续费，可随时取消</li>
+                    <li><strong>退款政策：</strong>符合条件的情况下可申请退款</li>
+                    <li><strong>价格变更：</strong>我们保留调整价格的权利，变更前会通知您</li>
+                </ul>
+                
+                <h4 class="mt-15">8. 服务变更与终止</h4>
+                <p>我们保留以下权利：</p>
+                <ul>
+                    <li><strong>功能调整：</strong>随时修改、暂停或终止部分或全部服务</li>
+                    <li><strong>账户处理：</strong>对违规账户进行警告、限制或封禁</li>
+                    <li><strong>通知义务：</strong>重大变更将提前通知用户</li>
+                    <li><strong>数据处理：</strong>服务终止时协助用户导出个人数据</li>
+                </ul>
+                
+                <h4 class="mt-15">9. 免责声明</h4>
+                <p>请注意以下重要声明：</p>
+                <ul>
+                    <li><strong>医疗建议：</strong>本应用不提供医疗诊断或治疗建议</li>
+                    <li><strong>专业咨询：</strong>严重成瘾问题请咨询专业医疗人员</li>
+                    <li><strong>效果保证：</strong>我们不保证特定的戒断效果</li>
+                    <li><strong>第三方内容：</strong>对第三方提供的内容不承担责任</li>
+                    <li><strong>技术风险：</strong>网络中断、设备故障等技术问题可能影响服务</li>
+                </ul>
+                
+                <h4 class="mt-15">10. 责任限制</h4>
+                <p>在法律允许的最大范围内：</p>
+                <ul>
+                    <li>QUITTR不对任何间接、附带、特殊或后果性损害承担责任</li>
+                    <li>我们的总责任不超过您支付的服务费用</li>
+                    <li>不承担因不可抗力导致的服务中断责任</li>
+                    <li>用户应对自己的行为和决定承担责任</li>
+                </ul>
+                
+                <h4 class="mt-15">11. 争议解决</h4>
+                <p>如发生争议：</p>
+                <ul>
+                    <li><strong>友好协商：</strong>首先通过协商解决</li>
+                    <li><strong>调解程序：</strong>可申请第三方调解</li>
+                    <li><strong>法律途径：</strong>协商不成可向有管辖权的法院起诉</li>
+                    <li><strong>适用法律：</strong>本条款受中华人民共和国法律管辖</li>
+                </ul>
+                
+                <h4 class="mt-15">12. 条款修改</h4>
+                <p>关于条款更新：</p>
+                <ul>
+                    <li>我们可能会不时修改本条款</li>
+                    <li>重大修改将提前30天通知</li>
+                    <li>继续使用服务视为接受新条款</li>
+                    <li>如不同意修改，可以停止使用服务</li>
+                </ul>
+                
+                <h4 class="mt-15">13. 其他条款</h4>
+                <ul>
+                    <li><strong>完整协议：</strong>本条款构成双方的完整协议</li>
+                    <li><strong>条款独立：</strong>部分条款无效不影响其他条款效力</li>
+                    <li><strong>语言版本：</strong>以中文版本为准</li>
+                    <li><strong>生效时间：</strong>本条款自发布之日起生效</li>
+                </ul>
+                
+                <h4 class="mt-15">14. 联系方式</h4>
+                <p>如对本条款有任何疑问，请联系我们：</p>
+                <ul>
+                    <li><strong>邮箱：</strong>2452299466@qq.com</li>
+                    <li><strong>客服热线：</strong>400-xxx-xxxx</li>
+                    <li><strong>在线客服：</strong>应用内客服功能</li>
+                    <li><strong>工作时间：</strong>周一至周五 9:00-18:00</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('terms')">我已阅读</button>
+            </div>
+    <!-- 弹窗 - 订阅管理 -->
+    <div id="subscriptionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">VIP订阅</div>
+                <div class="modal-close" onclick="closeModal('subscription')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <div class="subscription-status">
+                    <div class="current-plan">
+                        <h3 id="currentPlanTitle">当前计划：免费版</h3>
+                        <p class="text-muted" id="currentPlanDesc">升级到VIP享受更多专业功能</p>
+                        <div class="subscription-info" id="subscriptionInfo" style="display: none;">
+                            <div class="info-item">
+                                <span>订阅状态：</span>
+                                <span class="status-active" id="subscriptionStatus">已激活</span>
+                            </div>
+                            <div class="info-item">
+                                <span>到期时间：</span>
+                                <span id="expiryDate">2024-12-31</span>
+                            </div>
+                            <div class="info-item">
+                                <span>自动续费：</span>
+                                <span id="autoRenewal">已开启</span>
+                                <button class="btn btn-link btn-sm" onclick="toggleAutoRenewal()">管理</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subscription-plans">
+                    <div class="plan-card" onclick="selectPlan('monthly')">
+                        <div class="plan-header">
+                            <h4>月度订阅</h4>
+                            <div class="plan-price">¥10<span>/月</span></div>
+                        </div>
+                        <div class="plan-features">
+                            <div class="feature">✓ 无限制AI辅导对话</div>
+                            <div class="feature">✓ 高级冥想课程</div>
+                            <div class="feature">✓ 个性化恢复计划</div>
+                            <div class="feature">✓ 详细进度分析</div>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-card recommended" onclick="selectPlan('quarterly')">
+                        <div class="plan-badge">推荐</div>
+                        <div class="plan-header">
+                            <h4>季度订阅</h4>
+                            <div class="plan-price">¥25<span>/季度</span></div>
+                            <div class="plan-save">节省¥5</div>
+                        </div>
+                        <div class="plan-features">
+                            <div class="feature">✓ 月度订阅所有功能</div>
+                            <div class="feature">✓ 专属社区徽章</div>
+                            <div class="feature">✓ 优先客服支持</div>
+                            <div class="feature">✓ 数据云端备份</div>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-card" onclick="selectPlan('yearly')">
+                        <div class="plan-header">
+                            <h4>年度订阅</h4>
+                            <div class="plan-price">¥88<span>/年</span></div>
+                            <div class="plan-save">节省¥32</div>
+                        </div>
+                        <div class="plan-features">
+                            <div class="feature">✓ 季度订阅所有功能</div>
+                            <div class="feature">✓ 一对一专家咨询</div>
+                            <div class="feature">✓ 家庭共享计划</div>
+                            <div class="feature">✓ 终身成就记录</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="payment-methods">
+                    <h4>支付方式</h4>
+                    <div class="payment-options">
+                        <div class="payment-option" onclick="selectPayment('wechat')">
+                            <i class="fab fa-weixin"></i>
+                            <span>微信支付</span>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment('alipay')">
+                            <i class="fab fa-alipay"></i>
+                            <span>支付宝</span>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment('apple')">
+                            <i class="fab fa-apple"></i>
+                            <span>Apple Pay</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('subscription')">稍后再说</button>
+                <button class="btn btn-primary" onclick="subscribeToPlan()" id="subscribeBtn" disabled>立即订阅</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 设置数据
+        const settings = {
+            aiBlocker: true,
+            darkMode: localStorage.getItem('darkMode') === 'true',
+            reminderTime: '08:00',
+            meditationReminder: '每天'
+        };
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置当前时间
+            updateTime();
+            setInterval(updateTime, 60000);
+            
+            // 初始化开关状态
+            document.querySelector('input[onchange="toggleDarkMode(this.checked)"]').checked = settings.darkMode;
+            
+            // 应用保存的深色模式设置
+            if (settings.darkMode) {
+                document.body.classList.add('dark-mode');
+            }
+            
+            // 加载保存的隐私设置
+            loadPrivacySettings();
+        });
+        
+        // 加载隐私设置
+        function loadPrivacySettings() {
+            const savedPrivacy = localStorage.getItem('privacySettings');
+            if (savedPrivacy) {
+                try {
+                    const privacyData = JSON.parse(savedPrivacy);
+                    
+                    // 设置下拉框值
+                    if (privacyData.visibility) {
+                        const visibilitySelect = document.getElementById('visibilitySelect');
+                        if (visibilitySelect) {
+                            visibilitySelect.value = privacyData.visibility;
+                        }
+                    }
+                    
+                    if (privacyData.progressSharing) {
+                        const progressSelect = document.getElementById('progressSharingSelect');
+                        if (progressSelect) {
+                            progressSelect.value = privacyData.progressSharing;
+                        }
+                    }
+                    
+                    // 设置复选框状态
+                    if (typeof privacyData.activityStatus === 'boolean') {
+                        const activityCheckbox = document.getElementById('activityStatusToggle');
+                        if (activityCheckbox) {
+                            activityCheckbox.checked = privacyData.activityStatus;
+                        }
+                    }
+                    
+                    if (typeof privacyData.profileSearch === 'boolean') {
+                        const profileCheckbox = document.getElementById('profileSearchToggle');
+                        if (profileCheckbox) {
+                            profileCheckbox.checked = privacyData.profileSearch;
+                        }
+                    }
+                    
+                    if (typeof privacyData.dataCollection === 'boolean') {
+                        const dataCollectionCheckbox = document.getElementById('dataCollectionToggle');
+                        if (dataCollectionCheckbox) {
+                            dataCollectionCheckbox.checked = privacyData.dataCollection;
+                        }
+                    }
+                    
+                    if (typeof privacyData.pushNotification === 'boolean') {
+                        const pushNotificationCheckbox = document.getElementById('pushNotificationToggle');
+                        if (pushNotificationCheckbox) {
+                            pushNotificationCheckbox.checked = privacyData.pushNotification;
+                        }
+                    }
+                    
+                    if (typeof privacyData.emailNotification === 'boolean') {
+                        const emailNotificationCheckbox = document.getElementById('emailNotificationToggle');
+                        if (emailNotificationCheckbox) {
+                            emailNotificationCheckbox.checked = privacyData.emailNotification;
+                        }
+                    }
+                } catch (e) {
+                    console.error('加载隐私设置失败:', e);
+                }
+            }
+        }
+
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.querySelector('.time').textContent = `${hours}:${minutes}`;
+        }
+
+        // 显示弹窗
+        function showModal(modalType) {
+            const modalId = `${modalType}Modal`;
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'flex';
+            } else {
+                console.log(`Modal ${modalId} not found`);
+                alert(`${modalType}功能即将上线，敬请期待！`);
+            }
+        }
+
+        // 关闭弹窗
+        function closeModal(modalType) {
+            const modalId = `${modalType}Modal`;
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // 保存冥想提醒设置
+        function saveMeditationReminder() {
+            const frequency = document.getElementById('meditationFrequency').value;
+            const time = document.getElementById('meditationTime').value;
+            const enabled = document.getElementById('meditationEnabled').checked;
+            
+            // 保存设置
+            const meditationSettings = {
+                frequency,
+                time,
+                enabled
+            };
+            
+            localStorage.setItem('meditationReminderSettings', JSON.stringify(meditationSettings));
+            showToast('冥想提醒设置已保存');
+            closeModal('meditationReminder');
+        }
+
+        // 保存隐私设置
+        function savePrivacySettings() {
+            const visibility = document.getElementById('visibilitySelect').value;
+            const progressSharing = document.getElementById('progressSharingSelect').value;
+            const activityStatus = document.getElementById('activityStatusToggle').checked;
+            const profileSearch = document.getElementById('profileSearchToggle').checked;
+            const dataCollection = document.getElementById('dataCollectionToggle').checked;
+            const pushNotification = document.getElementById('pushNotificationToggle').checked;
+            const emailNotification = document.getElementById('emailNotificationToggle').checked;
+            
+            // 保存设置
+            const privacySettings = {
+                visibility,
+                progressSharing,
+                activityStatus,
+                profileSearch,
+                dataCollection,
+                pushNotification,
+                emailNotification
+            };
+            
+            localStorage.setItem('privacySettings', JSON.stringify(privacySettings));
+            showToast('隐私设置已保存');
+            closeModal('privacySettings');
+        }
+        
+        // 导出用户数据
+        function exportUserData() {
+            const modal = document.getElementById('dataExportModal');
+            const checkboxes = modal.querySelectorAll('input[type="checkbox"]:checked');
+            const selectedData = Array.from(checkboxes).map(cb => cb.nextElementSibling.textContent);
+            
+            if (selectedData.length === 0) {
+                showToast('请至少选择一项要导出的数据');
+                return;
+            }
+            
+            showToast('数据导出请求已提交，处理完成后将通知您');
+            closeModal('dataExport');
+            
+            // 模拟导出过程
+            setTimeout(() => {
+                const exportData = {
+                    exportDate: new Date().toISOString(),
+                    selectedItems: selectedData,
+                    userData: {
+                        profile: JSON.parse(localStorage.getItem('userProfile') || '{}'),
+                        progress: JSON.parse(localStorage.getItem('userProgress') || '{}'),
+                        privacy: JSON.parse(localStorage.getItem('privacySettings') || '{}'),
+                        completedActivities: JSON.parse(localStorage.getItem('completedActivities') || '[]')
+                    }
+                };
+                
+                // 创建下载链接
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `quittr_data_export_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                showToast('数据导出完成，文件已下载');
+            }, 3000);
+        }
+        
+        // 删除账号
+        function deleteAccount() {
+            const modal = document.getElementById('deleteAccountModal');
+            const confirmed = document.getElementById('confirmDelete').checked;
+            const password = modal.querySelector('input[type="password"]').value;
+            
+            if (!confirmed) {
+                showToast('请确认删除操作');
+                return;
+            }
+            
+            if (!password) {
+                showToast('请输入密码');
+                return;
+            }
+            
+            // 简单的密码验证（实际应用中应该与服务器验证）
+            const storedPassword = localStorage.getItem('userPassword') || 'demo123';
+            if (password !== storedPassword) {
+                showToast('密码错误');
+                return;
+            }
+            
+            showToast('账号删除请求已提交');
+            closeModal('deleteAccount');
+            
+            // 模拟删除过程
+            setTimeout(() => {
+                // 清除所有本地数据
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                alert('您的账号已成功删除。感谢您使用QUITTR，祝您一切顺利！');
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+        
+        // 监听删除确认复选框变化
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmCheckbox = document.getElementById('confirmDelete');
+            const deleteBtn = document.getElementById('deleteAccountBtn');
+            const passwordInput = document.querySelector('#deleteAccountModal input[type="password"]');
+            
+            function updateDeleteButton() {
+                if (confirmCheckbox && deleteBtn && passwordInput) {
+                    deleteBtn.disabled = !(confirmCheckbox.checked && passwordInput.value.length > 0);
+                }
+            }
+            
+            if (confirmCheckbox) {
+                confirmCheckbox.addEventListener('change', updateDeleteButton);
+            }
+            
+            if (passwordInput) {
+                passwordInput.addEventListener('input', updateDeleteButton);
+            }
+        });
+
+        // 切换设置
+        function toggleSetting(settingName, value) {
+            settings[settingName] = value;
+            console.log(`${settingName} set to ${value}`);
+            
+            // 显示提示
+            showToast(`${settingName}已${value ? '开启' : '关闭'}`);
+        }
+
+        // 切换深色模式
+        function toggleDarkMode(enabled) {
+            settings.darkMode = enabled;
+            document.body.classList.toggle('dark-mode', enabled);
+            localStorage.setItem('darkMode', enabled);
+            showToast(`深色模式已${enabled ? '开启' : '关闭'}`);
+        }
+
+        // 保存个人资料
+        // 预览头像
+        function previewAvatar(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').style.backgroundImage = `url(${e.target.result})`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // 保存个人资料
+        function saveProfile() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
+            const phone = document.getElementById('phoneInput').value.trim();
+            const bio = document.getElementById('bioInput').value.trim();
+            const goal = document.getElementById('goalInput').value;
+            
+            // 验证必填字段
+            if (!username) {
+                showToast('请输入用户名');
+                return;
+            }
+            
+            if (!email || !isValidEmail(email)) {
+                showToast('请输入有效的邮箱地址');
+                return;
+            }
+            
+            if (!phone || !isValidPhone(phone)) {
+                showToast('请输入有效的手机号码');
+                return;
+            }
+            
+            // 保存数据到本地存储
+            const profileData = {
+                username,
+                email,
+                phone,
+                bio,
+                goal,
+                avatar: document.getElementById('avatarPreview').style.backgroundImage,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            localStorage.setItem('userProfile', JSON.stringify(profileData));
+            
+            // 更新页面显示
+            updateProfileDisplay(profileData);
+            
+            showToast('个人资料已保存');
+            closeModal('profile');
+        }
+        
+        // 验证邮箱格式
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // 验证手机号格式
+        function isValidPhone(phone) {
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            return phoneRegex.test(phone);
+        }
+        
+        // 更新个人资料显示
+        function updateProfileDisplay(profileData) {
+            // 更新头部用户信息
+            const userAvatar = document.querySelector('.user-avatar');
+            const userName = document.querySelector('.user-name');
+            
+            if (userAvatar && profileData.avatar) {
+                userAvatar.style.backgroundImage = profileData.avatar;
+            }
+            
+            if (userName) {
+                userName.textContent = profileData.username;
+            }
+        }
+
+        // 保存提醒时间
+        function saveReminderTime() {
+            const hour = document.getElementById('hourSelect').value;
+            const minute = document.getElementById('minuteSelect').value;
+            const formattedHour = hour.padStart(2, '0');
+            const formattedMinute = minute.padStart(2, '0');
+            
+            settings.reminderTime = `${formattedHour}:${formattedMinute}`;
+            document.querySelector('.settings-item:nth-child(1) .settings-value span').textContent = 
+                parseInt(hour) < 12 ? `早上${formattedHour}:${formattedMinute}` : `下午${formattedHour}:${formattedMinute}`;
+            
+            showToast('提醒时间已设置');
+            closeModal('reminderTime');
+        }
+
+        // 重置进度
+        function resetProgress() {
+            showToast('进度已重置');
+            closeModal('resetProgress');
+        }
+
+        // 退出登录
+        function logout() {
+            showModal('logout');
+        }
+        
+        // 确认退出登录
+        function confirmLogout() {
+            const rememberAccount = document.getElementById('rememberAccount').checked;
+            
+            if (rememberAccount) {
+                // 保存账号信息但清除登录状态
+                const currentUser = {
+                    username: '007玊小海盗',
+                    email: 'huanpirate@gmail.com',
+                    phone: '17827052289'
+                };
+                localStorage.setItem('rememberedAccount', JSON.stringify(currentUser));
+            } else {
+                // 清除所有本地数据
+                localStorage.removeItem('rememberedAccount');
+            }
+            
+            // 清除登录状态
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('currentUser');
+            
+            showToast('已退出登录');
+            closeModal('logout');
+            
+            // 跳转到登录页面
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1000);
+        }
+        
+        // 选择账号
+        let selectedAccountId = null;
+        
+        function selectAccount(accountId) {
+            // 移除之前的选择
+            document.querySelectorAll('.account-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // 添加选择状态（排除当前账号）
+            if (accountId !== 'current') {
+                event.currentTarget.classList.add('selected');
+                selectedAccountId = accountId;
+                document.getElementById('switchBtn').disabled = false;
+            }
+        }
+        
+        // 确认切换账号
+        function confirmSwitchAccount() {
+            if (!selectedAccountId) {
+                showToast('请选择要切换的账号');
+                return;
+            }
+            
+            const accountData = {
+                'user2': {
+                    username: '小明',
+                    email: 'xiaoming@example.com',
+                    phone: '13800138001',
+                    quitDays: 15
+                },
+                'user3': {
+                    username: '小红', 
+                    email: 'xiaohong@example.com',
+                    phone: '13900139001',
+                    quitDays: 3
+                }
+            };
+            
+            const newUser = accountData[selectedAccountId];
+            if (newUser) {
+                // 保存当前账号数据
+                const currentUserData = {
+                    username: '007玊小海盗',
+                    email: 'huanpirate@gmail.com',
+                    phone: '17827052289',
+                    quitDays: 42
+                };
+                localStorage.setItem('savedAccount_007', JSON.stringify(currentUserData));
+                
+                // 切换到新账号
+                localStorage.setItem('currentUser', JSON.stringify(newUser));
+                
+                showToast(`已切换到账号：${newUser.username}`);
+                closeModal('switchAccount');
+                
+                // 刷新页面以更新数据
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        }
+        
+        // 添加新账号
+        function addNewAccount() {
+            closeModal('switchAccount');
+            showToast('跳转到注册页面...');
+            
+            setTimeout(() => {
+                window.location.href = 'register.html';
+            }, 1000);
+        }
+        
+        // 切换账号
+        function switchAccount() {
+            showModal('switchAccount');
+        }
+
+        // 显示紧急求助
+        function showEmergencyHelp() {
+            alert('紧急求助已激活，专业顾问将立即与您联系。请保持电话畅通。');
+        }
+
+        // 显示提示
+        function showToast(message) {
+            // 创建提示元素
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // 显示提示
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // 隐藏提示
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 2000);
+        }
+
+        // 页面导航
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        // 订阅相关变量
+        let selectedPlan = null;
+        let selectedPayment = null;
+
+        // 选择订阅计划
+        function selectPlan(planType) {
+            // 移除之前选中的计划
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // 选中当前计划
+            event.currentTarget.classList.add('selected');
+            selectedPlan = planType;
+            
+            // 启用订阅按钮
+            updateSubscribeButton();
+        }
+
+        // 选择支付方式
+        function selectPayment(paymentType) {
+            // 移除之前选中的支付方式
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // 选中当前支付方式
+            event.currentTarget.classList.add('selected');
+            selectedPayment = paymentType;
+            
+            // 启用订阅按钮
+            updateSubscribeButton();
+        }
+
+        // 更新订阅按钮状态
+        function updateSubscribeButton() {
+            const subscribeBtn = document.getElementById('subscribeBtn');
+            if (selectedPlan && selectedPayment) {
+                subscribeBtn.disabled = false;
+                subscribeBtn.textContent = '立即订阅';
+            } else {
+                subscribeBtn.disabled = true;
+                subscribeBtn.textContent = '请选择计划和支付方式';
+            }
+        }
+
+        // 选择订阅计划
+        function selectPlan(planType) {
+            // 移除之前的选择
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // 添加选择状态
+            event.currentTarget.classList.add('selected');
+            selectedPlan = planType;
+            
+            // 启用订阅按钮
+            updateSubscribeButton();
+        }
+        
+        // 选择支付方式
+        function selectPayment(paymentType) {
+            // 移除之前的选择
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // 添加选择状态
+            event.currentTarget.classList.add('selected');
+            selectedPayment = paymentType;
+            
+            // 启用订阅按钮
+            updateSubscribeButton();
+        }
+        
+        // 更新订阅按钮状态
+        function updateSubscribeButton() {
+            const subscribeBtn = document.getElementById('subscribeBtn');
+            if (selectedPlan && selectedPayment) {
+                subscribeBtn.disabled = false;
+                subscribeBtn.textContent = '立即订阅';
+            } else {
+                subscribeBtn.disabled = true;
+                subscribeBtn.textContent = '请选择计划和支付方式';
+            }
+        }
+        
+        // 切换自动续费
+        function toggleAutoRenewal() {
+            const currentStatus = document.getElementById('autoRenewal').textContent;
+            const newStatus = currentStatus === '已开启' ? '已关闭' : '已开启';
+            
+            document.getElementById('autoRenewal').textContent = newStatus;
+            showToast(`自动续费已${newStatus === '已开启' ? '开启' : '关闭'}`);
+        }
+
+        // 订阅计划
+        function subscribeToPlan() {
+            if (!selectedPlan || !selectedPayment) {
+                showToast('请选择订阅计划和支付方式');
+                return;
+            }
+            
+            const planNames = {
+                'monthly': '月度订阅',
+                'quarterly': '季度订阅', 
+                'yearly': '年度订阅'
+            };
+            
+            const paymentNames = {
+                'wechat': '微信支付',
+                'alipay': '支付宝',
+                'apple': 'Apple Pay'
+            };
+            
+            const planPrices = {
+                'monthly': 10,
+                'quarterly': 25,
+                'yearly': 88
+            };
+            
+            showToast(`正在使用${paymentNames[selectedPayment]}订阅${planNames[selectedPlan]}...`);
+            
+            // 模拟支付过程
+            setTimeout(() => {
+                showToast('订阅成功！感谢您的支持');
+                
+                // 计算到期时间
+                const now = new Date();
+                let expiryDate;
+                switch(selectedPlan) {
+                    case 'monthly':
+                        expiryDate = new Date(now.setMonth(now.getMonth() + 1));
+                        break;
+                    case 'quarterly':
+                        expiryDate = new Date(now.setMonth(now.getMonth() + 3));
+                        break;
+                    case 'yearly':
+                        expiryDate = new Date(now.setFullYear(now.getFullYear() + 1));
+                        break;
+                }
+                
+                // 更新订阅状态
+                updateSubscriptionStatus(selectedPlan, expiryDate);
+                
+                // 保存订阅信息到本地存储
+                const subscriptionData = {
+                    plan: selectedPlan,
+                    planName: planNames[selectedPlan],
+                    price: planPrices[selectedPlan],
+                    paymentMethod: selectedPayment,
+                    startDate: new Date().toISOString(),
+                    expiryDate: expiryDate.toISOString(),
+                    autoRenewal: true,
+                    status: 'active'
+                };
+                
+                localStorage.setItem('subscriptionData', JSON.stringify(subscriptionData));
+                
+                closeModal('subscription');
+                
+                // 重置选择
+                selectedPlan = null;
+                selectedPayment = null;
+                updateSubscribeButton();
+            }, 2000);
+        }
+        
+        // 更新订阅状态显示
+        function updateSubscriptionStatus(plan, expiryDate) {
+            const planNames = {
+                'monthly': 'VIP月度会员',
+                'quarterly': 'VIP季度会员',
+                'yearly': 'VIP年度会员'
+            };
+            
+            // 更新当前计划显示
+            document.getElementById('currentPlanTitle').textContent = `当前计划：${planNames[plan]}`;
+            document.getElementById('currentPlanDesc').textContent = '享受所有专业功能';
+            
+            // 显示订阅信息
+            document.getElementById('subscriptionInfo').style.display = 'block';
+            document.getElementById('expiryDate').textContent = expiryDate.toLocaleDateString('zh-CN');
+            
+            // 更新设置页面的VIP标识
+            const badge = document.querySelector('.settings-item .badge');
+            if (badge) {
+                badge.textContent = 'VIP';
+                badge.style.background = '#4CAF50';
+            }
+        }
+        // 显示反馈表单
+        function showFeedbackForm() {
+            closeModal('support');
+            showModal('feedback');
+        }
+
+        // 提交反馈
+        function submitFeedback() {
+            const feedbackType = document.getElementById('feedbackType').value;
+            const feedbackContent = document.getElementById('feedbackContent').value.trim();
+            const contactEmail = document.getElementById('contactEmail').value.trim();
+            
+            if (!feedbackContent) {
+                showToast('请输入反馈内容');
+                return;
+            }
+            
+            if (contactEmail && !isValidEmail(contactEmail)) {
+                showToast('请输入有效的邮箱地址');
+                return;
+            }
+            
+            // 模拟提交反馈
+            const feedbackData = {
+                type: feedbackType,
+                content: feedbackContent,
+                email: contactEmail,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            };
+            
+            // 保存到本地存储（实际应用中应发送到服务器）
+            const existingFeedback = JSON.parse(localStorage.getItem('userFeedback') || '[]');
+            existingFeedback.push(feedbackData);
+            localStorage.setItem('userFeedback', JSON.stringify(existingFeedback));
+            
+            showToast('反馈已提交，感谢您的建议！');
+            closeModal('feedback');
+            
+            // 清空表单
+            document.getElementById('feedbackContent').value = '';
+            document.getElementById('contactEmail').value = '';
+            document.getElementById('feedbackType').value = 'bug';
+        }
+    </script>
+
+    <!-- 弹窗 - 反馈表单 -->
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">提交反馈</div>
+                <div class="modal-close" onclick="closeModal('feedback')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>反馈类型</label>
+                    <select id="feedbackType" class="form-control">
+                        <option value="bug">问题反馈</option>
+                        <option value="feature">功能建议</option>
+                        <option value="improvement">改进建议</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                <div class="form-group mt-15">
+                    <label>反馈内容 *</label>
+                    <textarea id="feedbackContent" class="form-control" rows="5" placeholder="请详细描述您遇到的问题或建议..."></textarea>
+                </div>
+                <div class="form-group mt-15">
+                    <label>联系邮箱（可选）</label>
+                    <input type="email" id="contactEmail" class="form-control" placeholder="如需回复请留下邮箱">
+                </div>
+                <p class="text-xs text-muted mt-10">
+                    <i class="fas fa-info-circle"></i>
+                    您的反馈将帮助我们改进产品，我们会认真对待每一条建议。
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('feedback')">取消</button>
+                <button class="btn btn-primary" onclick="submitFeedback()">提交反馈</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tab-bar">
+            <div class="tab-item">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-tree"></i>
+                <span>生命树</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-book"></i>
+                <span>学习</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-users"></i>
+                <span>社区</span>
+            </div>
+            <div class="tab-item active">
+                <i class="fas fa-cog"></i>
+                <span>设置</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
