@@ -1,0 +1,98 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 渐变定义 -->
+    <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#007AFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0051D5;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#34C759;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#28A745;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="smokeGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#8E8E93;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#C7C7CC;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#F2F2F7;stop-opacity:0.3" />
+    </linearGradient>
+    
+    <!-- 阴影滤镜 -->
+    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+    
+    <!-- 发光效果 -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="256" cy="256" r="240" fill="url(#backgroundGradient)" filter="url(#dropShadow)"/>
+  
+  <!-- 内部装饰圆环 -->
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
+  
+  <!-- 主要图标元素：禁烟标志 -->
+  <g transform="translate(256, 256)">
+    <!-- 香烟 -->
+    <g transform="translate(-40, -20)">
+      <!-- 香烟主体 -->
+      <rect x="0" y="0" width="80" height="16" rx="8" fill="#F5F5DC" stroke="#D3D3D3" stroke-width="1"/>
+      
+      <!-- 香烟过滤嘴 -->
+      <rect x="60" y="2" width="20" height="12" rx="6" fill="#CD853F"/>
+      
+      <!-- 香烟品牌标识 -->
+      <rect x="10" y="4" width="40" height="8" rx="2" fill="#FF6B6B" opacity="0.8"/>
+      <text x="30" y="10" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" fill="white" font-weight="bold">QUIT</text>
+    </g>
+    
+    <!-- 烟雾效果 -->
+    <g transform="translate(40, -30)" opacity="0.7">
+      <path d="M0,0 Q10,-10 20,-5 Q30,-15 40,-10 Q50,-20 60,-15" 
+            stroke="url(#smokeGradient)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M5,5 Q15,-5 25,0 Q35,-10 45,-5 Q55,-15 65,-10" 
+            stroke="url(#smokeGradient)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+      <path d="M10,10 Q20,0 30,5 Q40,-5 50,0 Q60,-10 70,-5" 
+            stroke="url(#smokeGradient)" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.4"/>
+    </g>
+    
+    <!-- 禁止标志 -->
+    <circle cx="0" cy="0" r="80" fill="none" stroke="#FF3B30" stroke-width="12" filter="url(#glow)"/>
+    <line x1="-56" y1="-56" x2="56" y2="56" stroke="#FF3B30" stroke-width="12" stroke-linecap="round" filter="url(#glow)"/>
+    
+    <!-- 健康叶子装饰 -->
+    <g transform="translate(60, 60)" opacity="0.9">
+      <path d="M0,0 Q-10,-15 -5,-25 Q0,-30 10,-25 Q20,-20 15,-10 Q10,-5 0,0" 
+            fill="url(#leafGradient)" filter="url(#dropShadow)"/>
+      <path d="M0,0 Q5,-10 0,-15" stroke="#228B22" stroke-width="1.5" fill="none"/>
+    </g>
+    
+    <g transform="translate(-70, 50) rotate(-30)" opacity="0.8">
+      <path d="M0,0 Q-8,-12 -4,-20 Q0,-24 8,-20 Q16,-16 12,-8 Q8,-4 0,0" 
+            fill="url(#leafGradient)" filter="url(#dropShadow)"/>
+      <path d="M0,0 Q4,-8 0,-12" stroke="#228B22" stroke-width="1" fill="none"/>
+    </g>
+  </g>
+  
+  <!-- 底部文字 -->
+  <text x="256" y="420" text-anchor="middle" font-family="SF Pro Display, -apple-system, sans-serif" 
+        font-size="32" font-weight="600" fill="white" opacity="0.9">QUITTR</text>
+  
+  <!-- 装饰性元素 -->
+  <g opacity="0.3">
+    <circle cx="100" cy="100" r="3" fill="white"/>
+    <circle cx="412" cy="120" r="2" fill="white"/>
+    <circle cx="80" cy="400" r="2.5" fill="white"/>
+    <circle cx="430" cy="380" r="3.5" fill="white"/>
+  </g>
+  
+  <!-- 版本标识（可选，用于开发版本） -->
+  <!-- <text x="480" y="30" text-anchor="end" font-family="monospace" font-size="12" fill="white" opacity="0.5">v1.0</text> -->
+</svg>
