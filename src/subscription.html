@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUITTR - 订阅管理</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="js/subscription.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .subscription-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .subscription-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .subscription-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subscription-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .subscription-content {
+            padding: 2rem;
+        }
+
+        /* 当前订阅状态 */
+        .current-subscription {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid #667eea;
+        }
+
+        .subscription-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .status-info h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-info p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .subscription-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .status-active {
+            color: #4caf50;
+        }
+
+        .status-expired {
+            color: #f44336;
+        }
+
+        .manage-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .manage-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        /* 订阅计划选择 */
+        .subscription-plans {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .plan-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: white;
+        }
+
+        .plan-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .plan-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.25);
+            transform: translateY(-3px);
+        }
+
+        .plan-card.selected::after {
+            content: '✓ 已选择';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .plan-card.recommended::before {
+            content: '推荐';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #ff6b6b;
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .plan-header h4 {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-price span {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .plan-save {
+            color: #4caf50;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .plan-features {
+            text-align: left;
+            margin-top: 1rem;
+        }
+
+        .feature {
+            padding: 0.3rem 0;
+            color: #555;
+        }
+
+        .feature::before {
+            content: '✓';
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        /* 功能对比表样式 */
+        .feature-comparison {
+            margin-bottom: 2rem;
+        }
+
+        .comparison-toggle {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .comparison-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .comparison-table td {
+            padding: 0.8rem;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9ff;
+        }
+
+        .comparison-table tr:hover {
+            background: #e8ecff;
+        }
+
+        .comparison-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .text-success {
+            color: #4caf50;
+        }
+
+        .text-muted {
+            color: #999;
+        }
+
+        /* 支付方式 */
+        .payment-methods {
+            margin-bottom: 2rem;
+        }
+
+        .payment-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .payment-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+        }
+
+        .payment-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .payment-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .payment-option.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #667eea;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .payment-option i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #667eea;
+        }
+
+        .payment-option span {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        /* 订阅历史 */
+        .subscription-history {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            background: #f9f9f9;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .history-plan {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .history-amount {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .subscription-container {
+                margin: 1rem;
+                border-radius: 15px;
+            }
+
+            .subscription-header {
+                padding: 1.5rem;
+            }
+
+            .subscription-header h1 {
+                font-size: 2rem;
+            }
+
+            .subscription-content {
+                padding: 1.5rem;
+            }
+
+            .plans-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .subscription-status {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* 加载动画 */
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 成功消息 */
+        .success-message {
+            display: none;
+            background: #4caf50;
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* 支付状态提示 */
+        .payment-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-weight: 600;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 300px;
+        }
+
+        .payment-status.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .payment-status-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .payment-status-error {
+            background: #f44336;
+            color: white;
+        }
+
+        .payment-status-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .payment-status-info {
+            background: #2196f3;
+            color: white;
+        }
+
+        .payment-status-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .payment-status-icon {
+            font-size: 1.2rem;
+        }
+
+        .payment-status-message {
+            flex: 1;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .payment-status {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .plans-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .plan-card {
+                padding: 1.5rem;
+            }
+
+            .plan-price {
+                font-size: 2rem;
+            }
+
+            .payment-options {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            .payment-option {
+                padding: 1rem;
+                flex-direction: row;
+                justify-content: flex-start;
+                text-align: left;
+            }
+
+            .payment-option i {
+                margin-right: 1rem;
+                margin-bottom: 0;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            /* 功能对比表移动端优化 */
+            .comparison-table {
+                overflow-x: auto;
+            }
+
+            .comparison-table table {
+                min-width: 600px;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.6rem 0.4rem;
+                font-size: 0.8rem;
+            }
+
+            .toggle-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .plan-card {
+                padding: 1rem;
+            }
+
+            .plan-price {
+                font-size: 1.8rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.5rem 0.3rem;
+                font-size: 0.75rem;
+            }
+
+            .payment-option {
+                padding: 0.8rem;
+            }
+
+            .payment-option i {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* 深色模式支持 */
+        .dark-mode {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+
+        .dark-mode .subscription-container {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .dark-mode .plan-card {
+            background: #34495e;
+            border-color: #4a5f7a;
+            color: white;
+        }
+
+        .dark-mode .payment-option {
+            background: #34495e;
+            border-color: #4a5f7a;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="subscription-container">
+        <div class="subscription-header">
+            <h1>QUITTR 会员中心</h1>
+            <p>管理您的订阅，开启健康生活</p>
+        </div>
+
+        <div class="subscription-content">
+            <!-- 当前订阅状态 -->
+            <div class="current-subscription">
+                <div class="subscription-status">
+                    <div class="status-info">
+                        <h3 id="currentPlanTitle">当前计划：免费版</h3>
+                        <p id="currentPlanDesc">升级到VIP享受更多专业功能</p>
+                        
+                        <div class="subscription-details" id="subscriptionDetails" style="display: none;">
+                            <div class="detail-item">
+                                <span class="detail-label">订阅状态：</span>
+                                <span class="detail-value status-active" id="subscriptionStatus">已激活</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">到期时间：</span>
+                                <span class="detail-value" id="expiryDate">2024-12-31</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">自动续费：</span>
+                                <span class="detail-value" id="autoRenewal">已开启</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">下次扣费：</span>
+                                <span class="detail-value" id="nextBilling">2024-12-01</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-actions">
+                        <button class="manage-btn" onclick="toggleAutoRenewal()">管理续费</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 成功消息 -->
+            <div class="success-message" id="success-message"></div>
+
+            <!-- 订阅计划 -->
+            <div class="subscription-plans">
+                <h2 class="section-title">选择订阅计划</h2>
+                
+                <!-- 功能对比表 -->
+                <div class="feature-comparison">
+                    <div class="comparison-toggle">
+                        <button class="toggle-btn" onclick="toggleComparison()">
+                            <span id="toggleText">查看详细对比</span>
+                            <i class="fas fa-chevron-down" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="comparison-table" id="comparisonTable" style="display: none;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>功能特性</th>
+                                    <th>免费版</th>
+                                    <th>基础版</th>
+                                    <th>高级版</th>
+                                    <th>年度版</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>戒色追踪</td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>每日提醒</td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>统计报告</td>
+                                    <td>基础</td>
+                                    <td>简单</td>
+                                    <td>详细</td>
+                                    <td>详细</td>
+                                </tr>
+                                <tr>
+                                    <td>社区功能</td>
+                                    <td>只读</td>
+                                    <td>基础</td>
+                                    <td>完整</td>
+                                    <td>完整</td>
+                                </tr>
+                                <tr>
+                                    <td>智能提醒系统</td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>专家指导内容</td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>优先客服支持</td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>个性化戒色方案</td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>一对一专家咨询</td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>离线功能支持</td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>数据导出功能</td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-times text-muted"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="plans-grid">
+                    <div class="plan-card" onclick="selectPlan('basic')" data-plan="basic">
+                        <div class="plan-header">
+                            <h4>基础版</h4>
+                            <div class="plan-price">¥19<span>/月</span></div>
+                        </div>
+                        <div class="plan-features">
+                            <div class="feature">基础戒色追踪</div>
+                            <div class="feature">每日提醒功能</div>
+                            <div class="feature">简单统计报告</div>
+                            <div class="feature">社区基础功能</div>
+                        </div>
+                    </div>
+
+                    <div class="plan-card recommended" onclick="selectPlan('premium')" data-plan="premium">
+                        <div class="plan-header">
+                            <h4>高级版</h4>
+                            <div class="plan-price">¥39<span>/月</span></div>
+                        </div>
+                        <div class="plan-features">
+                            <div class="feature">全功能戒色追踪</div>
+                            <div class="feature">智能提醒系统</div>
+                            <div class="feature">详细数据分析</div>
+                            <div class="feature">专家指导内容</div>
+                            <div class="feature">优先客服支持</div>
+                        </div>
+                    </div>
+
+                    <div class="plan-card" onclick="selectPlan('annual')" data-plan="annual">
+                        <div class="plan-header">
+                            <h4>年度版</h4>
+                            <div class="plan-price">¥299<span>/年</span></div>
+                            <div class="plan-save">节省¥169</div>
+                        </div>
+                        <div class="plan-features">
+                            <div class="feature">高级版全部功能</div>
+                            <div class="feature">个性化戒色方案</div>
+                            <div class="feature">一对一专家咨询</div>
+                            <div class="feature">离线功能支持</div>
+                            <div class="feature">数据导出功能</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 支付方式 -->
+            <div class="payment-methods">
+                <h2 class="section-title">支付方式</h2>
+                <div class="payment-options">
+                    <div class="payment-option selected" onclick="selectPayment('alipay')" data-method="alipay">
+                        <i class="fab fa-alipay"></i>
+                        <span>支付宝</span>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('wechat')" data-method="wechat">
+                        <i class="fab fa-weixin"></i>
+                        <span>微信支付</span>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('apple')" data-method="apple">
+                        <i class="fab fa-apple"></i>
+                        <span>Apple Pay</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+                <button class="btn btn-outline" onclick="goBack()">返回</button>
+                <button class="btn btn-primary" id="subscribeBtn" onclick="subscribeToPlan()" disabled>
+                    <span class="loading-spinner" id="loading-spinner"></span>
+                    <span id="button-text">请选择计划</span>
+                </button>
+                <button class="btn btn-danger" id="cancelBtn" onclick="cancelSubscription()" style="display: none;">取消订阅</button>
+            </div>
+
+            <!-- 订阅历史 -->
+            <div class="subscription-history" id="subscriptionHistory" style="display: none;">
+                <h2 class="section-title">订阅历史</h2>
+                <div id="historyList">
+                    <!-- 历史记录将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 收款码模态框 -->
+    <div id="qrCodeModal" class="qr-modal" style="display: none;">
+        <div class="qr-modal-overlay" onclick="closeQRModal()"></div>
+        <div class="qr-modal-content">
+            <div class="qr-modal-header">
+                <h3 id="qrModalTitle">扫码支付</h3>
+                <button class="qr-modal-close" onclick="closeQRModal()">&times;</button>
+            </div>
+            <div class="qr-modal-body">
+                <div class="qr-code-container">
+                    <img id="qrCodeImage" src="" alt="收款码" />
+                    <div class="qr-code-info">
+                        <div class="payment-amount" id="paymentAmount">¥0</div>
+                        <div class="payment-desc" id="paymentDesc">请使用手机扫码支付</div>
+                    </div>
+                </div>
+                <div class="qr-instructions">
+                    <div class="instruction-step">
+                        <span class="step-number">1</span>
+                        <span class="step-text">打开手机上的支付应用</span>
+                    </div>
+                    <div class="instruction-step">
+                        <span class="step-number">2</span>
+                        <span class="step-text">扫描上方二维码</span>
+                    </div>
+                    <div class="instruction-step">
+                        <span class="step-number">3</span>
+                        <span class="step-text">确认支付金额并完成付款</span>
+                    </div>
+                </div>
+                <div class="qr-actions">
+                    <button class="btn btn-outline" onclick="closeQRModal()">取消支付</button>
+                    <button class="btn btn-primary" onclick="confirmPayment()">我已完成支付</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* 收款码模态框样式 */
+        .qr-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .qr-modal-content {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .qr-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .qr-modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .qr-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .qr-modal-close:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .qr-modal-body {
+            padding: 1.5rem;
+        }
+
+        .qr-code-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .qr-code-container img {
+            width: 200px;
+            height: 200px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: #f9f9f9;
+        }
+
+        .qr-code-info {
+            margin-bottom: 1rem;
+        }
+
+        .payment-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .payment-desc {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .qr-instructions {
+            margin-bottom: 2rem;
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #007AFF;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .qr-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .qr-actions .btn {
+            flex: 1;
+            max-width: 150px;
+        }
+
+        /* 深色模式支持 */
+        .dark-mode .qr-modal-content {
+            background: #2c2c2e;
+            color: #fff;
+        }
+
+        .dark-mode .qr-modal-header {
+            border-bottom-color: #3a3a3c;
+        }
+
+        .dark-mode .qr-modal-header h3 {
+            color: #fff;
+        }
+
+        .dark-mode .qr-modal-close {
+            color: #8e8e93;
+        }
+
+        .dark-mode .qr-modal-close:hover {
+            background: #3a3a3c;
+            color: #fff;
+        }
+
+        .dark-mode .qr-code-container img {
+            border-color: #3a3a3c;
+            background: #1c1c1e;
+        }
+
+        .dark-mode .payment-amount {
+            color: #fff;
+        }
+
+        .dark-mode .payment-desc {
+            color: #8e8e93;
+        }
+
+        .dark-mode .instruction-step {
+            background: #1c1c1e;
+        }
+
+        .dark-mode .step-text {
+            color: #fff;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .qr-modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+
+            .qr-modal-header,
+            .qr-modal-body {
+                padding: 1rem;
+            }
+
+            .qr-code-container img {
+                width: 160px;
+                height: 160px;
+            }
+
+            .payment-amount {
+                font-size: 1.5rem;
+            }
+
+            .qr-actions {
+                flex-direction: column;
+            }
+
+            .qr-actions .btn {
+                max-width: none;
+            }
+        }
+    </style>
+
+    <script src="js/utils.js" defer></script>
+    <script src="js/security.js" defer></script>
+    <script src="js/payment.js" defer></script>
+    <script>
+        // 等待subscription.js加载完成后再初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // subscription.js中已经有了subscriptionManager的初始化
+            // 这里不需要重复声明
+        });
+    </script>
+</body>
+</html>
