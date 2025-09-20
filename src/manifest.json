@@ -1,0 +1,225 @@
+{
+  "name": "QUITTR - 戒烟助手",
+  "short_name": "QUITTR",
+  "description": "专业的戒烟辅助应用，帮助您科学戒烟，重获健康生活",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#007AFF",
+  "background_color": "#ffffff",
+  "scope": "/",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  
+  "categories": ["health-fitness", "lifestyle", "medical"],
+  "keywords": ["戒烟", "健康", "生活方式", "医疗健康", "习惯养成"],
+  
+  "icons": [
+    {
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  
+  "screenshots": [
+    {
+      "src": "screenshots/home-light.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "主页 - 浅色模式"
+    },
+    {
+      "src": "screenshots/home-dark.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "主页 - 深色模式"
+    },
+    {
+      "src": "screenshots/progress.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "戒烟进度追踪"
+    },
+    {
+      "src": "screenshots/community.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "社区互动"
+    },
+    {
+      "src": "screenshots/desktop-home.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "桌面版主页"
+    }
+  ],
+  
+  "shortcuts": [
+    {
+      "name": "查看进度",
+      "short_name": "进度",
+      "description": "快速查看戒烟进度",
+      "url": "/home.html#progress",
+      "icons": [
+        {
+          "src": "icons/shortcut-progress.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "紧急求助",
+      "short_name": "求助",
+      "description": "获取紧急戒烟支持",
+      "url": "/emergency.html",
+      "icons": [
+        {
+          "src": "icons/shortcut-emergency.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "社区",
+      "short_name": "社区",
+      "description": "参与戒烟社区讨论",
+      "url": "/community.html",
+      "icons": [
+        {
+          "src": "icons/shortcut-community.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.quittr.app",
+      "id": "com.quittr.app"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/quittr/id123456789"
+    }
+  ],
+  
+  "prefer_related_applications": false,
+  
+  "protocol_handlers": [
+    {
+      "protocol": "web+quittr",
+      "url": "/share?url=%s"
+    }
+  ],
+  
+  "file_handlers": [
+    {
+      "action": "/import",
+      "accept": {
+        "application/json": [".json"],
+        "text/csv": [".csv"]
+      }
+    }
+  ],
+  
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "files",
+          "accept": ["image/*", "text/*"]
+        }
+      ]
+    }
+  },
+  
+  "permissions": [
+    "notifications",
+    "background-sync",
+    "storage"
+  ],
+  
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icons/*.png",
+        "images/*.svg",
+        "css/*.css"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  
+  "offline_enabled": true,
+  
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}
