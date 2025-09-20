@@ -1,0 +1,2619 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUITTR - 绀惧尯</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/utils.js"></script>
+    <script src="js/loading.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/performance.js"></script>
+    <script src="js/validation.js"></script>
+    <script src="js/offline.js"></script>
+    <script src="js/darkmode.js"></script>
+    <style>
+        /* 鍒嗙被閫夋嫨鍣ㄤ氦浜掓牱寮?*/
+        .segment {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        .segment:hover {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        .segment.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        /* 绀惧尯甯栧瓙浜や簰鏍峰紡 */
+        .community-post {
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(76, 175, 80, 0.02) 100%);
+        }
+        .community-post:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.1);
+            border-color: var(--primary-color);
+        }
+        
+        /* 甯栧瓙鎿嶄綔鎸夐挳浜や簰鏍峰紡 */
+        .post-action {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 20px;
+        }
+        .post-action:hover {
+            color: var(--primary-color);
+            background-color: rgba(76, 175, 80, 0.1);
+            transform: scale(1.05);
+        }
+        
+        /* 鐐硅禐鏁堟灉 */
+        .post-action.liked i {
+            color: var(--danger-color);
+            animation: heartBeat 0.5s ease;
+        }
+        
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1.4); }
+            75% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 鎸戞垬鍗＄墖浜や簰鏍峰紡 */
+        .card {
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(255, 152, 0, 0.02) 100%);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.15);
+            border-color: var(--warning-color);
+        }
+        
+        /* 鎸夐挳浜や簰鏍峰紡 */
+        .btn {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 600;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        }
+        .btn-outline {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* 搴曢儴鏍囩鏍忎氦浜掓牱寮?*/
+        .tab-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-item:hover {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        /* 绱ф€ユ眰鍔╂寜閽氦浜掓牱寮?*/
+        .emergency-button {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--danger-color) 0%, #D32F2F 100%);
+        }
+        .emergency-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+        }
+        
+        /* 鐢ㄦ埛澶村儚澧炲己 */
+        .post-avatar {
+            transition: all 0.3s ease;
+        }
+        .post-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        /* 鍙戝笘鎸夐挳鏍峰紡 */
+        .floating-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+        .floating-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
+        }
+        
+        .emergency-button:hover {
+            transform: scale(1.05);
+            background-color: #d9534f;
+        }
+        
+        /* Toast鍔ㄧ敾 */
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+              }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        @keyframes toastSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        }
+        
+        /* 鍒嗕韩閫夐」鏍峰紡 */
+        .share-option {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .share-option:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .share-option:last-child {
+            border-bottom: none;
+        }
+        
+        /* 妯℃€佹鏀硅繘鏍峰紡 */
+        .modal-content {
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* 甯栧瓙鍔犺浇鍔ㄧ敾 */
+        .community-post {
+            animation: postFadeIn 0.5s ease;
+        }
+        
+        @keyframes postFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 璇勮杈撳叆妗嗘敼杩?*/
+        .comment-input {
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            padding: 12px 20px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .comment-input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        
+        /* 鐐硅禐鎸夐挳鏀硅繘 */
+        .like-button {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .like-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(231, 76, 60, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .like-button.liked::after {
+            width: 100px;
+            height: 100px;
+        }
+        
+        /* 鎸戞垬杩涘害鏉℃牱寮?*/
+        .challenge-progress {
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+        
+        /* 鐢ㄦ埛澶村儚鎮仠鏁堟灉 */
+        .post-avatar {
+            transition: transform 0.3s ease;
+        }
+        
+        .post-avatar:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 鍝嶅簲寮忔敼杩?*/
+        @media (max-width: 768px) {
+            .community-post {
+                margin: 10px 0;
+                padding: 15px;
+            }
+            
+            .modal-content {
+                margin: 20px;
+                max-width: calc(100% - 40px);
+            }
+            
+            .share-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .comment-section {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        
+        .comment {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .comment:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .comment-content {
+            flex: 1;
+        }
+        
+        .comment-user {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .comment-text {
+            color: #333;
+            line-height: 1.4;
+        }
+        
+        .comment-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 3px;
+        }
+        
+        .new-comment {
+            display: flex;
+            margin-top: 15px;
+        }
+        
+        .new-comment input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+        
+        .new-comment button {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0 15px;
+            cursor: pointer;
+        }
+        
+        /* 娣″叆鍔ㄧ敾 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 鐐硅禐鍔ㄧ敾 */
+        .like-animation {
+            animation: likeAnimation 0.5s ease-in-out;
+            color: #e74c3c !important;
+        }
+        
+        @keyframes likeAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 鍒嗕韩寮圭獥鏍峰紡 */
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .share-modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .share-option:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .share-option i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .share-option.wechat i { color: #07c160; }
+        .share-option.weibo i { color: #e6162d; }
+        .share-option.qq i { color: #12b7f5; }
+        .share-option.link i { color: #6c757d; }
+        .share-option.qrcode i { color: #495057; }
+        .share-option.more i { color: #6f42c1; }
+        
+        .share-option span {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes commentSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes toastFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes toastFadeOut {
+            from {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 10000;
+            animation: toastFadeIn 0.3s ease;
+        }
+
+        .toast.fade-out {
+            animation: toastFadeOut 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- 甯栧瓙璇︽儏寮圭獥 -->
+    <div id="postModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modalPostHeader" class="post-header"></div>
+            <div id="modalPostContent" class="post-content"></div>
+            <div class="post-actions">
+                <div class="post-action" onclick="toggleLike('modal')">
+                    <i class="fas fa-heart"></i>
+                    <span id="modalLikeCount">0</span>
+                </div>
+                <div class="post-action">
+                    <i class="fas fa-comment"></i>
+                    <span id="modalCommentCount">0</span>
+                </div>
+                <div class="post-action">
+                    <i class="fas fa-share"></i>
+                    <span>鍒嗕韩</span>
+                </div>
+            </div>
+            <div class="comment-section">
+                <h3>璇勮</h3>
+                <div id="commentsList">
+                    <!-- 璇勮灏嗛€氳繃JS鍔ㄦ€佹坊鍔?-->
+                </div>
+                <div class="new-comment">
+                    <input type="text" placeholder="娣诲姞璇勮..." id="newCommentInput">
+                    <button onclick="addComment()">鍙戦€?/button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 鐘舵€佹爮 -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <!-- 鍐呭鍖哄煙 -->
+        <div class="content">
+            <h1>绀惧尯</h1>
+            <p>涓庡織鍚岄亾鍚堢殑浼欎即涓€璧峰墠琛?/p>
+
+            <!-- 鎼滅储鍔熻兘 -->
+            <div id="community-search-container"></div>
+
+            <!-- 鍒嗙被閫夋嫨鍣?-->
+            <div class="segmented-control">
+                <div class="segment active" data-category="all">鍏ㄩ儴</div>
+                <div class="segment" data-category="success">鎴愬姛鏁呬簨</div>
+                <div class="segment" data-category="qa">闂瓟</div>
+                <div class="segment" data-category="challenge">鎸戞垬</div>
+                <div class="segment" data-category="tips">灏忔妧宸?/div>
+            </div>
+
+            <!-- 绀惧尯甯栧瓙 -->
+            <div class="community-post" data-category="tips">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">閮戝畤</div>
+                        <div class="post-time">1灏忔椂鍓?/div>
+                    </div>
+                    <div class="badge">120澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>鍒嗕韩涓€涓疄鐢ㄦ妧宸э細褰撴劅鍒板己鐑堟复鏈涙椂锛岃瘯璇?寤惰繜15鍒嗛挓"绛栫暐銆傚憡璇夎嚜宸卞彧闇€绛夊緟15鍒嗛挓鍐嶅仛鍐冲畾銆傝繖娈垫椂闂村仛鐐瑰埆鐨勪簨锛屽ぇ澶氭暟鏃跺€欐复鏈涗細鑷劧娑堥€€銆傝繖涓畝鍗曟柟娉曞府鎴戝害杩囦簡寰堝鍥伴毦鏃跺埢锛?/p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>47</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>15</span>
+                    </div>
+                    <div class="post-action" onclick="sharePost(event, 'post1')">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="community-post" data-category="success">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">寮犱紵</div>
+                        <div class="post-time">2灏忔椂鍓?/div>
+                    </div>
+                    <div class="badge">45澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>浠婂ぉ鏄垜鐨勭45澶╋紒鍒氬紑濮嬬殑鏃跺€欑湡鐨勫緢闅撅紝浣嗙幇鍦ㄦ垜鎰熻鑷繁鐨勬敞鎰忓姏鍜岀簿鍔涢兘鏈変簡鏄庢樉鎻愬崌銆傛渶澶х殑鍙樺寲鏄垜寮€濮嬮噸鏂颁韩鍙楃敓娲讳腑鐨勫皬浜嬶紝姣斿闃呰鍜屾埛澶栨椿鍔ㄣ€傛劅璋㈢ぞ鍖虹殑鏀寔锛?/p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>32</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>8</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="qa">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">鏉庡</div>
+                        <div class="post-time">3灏忔椂鍓?/div>
+                    </div>
+                    <div class="badge">14澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>澶у濂斤紝鎴戞兂闂竴涓嬪浣曞簲瀵圭ぞ浜ゅ満鍚堜腑鐨勮鎯戯紵鏈嬪弸鑱氫細鎬绘槸鏈€闅剧殑鏃跺埢锛屾湁浠€涔堝疄鐢ㄧ殑鎶€宸у彲浠ュ垎浜悧锛?/p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>18</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>12</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="challenge">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">鐜嬪己</div>
+                        <div class="post-time">5灏忔椂鍓?/div>
+                    </div>
+                    <div class="badge">30澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>30澶╁啣鎯虫寫鎴樺畬鎴愶紒姣忓ぉ10鍒嗛挓鐨勫啣鎯冲府鍔╂垜淇濇寔涓撴敞锛屽噺杞讳簡鎴掓柇鐥囩姸銆傚己鐑堟帹鑽愮粰澶у锛岀壒鍒槸鍦ㄦ劅鍒扮劍铏戠殑鏃跺€欍€?/p>
+                    <div class="post-image" data-bg="https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" data-scroll-effect></div>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>45</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>6</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="success">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">璧垫晱</div>
+                        <div class="post-time">鏄ㄥぉ</div>
+                    </div>
+                    <div class="badge">60澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>涓や釜鏈堜簡锛佹垜鐨勭潯鐪犺川閲忔彁楂樹簡寰堝锛岀毊鑲や篃鍙樺ソ浜嗐€傛渶閲嶈鐨勬槸锛屾垜鍙戠幇鑷繁鏈夋洿澶氭椂闂撮櫔浼村浜哄拰鍙戝睍鏂扮埍濂姐€傛劅璋㈣繖涓ぞ鍖轰竴鐩翠互鏉ョ殑榧撳姳锛?/p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>56</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>14</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="qa">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">闄堟槑</div>
+                        <div class="post-time">鏄ㄥぉ</div>
+                    </div>
+                    <div class="badge">7澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>璇烽棶鏈変汉灏濊瘯杩囧喎姘存荡鏉ョ紦瑙ｆ垝鏂棁鐘跺悧锛熷惉璇磋繖瀵规彁楂樻剰蹇楀姏寰堟湁甯姪锛屼絾涓嶇‘瀹氭槸鍚︾湡鐨勬湁鏁堛€?/p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>12</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>20</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="challenge">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">鏋楀皬鍗?/div>
+                        <div class="post-time">2澶╁墠</div>
+                    </div>
+                    <div class="badge">21澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>21澶╂櫒闂存棩璁版寫鎴樺畬鎴愶紒姣忓ぉ璁板綍鑷繁鐨勬劅鍙楀拰杩涙锛屽府鍔╂垜淇濇寔娓呴啋鐨勫ご鑴戝拰绉瀬鐨勬€佸害銆傛帹鑽愬ぇ瀹朵篃璇曡瘯锛?/p>
+                    <div class="post-image" data-bg="https://images.unsplash.com/photo-1517971129774-8a2b38fa128e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" data-scroll-effect></div>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>38</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>9</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="success">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">鍒樿姵</div>
+                        <div class="post-time">3澶╁墠</div>
+                    </div>
+                    <div class="badge">90澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>90澶╅噷绋嬬杈炬垚锛佽繖鏄垜浜虹敓涓渶鏈夋剰涔夌殑鍐冲畾涔嬩竴銆傛垜鐨勫浜鸿鎴戞暣涓汉閮戒笉涓€鏍蜂簡锛屾洿鏈夋椿鍔涳紝鏇寸Н鏋佷箰瑙傘€傛劅璋㈣繖涓梾绋嬩腑閬囧埌鐨勬瘡涓€涓汉锛?/p>
+                    <div class="post-image" data-bg="https://images.unsplash.com/photo-1533227268428-f9ed0900fb3b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" data-scroll-effect></div>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>124</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>42</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="qa">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">鏉ㄥ厜</div>
+                        <div class="post-time">3澶╁墠</div>
+                    </div>
+                    <div class="badge">5澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>鍒氬紑濮嬬殑杩欏嚑澶╃湡鐨勫緢闅剧啲锛屽挨鍏舵槸鏅氫笂銆傛湁浠€涔堟帹鑽愮殑娲诲姩鍙互甯姪搴﹁繃鏅氫笂鐨勬椂闂村悧锛?/p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>24</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>16</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="challenge">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">鍛ㄩ洩</div>
+                        <div class="post-time">4澶╁墠</div>
+                    </div>
+                    <div class="badge">15澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>寮€濮?5澶╄繍鍔ㄦ寫鎴橈紒姣忓ぉ30鍒嗛挓鏈夋哀杩愬姩锛屽府鍔╅噴鏀惧帇鍔涘拰鎻愰珮鐫＄湢璐ㄩ噺銆備粖澶╂槸绗竴澶╋紝鎰熻寰堟锛佹湁浜烘兂涓€璧峰弬鍔犲悧锛?/p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>35</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>28</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="tips">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">瀛欎附</div>
+                        <div class="post-time">4灏忔椂鍓?/div>
+                    </div>
+                    <div class="badge">75澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>鎺ㄨ崘涓€涓疄鐢ㄥ皬鎶€宸э細鍦ㄦ墜鏈轰笂璁剧疆灞忓箷浣跨敤鏃堕棿闄愬埗锛岀壒鍒槸瀵逛簬閭ｄ簺瀹规槗瑙﹀彂娓存湜鐨勫簲鐢ㄣ€傛垜璁剧疆浜嗙ぞ浜ゅ獟浣撴瘡澶╂渶澶?0鍒嗛挓锛岃繖澶уぇ鍑忓皯浜嗘垜鏃犳剰璇嗗埛鎵嬫満鐨勬椂闂淬€?/p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>29</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>11</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="tips">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">榛勭</div>
+                        <div class="post-time">1澶╁墠</div>
+                    </div>
+                    <div class="badge">60澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>鍒嗕韩涓€涓鎴戝緢鏈夋晥鐨勬妧宸э細浣跨敤"濡傛灉-閭ｄ箞"璁″垝搴斿璇辨儜鍦烘櫙銆備緥濡傦細"濡傛灉鎴戞劅鍒板帇鍔涙兂瑕佹斁寮冿紝閭ｄ箞鎴戝氨浼氭繁鍛煎惛5娆″苟鍠濅竴鏉按銆?鎻愬墠鍑嗗杩欎簺搴斿绛栫暐锛屽湪鍏抽敭鏃跺埢浼氶潪甯告湁鐢紒</p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>41</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>17</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="qa">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">鐜嬫</div>
+                        <div class="post-time">2澶╁墠</div>
+                    </div>
+                    <div class="badge">10澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>璇烽棶澶у鏈夋病鏈夋帹鑽愮殑涔︾睄鎴栬€呴煶棰戣祫婧愶紵鎴戞兂鏇存繁鍏ュ湴浜嗚В鎴愮樉鏈哄埗鍜屽浣曞缓绔嬪仴搴蜂範鎯€傝阿璋紒</p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>15</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>23</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="challenge">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">鏉庡己</div>
+                        <div class="post-time">3澶╁墠</div>
+                    </div>
+                    <div class="badge">25澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>鍙戣捣7澶╂棭璧锋寫鎴橈紒姣忓ぉ6鐐硅捣搴婏紝鍋?0鍒嗛挓鏅ㄩ棿閿荤偧銆傝繖涓€鍛ㄦ垜鎰熻绮惧姏鍏呮矝锛屾敞鎰忓姏鏇撮泦涓€傝皝鎯冲姞鍏ヤ笅涓€杞寫鎴橈紵</p>
+                    <div class="post-image" data-bg="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" data-scroll-effect></div>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>52</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>31</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="success">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">寮犲皬绾?/div>
+                        <div class="post-time">4澶╁墠</div>
+                    </div>
+                    <div class="badge">100澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>100澶╅噷绋嬬锛佽繖娈垫梾绋嬫暀浼氭垜鏈€閲嶈鐨勬槸鑷垜鎺ョ撼鍜岃€愬績銆傛瘡涓€娆″け璐ラ兘鏄涔犵殑鏈轰細锛岃€屼笉鏄斁寮冪殑鐞嗙敱銆傛劅璋㈣繖涓ぞ鍖轰竴鐩翠互鏉ョ殑鏀寔鍜岄紦鍔憋紒</p>
+                    <div class="post-image" data-bg="https://images.unsplash.com/photo-1531947044935-8599118788fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" data-scroll-effect></div>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>143</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>37</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="qa">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">璧垫槑</div>
+                        <div class="post-time">5澶╁墠</div>
+                    </div>
+                    <div class="badge">3澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>澶у濂斤紝鎴戞槸鏂板姞鍏ョ殑銆傛兂闂竴涓嬪浣曞鐞嗘垝鏂湡闂寸殑澶辩湢闂锛熷凡缁忚繛缁嚑鏅氱潯涓嶅ソ浜嗭紝鐧藉ぉ涔熷緢鐤叉儷銆傛湁浠€涔堝缓璁悧锛?/p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>19</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>27</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post" data-category="challenge">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">闄堝織</div>
+                        <div class="post-time">6澶╁墠</div>
+                    </div>
+                    <div class="badge">40澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>瀹屾垚浜?0澶╅槄璇绘寫鎴橈紒姣忓ぉ鑷冲皯璇?0鍒嗛挓涔︼紝杩欎釜涔犳儻甯垜閲嶆柊鍙戠幇浜嗛槄璇荤殑涔愯叮锛屼篃鏄垎鏁ｆ敞鎰忓姏鐨勫ソ鏂规硶銆傛帹鑽愬ぇ瀹朵篃灏濊瘯涓€涓嬶紒</p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>48</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>14</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">鏉庡</div>
+                        <div class="post-time">5灏忔椂鍓?/div>
+                    </div>
+                    <div class="badge">90澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>90澶╅噷绋嬬杈炬垚锛佸洖椤捐繖娈垫梾绋嬶紝鎴戝鍒颁簡寰堝鍏充簬鑷繁鐨勪簨鎯呫€傛渶閲嶈鐨勬槸锛屾垜鍙戠幇鑷繁鏈夎兘鍔涙帶鍒惰嚜宸辩殑琛屼负鍜屾儏缁紝鑰屼笉鏄瀹冧滑鎺у埗銆傛劅璋UITTR鍜岀ぞ鍖虹殑鎵€鏈変汉锛?/p>
+                    <div class="achievement mt-10">
+                        <div class="achievement-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <div class="achievement-title">90澶╂垚灏?/div>
+                            <div class="achievement-description">瀹屾垚90澶╂仮澶嶈鍒?/div>
+                        </div>
+                    </div>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>64</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>15</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-post">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">鐜嬪己</div>
+                        <div class="post-time">鏄ㄥぉ</div>
+                    </div>
+                    <div class="badge">12澶?/div>
+                </div>
+                <div class="post-content">
+                    <p>鏈変汉鑳藉垎浜竴涓嬪浣曞簲瀵规櫄涓婄殑璇辨儜鍚楋紵鎴戝彂鐜拌繖鏄垜鏈€瀹规槗澶辨帶鐨勬椂闂存銆傚凡缁忓皾璇曚簡鍐ユ兂锛屼絾鏁堟灉涓嶆槸寰堟槑鏄俱€?/p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <i class="fas fa-heart"></i>
+                        <span>18</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-comment"></i>
+                        <span>23</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="fas fa-share"></i>
+                        <span>鍒嗕韩</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 褰撳墠鎸戞垬 -->
+            <h2 class="mt-20">褰撳墠鎸戞垬</h2>
+            <div class="card">
+                <h3>28澶╁喎姘存荡鎸戞垬</h3>
+                <p>姣忓ぉ鐢ㄥ喎姘存穻娴?0绉掞紝閫愭笎澧炲姞鍒?鍒嗛挓锛屾彁鍗囪嚜鎺у姏鍜屾剰蹇楀姏</p>
+                <div class="progress-container mt-10">
+                    <div class="progress-bar" style="width: 50%;"></div>
+                </div>
+                <div class="flex-between">
+                    <span class="text-small">14/28澶?/span>
+                    <span class="text-small text-primary">50%</span>
+                </div>
+                <div class="flex-between mt-10">
+                    <span>鍙備笌浜烘暟: 1,245</span>
+                    <button class="btn btn-outline">鍔犲叆鎸戞垬</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 搴曢儴鏍囩鏍?-->
+        <div class="tab-bar">
+            <div class="tab-item">
+                <i class="fas fa-home"></i>
+                <span>棣栭〉</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-tree"></i>
+                <span>鐢熷懡鏍?/span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-book"></i>
+                <span>瀛︿範</span>
+            </div>
+            <div class="tab-item active">
+                <i class="fas fa-users"></i>
+                <span>绀惧尯</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-cog"></i>
+                <span>璁剧疆</span>
+            </div>
+        </div>
+
+        <!-- 绱ф€ユ眰鍔╂寜閽?-->
+        <div class="emergency-button" onclick="showEmergencyHelp()">
+            <i class="fas fa-life-ring"></i>
+        </div>
+    </div>
+
+    <!-- 鍒嗕韩寮圭獥 -->
+    <div class="share-modal" id="shareModal">
+        <div class="share-modal-content">
+            <h3>鍒嗕韩鍒?/h3>
+            <div class="share-options">
+                <div class="share-option wechat" onclick="shareToWeChat()">
+                    <i class="fab fa-weixin"></i>
+                    <span>寰俊</span>
+                </div>
+                <div class="share-option weibo" onclick="shareToWeibo()">
+                    <i class="fab fa-weibo"></i>
+                    <span>寰崥</span>
+                </div>
+                <div class="share-option qq" onclick="shareToQQ()">
+                    <i class="fab fa-qq"></i>
+                    <span>QQ</span>
+                </div>
+                <div class="share-option link" onclick="copyLink()">
+                    <i class="fas fa-link"></i>
+                    <span>澶嶅埗閾炬帴</span>
+                </div>
+                <div class="share-option qrcode" onclick="showQRCode()">
+                    <i class="fas fa-qrcode"></i>
+                    <span>浜岀淮鐮?/span>
+                </div>
+                <div class="share-option more" onclick="showMoreOptions()">
+                    <i class="fas fa-ellipsis-h"></i>
+                    <span>鏇村</span>
+                </div>
+            </div>
+            <button class="btn btn-outline" onclick="closeShareModal()">鍙栨秷</button>
+        </div>
+    </div>
+
+    <script>
+        // 甯栧瓙鏁版嵁
+        const posts = {
+            "post1": {
+                username: "閮戝畤",
+                avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                time: "1灏忔椂鍓?,
+                days: "120澶?,
+                content: "鍒嗕韩涓€涓疄鐢ㄦ妧宸э細褰撴劅鍒板己鐑堟复鏈涙椂锛岃瘯璇曗€滃欢杩?5鍒嗛挓鈥濈瓥鐣ャ€傚憡璇夎嚜宸卞彧闇€绛夊緟15鍒嗛挓鍐嶅仛鍐冲畾銆傝繖娈垫椂闂村仛鐐瑰埆鐨勪簨锛屽ぇ澶氭暟鏃跺€欐复鏈涗細鑷劧娑堥€€銆傝繖涓畝鍗曟柟娉曞府鎴戝害杩囦簡寰堝鍥伴毦鏃跺埢锛?,
+                likes: 47,
+                comments: [
+                    { username: "鏉庢槑", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "杩欎釜鏂规硶鐪熺殑寰堟湁鏁堬紒鎴戜篃鍦ㄧ敤銆?, time: "30鍒嗛挓鍓? },
+                    { username: "鐜嬭姵", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "璋㈣阿鍒嗕韩锛屾垜瑕佽瘯璇曡繖涓柟娉曪紒", time: "15鍒嗛挓鍓? }
+                ]
+            },
+            "post2": {
+                username: "寮犱紵",
+                avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                time: "2灏忔椂鍓?,
+                days: "45澶?,
+                content: "浠婂ぉ鏄垜鐨勭45澶╋紒鍒氬紑濮嬬殑鏃跺€欑湡鐨勫緢闅撅紝浣嗙幇鍦ㄦ垜鎰熻鑷繁鐨勬敞鎰忓姏鍜岀簿鍔涢兘鏈変簡鏄庢樉鎻愬崌銆傛渶澶х殑鍙樺寲鏄垜寮€濮嬮噸鏂颁韩鍙楃敓娲讳腑鐨勫皬浜嬶紝姣斿闃呰鍜屾埛澶栨椿鍔ㄣ€傛劅璋㈢ぞ鍖虹殑鏀寔锛?,
+                likes: 32,
+                comments: [
+                    { username: "鏉庢槑", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鎭枩浣狅紒鍧氭寔涓嬪幓锛屼細瓒婃潵瓒婂ソ鐨勶紒", time: "1灏忔椂鍓? },
+                    { username: "鐜嬭姵", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鎴戠幇鍦ㄦ槸绗?0澶╋紝甯屾湜鑳藉儚浣犱竴鏍峰潥鎸佷笅鍘伙紒", time: "30鍒嗛挓鍓? }
+                ]
+            },
+            "post3": {
+                username: "鏉庡",
+                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                time: "3灏忔椂鍓?,
+                days: "14澶?,
+                content: "澶у濂斤紝鎴戞兂闂竴涓嬪浣曞簲瀵圭ぞ浜ゅ満鍚堜腑鐨勮鎯戯紵鏈嬪弸鑱氫細鎬绘槸鏈€闅剧殑鏃跺埢锛屾湁浠€涔堝疄鐢ㄧ殑鎶€宸у彲浠ュ垎浜悧锛?,
+                likes: 18,
+                comments: [
+                    { username: "寮犱紵", avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鎴戝彂鐜版彁鍓嶅憡璇夋湅鍙嬭嚜宸辩殑鎯呭喌寰堟湁甯姪锛屼粬浠細鐞嗚В骞舵敮鎸佷綘鐨勩€?, time: "2灏忔椂鍓? },
+                    { username: "鍒樻磱", avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鍙互甯︿竴浜涘仴搴风殑鏇夸唬鍝侊紝姣斿鏃犵硸楗枡銆?, time: "1灏忔椂鍓? }
+                ]
+            },
+            "post4": {
+                username: "鐜嬪己",
+                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                time: "5灏忔椂鍓?,
+                days: "30澶?,
+                content: "30澶╁啣鎯虫寫鎴樺畬鎴愶紒姣忓ぉ10鍒嗛挓鐨勫啣鎯冲府鍔╂垜淇濇寔涓撴敞锛屽噺杞讳簡鎴掓柇鐥囩姸銆傚己鐑堟帹鑽愮粰澶у锛岀壒鍒槸鍦ㄦ劅鍒扮劍铏戠殑鏃跺€欍€?,
+                likes: 45,
+                comments: [
+                    { username: "鏉庡", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鍐ユ兂鐪熺殑寰堟湁鏁堬紒鎴戜篃鍦ㄥ潥鎸併€?, time: "4灏忔椂鍓? },
+                    { username: "闄堟槑", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鏈夋帹鑽愮殑鍐ユ兂app鍚楋紵", time: "3灏忔椂鍓? }
+                ]
+            },
+            "post5": {
+                username: "璧垫晱",
+                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                time: "鏄ㄥぉ",
+                days: "60澶?,
+                content: "涓や釜鏈堜簡锛佹垜鐨勭潯鐪犺川閲忔彁楂樹簡寰堝锛岀毊鑲や篃鍙樺ソ浜嗐€傛渶閲嶈鐨勬槸锛屾垜鍙戠幇鑷繁鏈夋洿澶氭椂闂撮櫔浼村浜哄拰鍙戝睍鏂扮埍濂姐€傛劅璋㈣繖涓ぞ鍖轰竴鐩翠互鏉ョ殑榧撳姳锛?,
+                likes: 56,
+                comments: [
+                    { username: "寮犱紵", avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鎭枩锛佷綘鏄垜浠殑姒滄牱锛?, time: "鏄ㄥぉ" },
+                    { username: "鏋楀皬鍗?, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "澶浜嗭紒鑳藉垎浜竴涓嬩綘鐨勬柊鐖卞ソ鏄粈涔堝悧锛?, time: "鏄ㄥぉ" }
+                ]
+            },
+            "post6": {
+                username: "闄堟槑",
+                avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                time: "鏄ㄥぉ",
+                days: "7澶?,
+                content: "璇烽棶鏈変汉灏濊瘯杩囧喎姘存荡鏉ョ紦瑙ｆ垝鏂棁鐘跺悧锛熷惉璇磋繖瀵规彁楂樻剰蹇楀姏寰堟湁甯姪锛屼絾涓嶇‘瀹氭槸鍚︾湡鐨勬湁鏁堛€?,
+                likes: 12,
+                comments: [
+                    { username: "鐜嬪己", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鎴戣瘯杩囷紝纭疄鏈夊府鍔╋紒鍒氬紑濮嬪緢闅惧彈锛屼絾鍧氭寔涓嬫潵浼氭劅瑙夊緢妫掋€?, time: "鏄ㄥぉ" },
+                    { username: "璧垫晱", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "寤鸿浠庢俯姘村紑濮嬶紝閫愭笎闄嶄綆娓╁害銆?, time: "鏄ㄥぉ" }
+                ]
+            },
+            "post9": {
+                username: "鍒樻磱",
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                time: "2澶╁墠",
+                days: "15澶?,
+                content: "鎴掔儫绗?5澶╋紝浠婂ぉ閬囧埌浜嗗緢澶х殑鎸戞垬銆傚伐浣滃帇鍔涘緢澶э紝鐗瑰埆鎯虫娊鐑熴€備絾鏄兂鍒板浜虹殑鏀寔锛岃繕鏄潥鎸佷綇浜嗐€?,
+                likes: 28,
+                comments: [
+                    { username: "寮犱笁", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鍔犳补锛佸帇鍔涘ぇ鐨勬椂鍊欏彲浠ヨ瘯璇曟繁鍛煎惛銆?, time: "2澶╁墠" },
+                    { username: "鏉庡洓", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "浣犲仛寰楀緢濂斤紒15澶╁凡缁忓緢浜嗕笉璧蜂簡銆?, time: "2澶╁墠" }
+                ]
+            },
+            "post11": {
+                username: "鐜嬭姵",
+                avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                time: "3澶╁墠",
+                days: "30澶?,
+                content: "鎴掔儫涓€涓湀浜嗭紒韬綋鍙樺寲寰堟槑鏄撅紝鍡呰鍜屽懗瑙夐兘鎭㈠浜嗗緢澶氥€傚垎浜竴浜涙垜鐨勭粡楠岋細澶氬枬姘淬€佽繍鍔ㄣ€佹壘鏇夸唬娲诲姩銆?,
+                likes: 45,
+                comments: [
+                    { username: "璧靛叚", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "澶浜嗭紒鑳借缁嗚璇存浛浠ｆ椿鍔ㄥ悧锛?, time: "3澶╁墠" },
+                    { username: "瀛欎竷", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "涓€涓湀鐪熺殑涓嶅鏄擄紝鍚戜綘瀛︿範锛?, time: "3澶╁墠" }
+                ]
+            },
+            "post12": {
+                username: "鏉庢槑",
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                time: "4澶╁墠",
+                days: "5澶?,
+                content: "鎴掔儫绗?澶╋紝浠婂ぉ宸偣鐮村姛銆傜湅鍒板悓浜嬫娊鐑燂紝鐬棿鎯宠捣浜嗕互鍓嶇殑鎰熻銆傝繕濂藉強鏃舵彁閱掕嚜宸变负浠€涔堣鎴掔儫銆?,
+                likes: 22,
+                comments: [
+                    { username: "鍛ㄥ叓", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鍓嶅嚑澶╂槸鏈€闅剧殑锛屽潥鎸佷綇锛?, time: "4澶╁墠" },
+                    { username: "鍚翠節", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鍙互璇曡瘯鍤煎彛棣欑硸鎴栬€呭悆鐐归浂椋熻浆绉绘敞鎰忓姏銆?, time: "4澶╁墠" }
+                ]
+            },
+            "post13": {
+                username: "闄堥潤",
+                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                time: "5澶╁墠",
+                days: "60澶?,
+                content: "鎴掔儫涓や釜鏈堜簡锛佷粖澶╁幓浣撴锛岃偤鍔熻兘鏄庢樉鏀瑰杽銆傚尰鐢熼兘澶告垜鍋氬緱濂姐€傛兂瀵硅繕鍦ㄧ姽璞殑鏈嬪弸璇达細寮€濮嬫案杩滀笉鏅氾紒",
+                likes: 67,
+                comments: [
+                    { username: "閮戝崄", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鐪熺殑寰堝姳蹇楋紒鎴戜篃瑕佸紑濮嬫垝鐑熶簡銆?, time: "5澶╁墠" },
+                    { username: "鐜嬪崄涓€", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "涓や釜鏈堬紒澶帀瀹充簡锛屼綘鏄垜浠殑姒滄牱锛?, time: "5澶╁墠" }
+                ]
+            },
+            "post15": {
+                username: "榛勪紵",
+                avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                time: "1鍛ㄥ墠",
+                days: "100澶?,
+                content: "鎴掔儫100澶╃邯蹇碉紒杩?00澶╅噷鏈夎繃鎸姌锛屾湁杩囨兂鏀惧純鐨勬椂鍊欙紝浣嗘渶缁堣繕鏄潥鎸佷笅鏉ヤ簡銆傛劅璋㈣繖涓ぞ鍖虹殑鏀寔鍜岄紦鍔憋紒",
+                likes: 89,
+                comments: [
+                    { username: "鏉庡崄浜?, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "100澶╋紒杩欐槸涓€涓噸瑕佺殑閲岀▼纰戯紒", time: "1鍛ㄥ墠" },
+                    { username: "寮犲崄涓?, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鎭枩锛佷綘鐨勭粡鍘嗙粰浜嗘垜浠緢澶х殑淇″績銆?, time: "1鍛ㄥ墠" },
+                    { username: "璧靛崄鍥?, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80", text: "鐪熸鐨勫媷澹紒缁х画鍔犳补锛?, time: "1鍛ㄥ墠" }
+                ]
+            }
+        };
+
+        // 鍒嗙被鍐呭
+        const categories = {
+            "all": document.querySelector(".content"),
+            "success": createSuccessStoriesSection(),
+            "qa": createQASection(),
+            "challenges": createChallengesSection()
+        };
+
+        // 鍒濆鍖栭〉闈?        document.addEventListener("DOMContentLoaded", function() {
+            // 璁剧疆鍒嗙被閫夋嫨鍣ㄧ偣鍑讳簨浠?            const segments = document.querySelectorAll(".segment");
+            segments.forEach(segment => {
+                segment.addEventListener("click", function() {
+                    switchCategory(this.textContent.trim());
+                });
+            });
+
+            // 璁剧疆甯栧瓙鐐瑰嚮浜嬩欢
+            const communityPosts = document.querySelectorAll(".community-post");
+            communityPosts.forEach((post, index) => {
+                post.addEventListener("click", function() {
+                    // 鏍规嵁甯栧瓙鍦ㄩ〉闈腑鐨勯『搴忕‘瀹氭纭殑postId
+                    const postId = "post" + (index + 1);
+                    showPostDetail(postId);
+                });
+            });
+
+            // 璁剧疆甯栧瓙鎿嶄綔鎸夐挳鐐瑰嚮浜嬩欢
+            const postActions = document.querySelectorAll(".post-action");
+            postActions.forEach(action => {
+                action.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    if (this.querySelector("i").classList.contains("fa-heart")) {
+                        const postIndex = Array.from(document.querySelectorAll(".community-post")).indexOf(this.closest(".community-post"));
+                        if (postIndex !== -1) {
+                            toggleLike("post" + (postIndex + 1));
+                        }
+                    } else if (this.querySelector("i").classList.contains("fa-comment")) {
+                        const postIndex = Array.from(document.querySelectorAll(".community-post")).indexOf(this.closest(".community-post"));
+                        if (postIndex !== -1) {
+                            showPostDetail("post" + (postIndex + 1));
+                        }
+                    } else if (this.querySelector("i").classList.contains("fa-share")) {
+                        const postIndex = Array.from(document.querySelectorAll(".community-post")).indexOf(this.closest(".community-post"));
+                        if (postIndex !== -1) {
+                            sharePost(e, "post" + (postIndex + 1));
+                        }
+                    }
+                });
+            });
+
+            // 璁剧疆鎸戞垬鍗＄墖鎸夐挳鐐瑰嚮浜嬩欢
+            const challengeButtons = document.querySelectorAll(".card .btn");
+            challengeButtons.forEach(button => {
+                button.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    alert("宸插姞鍏ユ寫鎴橈紒");
+                    this.textContent = "宸插姞鍏?;
+                    this.disabled = true;
+                    this.style.backgroundColor = "#28a745";
+                    this.style.color = "white";
+                });
+            });
+
+            // 璁剧疆搴曢儴鏍囩鏍忕偣鍑讳簨浠?            const tabItems = document.querySelectorAll(".tab-item");
+            tabItems.forEach(tab => {
+                tab.addEventListener("click", function() {
+                    const tabName = this.querySelector("span").textContent;
+                    switch(tabName) {
+                        case "棣栭〉":
+                            window.location.href = "home.html";
+                            break;
+                        case "鐢熷懡鏍?:
+                            window.location.href = "tree.html";
+                            break;
+                        case "瀛︿範":
+                            window.location.href = "learning.html";
+                            break;
+                        case "绀惧尯":
+                            // 宸插湪褰撳墠椤甸潰
+                            break;
+                        case "璁剧疆":
+                            window.location.href = "settings.html";
+                            break;
+                    }
+                });
+            });
+        });
+
+        // 鍒囨崲鍒嗙被
+        function switchCategory(categoryName) {
+            // 鏇存柊鍒嗙被閫夋嫨鍣ㄧ姸鎬?            const segments = document.querySelectorAll(".segment");
+            segments.forEach(segment => {
+                if (segment.textContent.trim() === categoryName) {
+                    segment.classList.add("active");
+                } else {
+                    segment.classList.remove("active");
+                }
+            });
+
+            // 闅愯棌鎵€鏈夊唴瀹?            Object.values(categories).forEach(section => {
+                if (section) {
+                    section.style.display = "none";
+                }
+            });
+
+            // 鏄剧ず閫変腑鍒嗙被鐨勫唴瀹?            let categoryKey;
+            switch(categoryName) {
+                case "鍏ㄩ儴":
+                    categoryKey = "all";
+                    break;
+                case "鎴愬姛鏁呬簨":
+                    categoryKey = "success";
+                    break;
+                case "闂瓟":
+                    categoryKey = "qa";
+                    break;
+                case "鎸戞垬":
+                    categoryKey = "challenges";
+                    break;
+            }
+
+            if (categoryKey && categories[categoryKey]) {
+                categories[categoryKey].style.display = "block";
+                
+                // 濡傛灉鏄涓€娆″垏鎹㈠埌璇ュ垎绫伙紝灏嗗叾娣诲姞鍒癉OM
+                if (categoryKey !== "all" && !document.body.contains(categories[categoryKey])) {
+                    document.querySelector(".container").appendChild(categories[categoryKey]);
+                }
+            }
+        }
+
+        // 鏄剧ず甯栧瓙璇︽儏
+        function showPostDetail(postId) {
+            const post = posts[postId];
+            if (!post) {
+                console.warn(`甯栧瓙鏁版嵁鏈壘鍒? ${postId}`);
+                if (window.QuittrUtils && window.QuittrUtils.toast) {
+                    window.QuittrUtils.toast.warning('甯栧瓙鍐呭鏆傛椂鏃犳硶鍔犺浇');
+                }
+                return;
+            }
+
+            // 璁剧疆甯栧瓙澶撮儴
+            let headerHTML = `
+                <div class="post-avatar" style="background-image: url('${post.avatar}'); background-size: cover;"></div>
+                <div class="post-user">
+                    <div class="post-username">${post.username}</div>
+                    <div class="post-time">${post.time}</div>
+                </div>
+                <div class="badge">${post.days}</div>
+            `;
+            document.getElementById("modalPostHeader").innerHTML = headerHTML;
+
+            // 璁剧疆甯栧瓙鍐呭
+            let contentHTML = `<p>${post.content}</p>`;
+            if (post.achievement) {
+                contentHTML += `
+                    <div class="achievement mt-10">
+                        <div class="achievement-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <div class="achievement-title">${post.achievement.title}</div>
+                            <div class="achievement-description">${post.achievement.description}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById("modalPostContent").innerHTML = contentHTML;
+
+            // 璁剧疆鐐硅禐鍜岃瘎璁烘暟
+            document.getElementById("modalLikeCount").textContent = post.likes;
+            document.getElementById("modalCommentCount").textContent = post.comments.length;
+
+            // 璁剧疆璇勮鍒楄〃
+            let commentsHTML = "";
+            post.comments.forEach(comment => {
+                commentsHTML += `
+                    <div class="comment">
+                        <div class="comment-avatar" style="background-image: url('${comment.avatar}');"></div>
+                        <div class="comment-content">
+                            <div class="comment-user">${comment.username}</div>
+                            <div class="comment-text">${comment.text}</div>
+                            <div class="comment-time">${comment.time}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById("commentsList").innerHTML = commentsHTML;
+
+            // 鏄剧ず寮圭獥骞惰缃畃ostId
+            const modal = document.getElementById("postModal");
+            modal.setAttribute('data-post-id', postId);
+            modal.style.display = "flex";
+        }
+
+        // 鍏抽棴寮圭獥
+        function closeModal() {
+            const modal = document.getElementById("postModal");
+            modal.style.display = "none";
+            // 鎭㈠椤甸潰婊氬姩
+            document.body.style.overflow = "auto";
+        }
+
+        // 鏀硅繘鐨勭偣璧炲姛鑳斤紙鑱斿姩寮圭獥涓庡垪琛紝骞舵寔涔呭寲锛?        function toggleLike(postId) {
+            if (postId === "modal") {
+                // 澶勭悊寮圭獥涓殑鐐硅禐锛屽苟鑱斿姩鍒楄〃
+                const modal = document.getElementById("postModal");
+                const actualPostId = modal.getAttribute('data-post-id');
+                if (!actualPostId) return;
+
+                const likeAction = document.querySelector("#postModal .post-action");
+                const modalCountEl = document.getElementById("modalLikeCount");
+                let current = parseInt(modalCountEl.textContent) || 0;
+                const wasLiked = likeAction.classList.contains("liked");
+
+                if (wasLiked) {
+                    likeAction.classList.remove("liked");
+                    current = Math.max(0, current - 1);
+                    showToast('宸插彇娑堢偣璧?);
+                } else {
+                    likeAction.classList.add("liked");
+                    current = current + 1;
+                    // 娣诲姞鐐硅禐鍔ㄧ敾鏁堟灉
+                    likeAction.style.animation = 'heartBeat 0.3s ease';
+                    setTimeout(() => { likeAction.style.animation = ''; }, 300);
+                    showToast('宸茬偣璧?);
+                }
+                modalCountEl.textContent = current;
+
+                // 鑱斿姩鏇存柊鍒楄〃涓殑鐐硅禐鏄剧ず
+                const listLikeAction = document.querySelector(`.community-post[data-post-id="${actualPostId}"] .post-action:first-child`);
+                if (listLikeAction) {
+                    const listCountEl = listLikeAction.querySelector('span');
+                    listCountEl.textContent = String(current);
+                    listLikeAction.classList.toggle('liked', !wasLiked);
+                }
+
+                // 鏇存柊posts鏁版嵁骞舵寔涔呭寲
+                if (typeof posts !== 'undefined' && posts[actualPostId]) {
+                    posts[actualPostId].likes = current;
+                    localStorage.setItem('communityPosts', JSON.stringify(posts));
+                }
+            } else {
+                // 澶勭悊甯栧瓙鍒楄〃涓殑鐐硅禐锛屽苟鑱斿姩寮圭獥
+                const postElement = document.querySelector(`.community-post[data-post-id="${postId}"]`);
+                if (!postElement) return;
+
+                const likeAction = postElement.querySelector(".post-action:first-child");
+                const likeCount = likeAction.querySelector("span");
+                let current = parseInt(likeCount.textContent) || 0;
+                const wasLiked = likeAction.classList.contains("liked");
+
+                if (wasLiked) {
+                    likeAction.classList.remove("liked");
+                    current = Math.max(0, current - 1);
+                    showToast('宸插彇娑堢偣璧?);
+                } else {
+                    likeAction.classList.add("liked");
+                    current = current + 1;
+                    // 娣诲姞鐐硅禐鍔ㄧ敾鏁堟灉
+                    likeAction.style.animation = 'heartBeat 0.3s ease';
+                    setTimeout(() => { likeAction.style.animation = ''; }, 300);
+                    showToast('宸茬偣璧?);
+                }
+                likeCount.textContent = String(current);
+
+                // 鑱斿姩鏇存柊寮圭獥锛堝鏋滃綋鍓嶆墦寮€鐨勬槸鍚屼竴甯栧瓙锛?                const modal = document.getElementById("postModal");
+                if (modal && modal.style.display === 'flex' && modal.getAttribute('data-post-id') === postId) {
+                    const modalLikeAction = document.querySelector("#postModal .post-action");
+                    const modalCountEl = document.getElementById("modalLikeCount");
+                    modalCountEl.textContent = String(current);
+                    modalLikeAction.classList.toggle('liked', !wasLiked);
+                }
+
+                // 鏇存柊posts鏁版嵁骞舵寔涔呭寲
+                if (typeof posts !== 'undefined' && posts[postId]) {
+                    posts[postId].likes = current;
+                    localStorage.setItem('communityPosts', JSON.stringify(posts));
+                }
+            }
+        }
+
+        // 鏀硅繘鐨勮瘎璁哄姛鑳斤紙鑱斿姩鍒楄〃璁℃暟骞舵寔涔呭寲锛?        function addComment() {
+            const modal = document.getElementById("postModal");
+            const postId = modal.getAttribute('data-post-id');
+            
+            if (!postId) {
+                showToast('鏃犳硶鑾峰彇甯栧瓙淇℃伅');
+                return;
+            }
+            
+            const commentText = document.getElementById("newCommentInput").value.trim();
+            if (!commentText) {
+                showToast('璇疯緭鍏ヨ瘎璁哄唴瀹?);
+                return;
+            }
+            
+            if (commentText.length > 200) {
+                showToast('璇勮鍐呭涓嶈兘瓒呰繃200瀛?);
+                return;
+            }
+
+            const newComment = {
+                id: Date.now(),
+                username: "鎴?,
+                avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80",
+                text: commentText,
+                time: "鍒氬垰",
+                likes: 0
+            };
+
+            // 娣诲姞鍒皃osts鏁版嵁涓?            if (posts[postId]) {
+                posts[postId].comments.unshift(newComment);
+            }
+
+            const commentHTML = `
+                <div class="comment" style="animation: commentSlideIn 0.3s ease;">
+                    <div class="comment-avatar" style="background-image: url('${newComment.avatar}');"></div>
+                    <div class="comment-content">
+                        <div class="comment-user">${newComment.username}</div>
+                        <div class="comment-text">${newComment.text}</div>
+                        <div class="comment-time">${newComment.time}</div>
+                        <div class="comment-actions">
+                            <span class="comment-action" onclick="likeComment(${newComment.id})">
+                                <i class="far fa-heart"></i>
+                                <span>${newComment.likes}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const commentsList = document.getElementById("commentsList");
+            commentsList.insertAdjacentHTML('afterbegin', commentHTML);
+            
+            // 鏇存柊寮圭獥璇勮鏁伴噺
+            const commentCountElement = document.getElementById("modalCommentCount");
+            const newCount = parseInt(commentCountElement.textContent) + 1;
+            commentCountElement.textContent = newCount;
+            
+            // 鑱斿姩鏇存柊鍒楄〃涓殑璇勮鏁?            const listCommentAction = document.querySelector(`.community-post[data-post-id="${postId}"] .post-action:nth-child(2) span`);
+            if (listCommentAction) {
+                listCommentAction.textContent = String(newCount);
+            }
+            
+            // 鎸佷箙鍖栧埌鏈湴瀛樺偍
+            if (typeof posts !== 'undefined') {
+                localStorage.setItem('communityPosts', JSON.stringify(posts));
+            }
+            
+            // 娓呯┖杈撳叆妗?            document.getElementById("newCommentInput").value = "";
+            
+            // 鏄剧ず鎴愬姛鎻愮ず
+            showToast('璇勮鍙戝竷鎴愬姛');
+        }
+
+        // 鏄剧ず鎻愮ず淇℃伅
+        function showToast(message) {
+            // 鍒涘缓toast鍏冪礌
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                z-index: 10000;
+                animation: toastFadeIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // 3绉掑悗绉婚櫎
+            setTimeout(() => {
+                toast.style.animation = 'toastFadeOut 0.3s ease';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // 璇勮鐐硅禐鍔熻兘
+        function likeComment(commentId) {
+            const commentAction = document.querySelector(`[onclick="likeComment(${commentId})"]`);
+            const likeCount = commentAction.querySelector('span');
+            const likeIcon = commentAction.querySelector('i');
+            
+            if (commentAction.classList.contains('liked')) {
+                commentAction.classList.remove('liked');
+                likeIcon.className = 'far fa-heart';
+                likeCount.textContent = parseInt(likeCount.textContent) - 1;
+                showToast('宸插彇娑堢偣璧?);
+            } else {
+                commentAction.classList.add('liked');
+                likeIcon.className = 'fas fa-heart';
+                likeCount.textContent = parseInt(likeCount.textContent) + 1;
+                showToast('宸茬偣璧?);
+            }
+        }
+
+        // 鏄剧ず绱ф€ユ眰鍔?        function showEmergencyHelp() {
+            alert("姝ｅ湪杩炴帴绱ф€ユ敮鎸佹湇鍔★紝璇风◢鍊?..");
+        }
+
+        // 鍒涘缓鎴愬姛鏁呬簨鍒嗙被鍐呭
+        function createSuccessStoriesSection() {
+            const section = document.createElement("div");
+            section.className = "content content-section";
+            section.innerHTML = `
+                <h1>鎴愬姛鏁呬簨</h1>
+                <p>姣忎竴涓垚鍔熼兘鍊煎緱搴嗙</p>
+                
+                <div class="community-post" onclick="showPostDetail('post2')">
+                    <div class="post-header">
+                        <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                        <div class="post-user">
+                            <div class="post-username">鏉庡</div>
+                            <div class="post-time">5灏忔椂鍓?/div>
+                        </div>
+                        <div class="badge">90澶?/div>
+                    </div>
+                    <div class="post-content">
+                        <p>90澶╅噷绋嬬杈炬垚锛佸洖椤捐繖娈垫梾绋嬶紝鎴戝鍒颁簡寰堝鍏充簬鑷繁鐨勪簨鎯呫€傛渶閲嶈鐨勬槸锛屾垜鍙戠幇鑷繁鏈夎兘鍔涙帶鍒惰嚜宸辩殑琛屼负鍜屾儏缁紝鑰屼笉鏄瀹冧滑鎺у埗銆傛劅璋UITTR鍜岀ぞ鍖虹殑鎵€鏈変汉锛?/p>
+                        <div class="achievement mt-10">
+                            <div class="achievement-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="achievement-content">
+                                <div class="achievement-title">90澶╂垚灏?/div>
+                                <div class="achievement-description">瀹屾垚90澶╂仮澶嶈鍒?/div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action">
+                            <i class="fas fa-heart"></i>
+                            <span>64</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="fas fa-comment"></i>
+                            <span>15</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="fas fa-share"></i>
+                            <span>鍒嗕韩</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="community-post" onclick="showPostDetail('post1')">
+                    <div class="post-header">
+                        <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                        <div class="post-user">
+                            <div class="post-username">寮犱紵</div>
+                            <div class="post-time">2灏忔椂鍓?/div>
+                        </div>
+                        <div class="badge">45澶?/div>
+                    </div>
+                    <div class="post-content">
+                        <p>浠婂ぉ鏄垜鐨勭45澶╋紒鍒氬紑濮嬬殑鏃跺€欑湡鐨勫緢闅撅紝浣嗙幇鍦ㄦ垜鎰熻鑷繁鐨勬敞鎰忓姏鍜岀簿鍔涢兘鏈変簡鏄庢樉鎻愬崌銆傛渶澶х殑鍙樺寲鏄垜寮€濮嬮噸鏂颁韩鍙楃敓娲讳腑鐨勫皬浜嬶紝姣斿闃呰鍜屾埛澶栨椿鍔ㄣ€傛劅璋㈢ぞ鍖虹殑鏀寔锛?/p>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action">
+                            <i class="fas fa-heart"></i>
+                            <span>32</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="fas fa-comment"></i>
+                            <span>8</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="fas fa-share"></i>
+                            <span>鍒嗕韩</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return section;
+        }
+
+        // 鍒涘缓闂瓟鍒嗙被鍐呭
+        function createQASection() {
+            const section = document.createElement("div");
+            section.className = "content content-section";
+            section.innerHTML = `
+                <h1>闂瓟</h1>
+                <p>浜掔浉甯姪锛屽叡鍚屾垚闀?/p>
+                
+                <div class="community-post" onclick="showPostDetail('post3')">
+                    <div class="post-header">
+                        <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                        <div class="post-user">
+                            <div class="post-username">鐜嬪己</div>
+                            <div class="post-time">鏄ㄥぉ</div>
+                        </div>
+                        <div class="badge">12澶?/div>
+                    </div>
+                    <div class="post-content">
+                        <p>鏈変汉鑳藉垎浜竴涓嬪浣曞簲瀵规櫄涓婄殑璇辨儜鍚楋紵鎴戝彂鐜拌繖鏄垜鏈€瀹规槗澶辨帶鐨勬椂闂存銆傚凡缁忓皾璇曚簡鍐ユ兂锛屼絾鏁堟灉涓嶆槸寰堟槑鏄俱€?/p>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action">
+                            <i class="fas fa-heart"></i>
+                            <span>18</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="fas fa-comment"></i>
+                            <span>23</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="fas fa-share"></i>
+                            <span>鍒嗕韩</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="community-post">
+                    <div class="post-header">
+                        <div class="post-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;"></div>
+                        <div class="post-user">
+                            <div class="post-username">闄堥潤</div>
+                            <div class="post-time">3澶╁墠</div>
+                        </div>
+                        <div class="badge">7澶?/div>
+                    </div>
+                    <div class="post-content">
+                        <p>澶у鏈変粈涔堟帹鑽愮殑鏇夸唬娲诲姩鍚楋紵鎴戦渶瑕佹壘涓€浜涜兘澶熻浆绉绘敞鎰忓姏鐨勪簨鎯呭仛銆?/p>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action">
+                            <i class="fas fa-heart"></i>
+                            <span>24</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="fas fa-comment"></i>
+                            <span>17</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="fas fa-share"></i>
+                            <span>鍒嗕韩</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return section;
+        }
+
+        // 鍒涘缓鎸戞垬鍒嗙被鍐呭
+        function createChallengesSection() {
+            const section = document.createElement("div");
+            section.className = "content content-section";
+            section.innerHTML = `
+                <h1>鎸戞垬</h1>
+                <p>涓€璧锋寫鎴橈紝鍏卞悓鎴愰暱</p>
+                
+                <div class="card">
+                    <h3>28澶╁喎姘存荡鎸戞垬</h3>
+                    <p>姣忓ぉ鐢ㄥ喎姘存穻娴?0绉掞紝閫愭笎澧炲姞鍒?鍒嗛挓锛屾彁鍗囪嚜鎺у姏鍜屾剰蹇楀姏</p>
+                    <div class="progress-container mt-10">
+                        <div class="progress-bar" style="width: 50%;"></div>
+                    </div>
+                    <div class="flex-between">
+                        <span class="text-small">14/28澶?/span>
+                        <span class="text-small text-primary">50%</span>
+                    </div>
+                    <div class="flex-between mt-10">
+                        <span>鍙備笌浜烘暟: 1,245</span>
+                        <button class="btn btn-outline">鍔犲叆鎸戞垬</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>21澶╂櫒闂翠範鎯吇鎴?/h3>
+                    <p>姣忓ぉ鏃╄捣30鍒嗛挓锛岃繘琛屽啣鎯炽€侀敾鐐煎拰璁″垝锛屽煿鍏荤Н鏋佺殑鏅ㄩ棿涔犳儻</p>
+                    <div class="progress-container mt-10">
+                        <div class="progress-bar" style="width: 33%;"></div>
+                    </div>
+                    <div class="flex-between">
+                        <span class="text-small">7/21澶?/span>
+                        <span class="text-small text-primary">33%</span>
+                    </div>
+                    <div class="flex-between mt-10">
+                        <span>鍙備笌浜烘暟: 876</span>
+                        <button class="btn btn-outline">鍔犲叆鎸戞垬</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>14澶╂暟瀛楁帓姣?/h3>
+                    <p>姣忓ぉ鍑忓皯灞忓箷鏃堕棿锛屽煿鍏荤嚎涓嬫椿鍔ㄤ範鎯紝鏀瑰杽鐫＄湢璐ㄩ噺鍜屾敞鎰忓姏</p>
+                    <div class="progress-container mt-10">
+                        <div class="progress-bar" style="width: 71%;"></div>
+                    </div>
+                    <div class="flex-between">
+                        <span class="text-small">10/14澶?/span>
+                        <span class="text-small text-primary">71%</span>
+                    </div>
+                    <div class="flex-between mt-10">
+                        <span>鍙備笌浜烘暟: 1,032</span>
+                        <button class="btn btn-outline">鍔犲叆鎸戞垬</button>
+                    </div>
+                </div>
+            `;
+            return section;
+        }
+        // 鍒濆鍖栧垎绫荤瓫閫夊姛鑳?        document.addEventListener('DOMContentLoaded', function() {
+            // 涓哄垎绫婚€夋嫨鍣ㄦ坊鍔犵偣鍑讳簨浠?            const segments = document.querySelectorAll('.segment');
+            segments.forEach(segment => {
+                segment.addEventListener('click', function() {
+                    // 绉婚櫎鎵€鏈塧ctive绫?                    segments.forEach(s => s.classList.remove('active'));
+                    // 娣诲姞褰撳墠鐐瑰嚮鍏冪礌鐨刟ctive绫?                    this.classList.add('active');
+                    
+                    // 杩囨护甯栧瓙
+                    const category = this.getAttribute('data-category');
+                    filterPosts(category);
+                });
+            });
+
+            // 鍒濆鍖栫偣璧炲姩鐢绘晥鏋?            initLikeAnimation();
+        });
+
+        // 杩囨护甯栧瓙鍑芥暟
+        function filterPosts(category) {
+            const postElements = document.querySelectorAll('.community-post');
+            postElements.forEach(post => {
+                if (category === 'all' || post.getAttribute('data-category') === category) {
+                    post.style.display = 'block';
+                    // 娣诲姞娣″叆鍔ㄧ敾
+                    post.classList.add('fade-in');
+                    setTimeout(() => {
+                        post.classList.remove('fade-in');
+                    }, 500);
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+        }
+
+        // 鍒濆鍖栫偣璧炲姩鐢?        function initLikeAnimation() {
+            const likeButtons = document.querySelectorAll('.post-action .fa-heart');
+            likeButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // 闃绘浜嬩欢鍐掓场锛岄伩鍏嶈Е鍙戝笘瀛愮偣鍑讳簨浠?                    e.stopPropagation();
+                    
+                    // 娣诲姞鐐硅禐鍔ㄧ敾
+                    this.classList.add('like-animation');
+                    setTimeout(() => {
+                        this.classList.remove('like-animation');
+                    }, 500);
+                });
+            });
+        }
+
+        // 鍒嗕韩鍔熻兘
+        function sharePost(event, postId) {
+            event.stopPropagation();
+            const modal = document.getElementById('shareModal');
+            modal.style.display = 'flex';
+            // 瀛樺偍褰撳墠鍒嗕韩鐨勫笘瀛怚D
+            modal.setAttribute('data-post-id', postId);
+        }
+
+        function closeShareModal() {
+            const modal = document.getElementById('shareModal');
+            modal.style.display = 'none';
+        }
+
+        function shareToWeChat() {
+            const postId = document.getElementById('shareModal').getAttribute('data-post-id');
+            const post = posts[postId];
+            const shareText = `鎴戝湪QUITTR鐪嬪埌涓€涓緢妫掔殑鎴掔樉鍒嗕韩锛?{post.content.substring(0, 50)}...`;
+            
+            // 妫€鏌ユ槸鍚︽敮鎸乄eb Share API
+            if (navigator.share) {
+                navigator.share({
+                    title: 'QUITTR - 鎴掔樉绀惧尯鍒嗕韩',
+                    text: shareText,
+                    url: `https://quittr.app/community/post/${postId}`
+                }).then(() => {
+                    showToast('鍒嗕韩鎴愬姛锛?);
+                }).catch(() => {
+                    showToast('鍒嗕韩宸插彇娑?);
+                });
+            } else {
+                // 闄嶇骇澶勭悊锛氬鍒跺埌鍓创鏉?                copyToClipboard(shareText + ` https://quittr.app/community/post/${postId}`);
+                showToast('鍐呭宸插鍒跺埌鍓创鏉匡紝璇锋墜鍔ㄥ垎浜埌寰俊');
+            }
+            closeShareModal();
+        }
+
+        function shareToWeibo() {
+            const postId = document.getElementById('shareModal').getAttribute('data-post-id');
+            const post = posts[postId];
+            const shareText = encodeURIComponent(`鎴戝湪QUITTR鐪嬪埌涓€涓緢妫掔殑鎴掔樉鍒嗕韩锛?{post.content.substring(0, 100)}... #鎴掔樉 #QUITTR`);
+            const shareUrl = encodeURIComponent(`https://quittr.app/community/post/${postId}`);
+            
+            // 鎵撳紑寰崥鍒嗕韩椤甸潰
+            const weiboUrl = `https://service.weibo.com/share/share.php?url=${shareUrl}&title=${shareText}`;
+            window.open(weiboUrl, '_blank', 'width=600,height=400');
+            closeShareModal();
+            showToast('姝ｅ湪璺宠浆鍒板井鍗氬垎浜〉闈?..');
+        }
+
+        function shareToQQ() {
+            const postId = document.getElementById('shareModal').getAttribute('data-post-id');
+            const post = posts[postId];
+            const shareText = encodeURIComponent(`鎴戝湪QUITTR鐪嬪埌涓€涓緢妫掔殑鎴掔樉鍒嗕韩锛?{post.content.substring(0, 100)}...`);
+            const shareUrl = encodeURIComponent(`https://quittr.app/community/post/${postId}`);
+            
+            // 鎵撳紑QQ鍒嗕韩椤甸潰
+            const qqUrl = `https://connect.qq.com/widget/shareqq/index.html?url=${shareUrl}&title=${shareText}&source=QUITTR`;
+            window.open(qqUrl, '_blank', 'width=600,height=400');
+            closeShareModal();
+            showToast('姝ｅ湪璺宠浆鍒癚Q鍒嗕韩椤甸潰...');
+        }
+
+        function copyLink() {
+            const postId = document.getElementById('shareModal').getAttribute('data-post-id');
+            const link = `https://quittr.app/community/post/${postId}`;
+            
+            copyToClipboard(link);
+            closeShareModal();
+        }
+
+        // 閫氱敤澶嶅埗鍒板壀璐存澘鍑芥暟
+        function copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                // 浣跨敤鐜颁唬 Clipboard API
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('閾炬帴宸插鍒跺埌鍓创鏉匡紒');
+                }).catch(() => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                // 闄嶇骇澶勭悊
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast('閾炬帴宸插鍒跺埌鍓创鏉匡紒');
+            } catch (err) {
+                showToast('澶嶅埗澶辫触锛岃鎵嬪姩澶嶅埗閾炬帴');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function showQRCode() {
+            const postId = document.getElementById('shareModal').getAttribute('data-post-id');
+            const link = `https://quittr.app/community/post/${postId}`;
+            
+            // 鐢熸垚浜岀淮鐮侊紙浣跨敤鍦ㄧ嚎API锛?            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link)}`;
+            
+            // 鍒涘缓浜岀淮鐮佹樉绀哄脊绐?            const qrModal = document.createElement('div');
+            qrModal.className = 'modal';
+            qrModal.style.display = 'flex';
+            qrModal.innerHTML = `
+                <div class="modal-content" style="max-width: 300px; text-align: center;">
+                    <div class="modal-header">
+                        <div class="modal-title">鎵爜鍒嗕韩</div>
+                        <div class="modal-close" onclick="this.closest('.modal').remove()">&times;</div>
+                    </div>
+                    <div class="modal-body">
+                        <img src="${qrCodeUrl}" alt="浜岀淮鐮? style="width: 200px; height: 200px; margin: 20px auto;">
+                        <p class="text-muted">浣跨敤鎵嬫満鎵弿浜岀淮鐮佸垎浜?/p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="this.closest('.modal').remove()">鍏抽棴</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(qrModal);
+            closeShareModal();
+        }
+
+        function showMoreOptions() {
+            // 鏄剧ず鏇村鍒嗕韩閫夐」
+            const moreOptions = [
+                { name: '澶嶅埗鏂囨湰', action: () => {
+                    const postId = document.getElementById('shareModal').getAttribute('data-post-id');
+                    const post = posts[postId];
+                    const shareText = `${post.content}\n\n鏉ヨ嚜QUITTR鎴掔樉绀惧尯 - https://quittr.app/community/post/${postId}`;
+                    copyToClipboard(shareText);
+                    closeShareModal();
+                }},
+                { name: '淇濆瓨鍥剧墖', action: () => {
+                    showToast('鍥剧墖淇濆瓨鍔熻兘寮€鍙戜腑...');
+                    closeShareModal();
+                }},
+                { name: '涓炬姤鍐呭', action: () => {
+                    if (confirm('纭畾瑕佷妇鎶ヨ繖鏉″唴瀹瑰悧锛?)) {
+                        showToast('涓炬姤宸叉彁浜わ紝鎴戜滑浼氬敖蹇鐞?);
+                    }
+                    closeShareModal();
+                }}
+            ];
+            
+            const optionsHTML = moreOptions.map(option => {
+                const actionStr = option.action.toString().replace(/=>/g, 'function()');
+                return `<div class="share-option" data-action="${option.name}">${option.name}</div>`;
+            }).join('');
+            
+            const moreModal = document.createElement('div');
+            moreModal.className = 'modal';
+            moreModal.style.display = 'flex';
+            moreModal.innerHTML = `
+                <div class="modal-content" style="max-width: 300px;">
+                    <div class="modal-header">
+                        <div class="modal-title">鏇村閫夐」</div>
+                        <div class="modal-close" onclick="this.closest('.modal').remove()">&times;</div>
+                    </div>
+                    <div class="modal-body">
+                        ${optionsHTML}
+                    </div>
+                </div>
+            `;
+            
+            // 娣诲姞浜嬩欢鐩戝惉
+            setTimeout(() => {
+                const shareOptions = document.querySelectorAll('.share-option');
+                shareOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        const actionName = this.getAttribute('data-action');
+                        const actionOption = moreOptions.find(opt => opt.name === actionName);
+                        if (actionOption && typeof actionOption.action === 'function') {
+                            actionOption.action();
+                        }
+                    });
+                });
+            }, 0);
+            
+            document.body.appendChild(moreModal);
+            closeShareModal();
+        }
+        function showToast(message) {
+            // 绉婚櫎宸插瓨鍦ㄧ殑toast
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 25px;
+                z-index: 10000;
+                font-size: 14px;
+                animation: toastSlideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        // 鎼滅储鍔熻兘
+        function searchPosts() {
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            
+            if (!searchTerm) {
+                showToast('璇疯緭鍏ユ悳绱㈠叧閿瘝');
+                return;
+            }
+            
+            handleSearch(searchTerm);
+        }
+
+        function handleSearch(searchTerm) {
+            const allPosts = document.querySelectorAll('.community-post');
+            let visibleCount = 0;
+            
+            allPosts.forEach(post => {
+                const username = post.querySelector('.post-username').textContent.toLowerCase();
+                const content = post.querySelector('.post-content p').textContent.toLowerCase();
+                
+                if (username.includes(searchTerm) || content.includes(searchTerm)) {
+                    post.style.display = 'block';
+                    post.style.animation = 'fadeIn 0.3s ease';
+                    visibleCount++;
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+            
+            if (visibleCount === 0) {
+                showToast('鏈壘鍒扮浉鍏冲唴瀹?);
+            } else {
+                showToast(`鎵惧埌 ${visibleCount} 鏉＄浉鍏冲唴瀹筦);
+            }
+        }
+
+        // 娓呴櫎鎼滅储
+        function clearSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = '';
+            
+            const allPosts = document.querySelectorAll('.community-post');
+            allPosts.forEach(post => {
+                post.style.display = 'block';
+                post.style.animation = 'fadeIn 0.3s ease';
+            });
+            
+            showToast('宸叉竻闄ゆ悳绱?);
+        }
+
+        // 鎼滅储杈撳叆妗嗗洖杞︿簨浠?        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchPosts();
+                    }
+                });
+            }
+
+            // 鍒濆鍖栫ぞ鍖烘悳绱㈠姛鑳?            if (window.QuittrSearch) {
+                const communitySearch = window.QuittrSearch.createSearchComponent('#community-search-container', {
+                    placeholder: '鎼滅储绀惧尯甯栧瓙銆佺敤鎴锋垨璇濋...',
+                    showFilters: true,
+                    filters: [
+                        { label: '鎴愬姛鏁呬簨', value: 'success' },
+                        { label: '闂瓟', value: 'qa' },
+                        { label: '鎸戞垬', value: 'challenge' },
+                        { label: '灏忔妧宸?, value: 'tips' }
+                    ],
+                    onSearch: function(query, filters) {
+                        searchCommunityPosts(query, filters);
+                    },
+                    onFilter: function(filters, query) {
+                        if (query) {
+                            searchCommunityPosts(query, filters);
+                        } else {
+                            filterPostsByCategory(filters);
+                        }
+                    }
+                });
+
+                // 鎼滅储绀惧尯甯栧瓙鍑芥暟
+                function searchCommunityPosts(query, filters = []) {
+                    const allPosts = document.querySelectorAll('.community-post');
+                    const results = [];
+                    
+                    allPosts.forEach((post, index) => {
+                        const postId = post.getAttribute('data-post-id') || `post${index + 1}`;
+                        const category = post.getAttribute('data-category') || '';
+                        const username = post.querySelector('.post-username')?.textContent || '';
+                        const content = post.querySelector('.post-content p')?.textContent || '';
+                        const time = post.querySelector('.post-time')?.textContent || '';
+                        
+                        // 妫€鏌ユ槸鍚﹀尮閰嶆悳绱㈠叧閿瘝
+                        const matchesQuery = !query || 
+                            username.toLowerCase().includes(query.toLowerCase()) ||
+                            content.toLowerCase().includes(query.toLowerCase());
+                        
+                        // 妫€鏌ユ槸鍚﹀尮閰嶈繃婊ゅ櫒
+                        const matchesFilter = filters.length === 0 || filters.includes(category);
+                        
+                        if (matchesQuery && matchesFilter) {
+                            results.push({
+                                id: postId,
+                                title: `${username} 鐨勫笘瀛恅,
+                                snippet: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+                                type: getCategoryName(category),
+                                date: time,
+                                tags: [getCategoryName(category)],
+                                onClick: function(result) {
+                                    showPostDetail(result.id);
+                                }
+                            });
+                        }
+                    });
+
+                    // 鏄剧ず鎼滅储缁撴灉
+                    const stats = {
+                        total: results.length,
+                        time: Math.floor(Math.random() * 50) + 10
+                    };
+                    
+                    communitySearch.setResults(results, stats);
+                    
+                    // 闅愯棌鍘熷甯栧瓙鍒楄〃锛屾樉绀烘悳绱㈢粨鏋?                    allPosts.forEach(post => {
+                        post.style.display = 'none';
+                    });
+                }
+
+                // 鏍规嵁鍒嗙被杩囨护甯栧瓙
+                function filterPostsByCategory(filters) {
+                    const allPosts = document.querySelectorAll('.community-post');
+                    
+                    allPosts.forEach(post => {
+                        const category = post.getAttribute('data-category') || '';
+                        const shouldShow = filters.length === 0 || filters.includes(category);
+                        post.style.display = shouldShow ? 'block' : 'none';
+                    });
+                    
+                    communitySearch.clearResults();
+                }
+
+                // 鑾峰彇鍒嗙被鍚嶇О
+                function getCategoryName(category) {
+                    const categoryMap = {
+                        'success': '鎴愬姛鏁呬簨',
+                        'qa': '闂瓟',
+                        'challenge': '鎸戞垬',
+                        'tips': '灏忔妧宸?
+                    };
+                    return categoryMap[category] || '鍏朵粬';
+                }
+            }
+        });
+
+        // 鏄剧ず甯栧瓙璇︽儏
+        function showPostDetail(postId) {
+            const post = posts[postId];
+            if (!post) {
+                console.error('甯栧瓙鏁版嵁鏈壘鍒?', postId);
+                showToast('甯栧瓙鍐呭鍔犺浇澶辫触锛岃绋嶅悗閲嶈瘯');
+                return;
+            }
+            
+            try {
+                // 璁剧疆甯栧瓙澶撮儴
+                const headerHTML = `
+                    <div class="post-avatar" style="background-image: url('${post.avatar}'); background-size: cover;"></div>
+                    <div class="post-user">
+                        <div class="post-username">${post.username}</div>
+                        <div class="post-time">${post.time}</div>
+                    </div>
+                    <div class="badge">${post.days}</div>
+                `;
+                document.getElementById("modalPostHeader").innerHTML = headerHTML;
+
+                // 璁剧疆甯栧瓙鍐呭
+                let contentHTML = `<p>${post.content}</p>`;
+                if (post.achievement) {
+                    contentHTML += `
+                        <div class="achievement mt-10">
+                            <div class="achievement-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="achievement-content">
+                                <div class="achievement-title">${post.achievement.title}</div>
+                                <div class="achievement-description">${post.achievement.description}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                document.getElementById("modalPostContent").innerHTML = contentHTML;
+
+                // 璁剧疆鐐硅禐鍜岃瘎璁烘暟
+                document.getElementById("modalLikeCount").textContent = post.likes;
+                document.getElementById("modalCommentCount").textContent = post.comments.length;
+
+                // 鏄剧ず璇勮
+                const commentsHTML = post.comments.map(comment => `
+                    <div class="comment">
+                        <div class="comment-avatar" style="background-image: url('${comment.avatar}');"></div>
+                        <div class="comment-content">
+                            <div class="comment-user">${comment.username}</div>
+                            <div class="comment-text">${comment.text}</div>
+                            <div class="comment-time">${comment.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById("commentsList").innerHTML = commentsHTML;
+
+                // 鏄剧ず寮圭獥锛岀‘淇濆湪褰撳墠椤甸潰鍐呮樉绀?                const modal = document.getElementById("postModal");
+                modal.style.display = "flex";
+                modal.style.position = "fixed";
+                modal.style.top = "0";
+                modal.style.left = "0";
+                modal.style.width = "100%";
+                modal.style.height = "100%";
+                modal.style.zIndex = "9999";
+                
+                // 闃叉椤甸潰婊氬姩
+                document.body.style.overflow = "hidden";
+                
+            } catch (error) {
+                console.error('鏄剧ず甯栧瓙璇︽儏鏃跺嚭閿?', error);
+                showToast('甯栧瓙鍐呭鍔犺浇澶辫触锛岃绋嶅悗閲嶈瘯');
+            }
+        }
+
+        // 鍏抽棴寮圭獥锛堝凡鍦ㄥ墠闈㈠畾涔夛紝姝ゅ鍒犻櫎閲嶅瀹氫箟锛?
+        function addComment(postId) {
+            const input = document.querySelector('.new-comment input');
+            const text = input.value.trim();
+            if (text) {
+                // 鑾峰彇褰撳墠甯栧瓙鏁版嵁
+                const post = posts[postId];
+                if (!post) return;
+
+                // 鍒涘缓鏂拌瘎璁?                const newComment = {
+                    user: '鎴?,
+                    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face',
+                    text: text,
+                    time: '鍒氬垰',
+                    likes: 0
+                };
+
+                // 娣诲姞鍒板笘瀛愭暟鎹?                post.comments.push(newComment);
+
+                // 鏇存柊璇勮鍒楄〃鏄剧ず
+                const commentsList = document.getElementById('commentsList');
+                const commentHtml = `
+                    <div class="comment" style="animation: commentSlideIn 0.3s ease;">
+                        <div class="comment-avatar" style="background-image: url('${newComment.avatar}')"></div>
+                        <div class="comment-content">
+                            <div class="comment-user">${newComment.user}</div>
+                            <div class="comment-text">${newComment.text}</div>
+                            <div class="comment-time">${newComment.time}</div>
+                            <div class="comment-actions">
+                                <span class="comment-action" onclick="likeComment(this)">
+                                    <i class="far fa-heart"></i> ${newComment.likes}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                commentsList.insertAdjacentHTML('beforeend', commentHtml);
+
+                // 鏇存柊璇勮鏁伴噺
+                const commentCount = post.comments.length;
+                document.getElementById('modalCommentCount').textContent = commentCount;
+                
+                // 娓呯┖杈撳叆妗?                input.value = '';
+
+                // 鏄剧ず鎴愬姛鎻愮ず
+                showToast('璇勮鍙戝竷鎴愬姛锛?);
+            }
+        }
+
+        // 鐐瑰嚮鍒嗕韩寮圭獥澶栭儴鍏抽棴
+        document.getElementById('shareModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeShareModal();
+            }
+        });
+
+        // 淇甯栧瓙鐐瑰嚮浜嬩欢
+        document.addEventListener('DOMContentLoaded', function() {
+            // 涓烘墍鏈夊笘瀛愭坊鍔犵偣鍑讳簨浠?            const postElements = document.querySelectorAll('.community-post');
+            postElements.forEach((element, index) => {
+                // 涓烘瘡涓笘瀛愬厓绱犳坊鍔燿ata-post-id灞炴€?                const postId = 'post' + (index + 1);
+                element.setAttribute('data-post-id', postId);
+                
+                element.addEventListener('click', function(e) {
+                    // 濡傛灉鐐瑰嚮鐨勬槸鎿嶄綔鎸夐挳锛屼笉瑙﹀彂甯栧瓙璇︽儏
+                    if (e.target.closest('.post-actions') || e.target.closest('.post-action')) {
+                        return;
+                    }
+                    
+                    // 鑾峰彇姝ｇ‘鐨勫笘瀛怚D
+                    const clickedPostId = this.getAttribute('data-post-id');
+                    showPostDetail(clickedPostId);
+                });
+            });
+
+            // 璁剧疆甯栧瓙鎿嶄綔鎸夐挳鐐瑰嚮浜嬩欢
+            const postActions = document.querySelectorAll(".post-action");
+            postActions.forEach(action => {
+                action.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    const postElement = this.closest(".community-post");
+                    const postId = postElement ? postElement.getAttribute('data-post-id') : null;
+                    
+                    if (this.querySelector("i").classList.contains("fa-heart")) {
+                        toggleLike(postId);
+                    } else if (this.querySelector("i").classList.contains("fa-comment")) {
+                        showPostDetail(postId);
+                    } else if (this.querySelector("i").classList.contains("fa-share")) {
+                        sharePost(e, postId);
+                    }
+                });
+            });
+
+            // 涓哄脊绐楀唴鐨勫垎浜寜閽粦瀹氫簨浠?            const modalShareAction = document.querySelector("#postModal .post-action:nth-child(3)");
+            if (modalShareAction && modalShareAction.querySelector("i").classList.contains("fa-share")) {
+                modalShareAction.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    const modal = document.getElementById("postModal");
+                    const postId = modal.getAttribute('data-post-id');
+                    if (postId) {
+                        sharePost(e, postId);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
