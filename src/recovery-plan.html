@@ -1,0 +1,546 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUITTR - 恢复计划</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/darkmode.js"></script>
+    <style>
+        /* 恢复计划特定样式 */
+        .segment {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+        
+        .segment:hover {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .segment.active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+        
+        .task-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(76, 175, 80, 0.02) 100%);
+        }
+        
+        .task-item:hover {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.2);
+            border-color: var(--success-color);
+        }
+        
+        .task-item.completed {
+            background: linear-gradient(135deg, var(--success-color) 0%, #43A047 100%);
+            color: white;
+            border-color: var(--success-color);
+        }
+        
+        .phase-content {
+            display: none;
+        }
+        
+        .phase-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
+        }
+        
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(255, 255, 255, 0.95) 100%);
+            padding: 25px;
+            border-radius: 16px;
+            width: 85%;
+            max-width: 350px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-title {
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+        
+        .modal-description {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .modal-button {
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        .task-date {
+            margin-top: 4px;
+            color: #888;
+        }
+        
+        .progress-container {
+            height: 8px;
+            background-color: #eee;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #4CD964;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .weekly-tip {
+            background-color: #f8f9fa;
+            border-left: 4px solid #4CD964;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .weekly-tip-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .weekly-tip-content {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- 任务详情弹窗 -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">任务详情</div>
+            <div class="modal-description" id="modalDescription">任务详细信息</div>
+            <button class="modal-button" onclick="closeModal()">确定</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content">
+            <h1>90天恢复计划</h1>
+            <p>结构化的恢复路径，帮助你重塑健康关系</p>
+
+            <!-- 进度概览 -->
+            <div class="card">
+                <div class="flex-between mb-10">
+                    <h3>当前进度</h3>
+                    <span class="badge">第28天</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: 31%;"></div>
+                </div>
+                <div class="flex-between">
+                    <span class="text-small">第一阶段：认知重建</span>
+                    <span class="text-small text-primary">31%</span>
+                </div>
+            </div>
+
+            <!-- 阶段选择器 -->
+            <div class="segmented-control mt-20">
+                <div class="segment active" onclick="switchPhase(1)">第一阶段</div>
+                <div class="segment" onclick="switchPhase(2)">第二阶段</div>
+                <div class="segment" onclick="switchPhase(3)">第三阶段</div>
+            </div>
+
+            <!-- 当前阶段内容 -->
+            <div class="card phase-content active" id="phase1">
+                <h3>第一阶段：认知重建（1-30天）</h3>
+                <p>这个阶段专注于理解成瘾机制，重建神经通路，培养自我意识</p>
+                
+                <div class="weekly-tip">
+                    <div class="weekly-tip-title">本周小贴士</div>
+                    <div class="weekly-tip-content">每天花5分钟记录你的渴望触发因素，这将帮助你更好地理解自己的成瘾模式。</div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第1周：理解成瘾', '学习成瘾的神经科学基础，了解多巴胺在成瘾中的作用，以及如何重建健康的神经通路。')">
+                    <div class="task-checkbox checked">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第1周：理解成瘾</div>
+                        <div class="task-description">学习成瘾的神经科学基础</div>
+                        <div class="task-date text-xs text-muted">第1-7天</div>
+                    </div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第2周：触发因素识别', '识别并记录个人触发因素，包括情绪、环境和社交触发因素，建立自我觉察能力。')">
+                    <div class="task-checkbox checked">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第2周：触发因素识别</div>
+                        <div class="task-description">识别并记录个人触发因素</div>
+                        <div class="task-date text-xs text-muted">第8-14天</div>
+                    </div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第3周：应对策略', '学习并实践应对策略，包括呼吸技巧、注意力转移和替代活动，建立应对渴望的工具箱。')">
+                    <div class="task-checkbox checked">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第3周：应对策略</div>
+                        <div class="task-description">学习并实践应对策略</div>
+                        <div class="task-date text-xs text-muted">第15-21天</div>
+                    </div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第4周：价值观重建', '探索个人价值观与目标，重新定义自我身份，建立与成瘾无关的生活愿景。')">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第4周：价值观重建</div>
+                        <div class="task-description">探索个人价值观与目标</div>
+                        <div class="task-date text-xs text-muted">第22-30天</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 第二阶段内容 -->
+            <div class="card phase-content" id="phase2">
+                <h3>第二阶段：行为重塑（31-60天）</h3>
+                <p>这个阶段专注于建立新的健康习惯，重塑日常生活模式</p>
+                
+                <div class="weekly-tip">
+                    <div class="weekly-tip-title">本周小贴士</div>
+                    <div class="weekly-tip-content">尝试建立晨间仪式，包括5分钟冥想、10分钟轻度运动和健康早餐，帮助你开启积极的一天。</div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第5周：健康习惯培养', '建立规律的睡眠、饮食和运动习惯，提升身体健康水平。每天保持7-8小时睡眠，均衡饮食，每周至少3次30分钟有氧运动。')">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第5周：健康习惯培养</div>
+                        <div class="task-description">建立规律的生活作息</div>
+                        <div class="task-date text-xs text-muted">第31-37天</div>
+                    </div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第6周：社交关系重建', '修复和重建健康的社交关系，学习沟通技巧，建立支持系统。每周安排至少一次与亲友的健康社交活动，学习表达自己的需求和边界。')">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第6周：社交关系重建</div>
+                        <div class="task-description">修复和重建健康的社交关系</div>
+                        <div class="task-date text-xs text-muted">第38-44天</div>
+                    </div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第7周：压力管理', '学习健康的压力管理技巧，包括冥想、正念和放松训练。每天练习15分钟冥想，学习识别压力信号并及时应对，避免压力触发复吸。')">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第7周：压力管理</div>
+                        <div class="task-description">学习健康的压力管理技巧</div>
+                        <div class="task-date text-xs text-muted">第45-52天</div>
+                    </div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第8周：兴趣发展', '探索和发展新的兴趣爱好，填补生活空白，创造积极的生活体验。尝试至少3种新活动，找到能持续带来满足感的爱好，建立不依赖成瘾物质的快乐来源。')">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第8周：兴趣发展</div>
+                        <div class="task-description">探索和发展新的兴趣爱好</div>
+                        <div class="task-date text-xs text-muted">第53-60天</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 第三阶段内容 -->
+            <div class="card phase-content" id="phase3">
+                <h3>第三阶段：长期维持（61-90天）</h3>
+                <p>这个阶段专注于巩固恢复成果，预防复发，建立长期健康生活方式</p>
+                
+                <div class="weekly-tip">
+                    <div class="weekly-tip-title">本周小贴士</div>
+                    <div class="weekly-tip-content">制定一份详细的复发预防计划，包括高风险情境识别和应对策略，与你的支持者分享这个计划。</div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第9周：复发预防', '学习识别复发警告信号，制定详细的复发预防计划。建立每日自我检查习惯，识别高风险情境，准备应对策略，并与支持者分享你的计划。包括：建立预警系统、制定应急联系人名单、准备分散注意力的活动清单。')">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第9周：复发预防</div>
+                        <div class="task-description">学习识别复发警告信号</div>
+                        <div class="task-date text-xs text-muted">第61-67天</div>
+                    </div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第10周：意义建构', '探索生活的更深层意义，建立与个人价值观一致的目标。反思你的恢复旅程，确定长期目标，将你的经验转化为有意义的人生方向。包括：价值观澄清练习、人生使命宣言制定、长期目标规划和行动计划制定。')">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第10周：意义建构</div>
+                        <div class="task-description">探索生活的更深层意义</div>
+                        <div class="task-date text-xs text-muted">第68-74天</div>
+                    </div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第11周：成长心态', '培养成长心态，将挑战视为成长机会。学习从失败中恢复的能力，建立弹性思维模式，接受恢复是终身旅程的观念。包括：挫折重构练习、感恩日记、成长故事分享、导师关系建立。')">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第11周：成长心态</div>
+                        <div class="task-description">培养成长心态，建立弹性</div>
+                        <div class="task-date text-xs text-muted">第75-82天</div>
+                    </div>
+                </div>
+                
+                <div class="task-item" onclick="showTaskDetail('第12周：回馈与分享', '学习如何回馈社区，分享你的恢复经验。考虑成为恢复伙伴，参与支持小组，或以其他方式帮助正在恢复中的人，这将强化你自己的恢复成果。包括：志愿服务参与、恢复故事分享、新人指导、社区建设活动。')">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">第12周：回馈与分享</div>
+                        <div class="task-description">学习如何回馈社区</div>
+                        <div class="task-date text-xs text-muted">第83-90天</div>
+                    </div>
+                </div>
+                
+                <div class="weekly-tip" style="margin-top: 20px; background-color: #e8f5e8;">
+                    <div class="weekly-tip-title">🎉 恭喜完成90天恢复计划！</div>
+                    <div class="weekly-tip-content">你已经完成了一个重要的里程碑。记住，恢复是一个持续的过程。继续保持你建立的健康习惯，定期回顾你的进展，并在需要时寻求支持。你已经证明了自己有能力改变，继续相信自己！</div>
+                </div>
+            </div>
+
+            <!-- 每日任务 -->
+            <h2 class="mt-20">今日任务</h2>
+            <div class="card">
+                <div class="task-item">
+                    <div class="task-checkbox checked">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">晨间冥想</div>
+                        <div class="task-description">10分钟正念冥想</div>
+                    </div>
+                </div>
+                
+                <div class="task-item">
+                    <div class="task-checkbox checked">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">学习模块</div>
+                        <div class="task-description">完成"多巴胺与成瘾"课程</div>
+                    </div>
+                </div>
+                
+                <div class="task-item">
+                    <div class="task-checkbox checked">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">日记记录</div>
+                        <div class="task-description">记录今日感受与进展</div>
+                    </div>
+                </div>
+                
+                <div class="task-item">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">呼吸练习</div>
+                        <div class="task-description">5分钟深呼吸练习</div>
+                    </div>
+                </div>
+                
+                <div class="task-item">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">社区分享</div>
+                        <div class="task-description">在社区分享今日心得</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 推荐学习内容 -->
+            <h2 class="mt-20">推荐学习</h2>
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" class="course-image" alt="多巴胺与成瘾">
+                <div class="course-content">
+                    <div class="course-title">多巴胺与成瘾：理解大脑奖励机制</div>
+                    <div class="course-description">了解多巴胺如何影响成瘾行为，以及如何重塑奖励回路</div>
+                    <div class="course-meta">
+                        <span><i class="fas fa-clock"></i> 15分钟</span>
+                        <span><i class="fas fa-star"></i> 4.8</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tab-bar">
+            <div class="tab-item">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-tree"></i>
+                <span>生命树</span>
+            </div>
+            <div class="tab-item active">
+                <i class="fas fa-book"></i>
+                <span>学习</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-users"></i>
+                <span>社区</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-cog"></i>
+                <span>设置</span>
+            </div>
+        </div>
+
+        <!-- 紧急求助按钮 -->
+        <div class="emergency-button">
+            <i class="fas fa-life-ring"></i>
+        </div>
+    </div>
+<script>
+    // 切换阶段显示
+    function switchPhase(phaseNumber) {
+        // 移除所有阶段内容的active类
+        document.querySelectorAll('.phase-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // 移除所有阶段选择器的active类
+        document.querySelectorAll('.segmented-control .segment').forEach(segment => {
+            segment.classList.remove('active');
+        });
+        
+        // 添加当前阶段的active类
+        document.getElementById('phase' + phaseNumber).classList.add('active');
+        document.querySelectorAll('.segmented-control .segment')[phaseNumber - 1].classList.add('active');
+    }
+    
+    // 显示任务详情
+    function showTaskDetail(title, description) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalDescription').textContent = description;
+        document.getElementById('taskModal').style.display = 'flex';
+    }
+    
+    // 关闭弹窗
+    function closeModal() {
+        document.getElementById('taskModal').style.display = 'none';
+    }
+    
+    // 为任务项添加点击切换完成状态功能
+    document.querySelectorAll('.task-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            // 如果点击的是任务项而不是复选框，则显示详情
+            if (!e.target.closest('.task-checkbox')) {
+                return;
+            }
+            
+            // 阻止事件冒泡，避免触发showTaskDetail
+            e.stopPropagation();
+            
+            const checkbox = this.querySelector('.task-checkbox');
+            const checkIcon = checkbox.querySelector('i');
+            
+            if (checkbox.classList.contains('checked')) {
+                checkbox.classList.remove('checked');
+                checkIcon.style.opacity = '0';
+            } else {
+                checkbox.classList.add('checked');
+                checkIcon.style.opacity = '1';
+            }
+        });
+    });
+</script>
+</body>
+</html>
