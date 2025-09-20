@@ -1,0 +1,589 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUITTR - 支付中心</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .payment-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .payment-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .payment-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .payment-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .payment-content {
+            padding: 2rem;
+        }
+
+        .payment-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .payment-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .payment-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+
+        .payment-tab:hover {
+            background: #f8f9ff;
+        }
+
+        .payment-section {
+            display: none;
+        }
+
+        .payment-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .plan-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .plan-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .plan-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .plan-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+        }
+
+        .plan-card.popular::before {
+            content: '推荐';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #ff6b6b;
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .plan-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .plan-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-period {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .plan-features {
+            list-style: none;
+            text-align: left;
+        }
+
+        .plan-features li {
+            padding: 0.3rem 0;
+            color: #555;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .payment-form {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .payment-method {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method:hover {
+            border-color: #667eea;
+        }
+
+        .payment-method.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .payment-method-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .payment-method-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .membership-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .membership-active {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 1px solid #4CAF50;
+            color: #2e7d32;
+        }
+
+        .membership-inactive {
+            background: linear-gradient(135deg, #fff3e0, #fafafa);
+            border: 1px solid #ff9800;
+            color: #e65100;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .status-badge.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status-badge.inactive {
+            background: #ff9800;
+            color: white;
+        }
+
+        .membership-status p {
+            margin: 4px 0;
+            font-size: 13px;
+        }
+
+        .security-info {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .security-info::before {
+            content: '🔒';
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .security-text {
+            color: #2e7d32;
+            font-size: 0.9rem;
+        }
+
+        .payment-summary {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #667eea;
+        }
+
+        .pay-button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1.2rem;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .pay-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .pay-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .payment-container {
+                margin: 1rem;
+                border-radius: 15px;
+            }
+            
+            .payment-content {
+                padding: 1.5rem;
+            }
+            
+            .plan-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-methods {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-header">
+            <h1>QUITTR 会员中心</h1>
+            <p>选择适合您的戒色计划，开启健康新生活</p>
+            <div id="membership-status" class="membership-status"></div>
+        </div>
+
+        <div class="payment-content">
+            <!-- 支付方式选项卡 -->
+            <div class="payment-tabs">
+                <button class="payment-tab active" data-tab="subscription">订阅计划</button>
+                <button class="payment-tab" data-tab="donation">支持捐赠</button>
+            </div>
+
+            <!-- 订阅计划部分 -->
+            <div class="payment-section active" id="subscription">
+                <div class="plan-cards">
+                    <div class="plan-card" data-plan="basic">
+                        <div class="plan-title">基础版</div>
+                        <div class="plan-price">¥19</div>
+                        <div class="plan-period">每月</div>
+                        <ul class="plan-features">
+                            <li>基础戒色追踪</li>
+                            <li>每日提醒功能</li>
+                            <li>简单统计报告</li>
+                            <li>社区基础功能</li>
+                        </ul>
+                    </div>
+
+                    <div class="plan-card popular" data-plan="premium">
+                        <div class="plan-title">高级版</div>
+                        <div class="plan-price">¥39</div>
+                        <div class="plan-period">每月</div>
+                        <ul class="plan-features">
+                            <li>全功能戒色追踪</li>
+                            <li>智能提醒系统</li>
+                            <li>详细数据分析</li>
+                            <li>专家指导内容</li>
+                            <li>优先客服支持</li>
+                        </ul>
+                    </div>
+
+                    <div class="plan-card" data-plan="annual">
+                        <div class="plan-title">年度版</div>
+                        <div class="plan-price">¥299</div>
+                        <div class="plan-period">每年 (省¥169)</div>
+                        <ul class="plan-features">
+                            <li>高级版全部功能</li>
+                            <li>个性化戒色方案</li>
+                            <li>一对一专家咨询</li>
+                            <li>离线功能支持</li>
+                            <li>数据导出功能</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 支付方式选择 -->
+                <div class="payment-methods">
+                    <div class="payment-method selected" data-method="alipay">
+                        <div class="payment-method-icon">💰</div>
+                        <div class="payment-method-name">支付宝</div>
+                    </div>
+                    <div class="payment-method" data-method="wechat">
+                        <div class="payment-method-icon">💚</div>
+                        <div class="payment-method-name">微信支付</div>
+                    </div>
+                    <div class="payment-method" data-method="card">
+                        <div class="payment-method-icon">💳</div>
+                        <div class="payment-method-name">银行卡</div>
+                    </div>
+                    <div class="payment-method" data-method="paypal">
+                        <div class="payment-method-icon">🌐</div>
+                        <div class="payment-method-name">PayPal</div>
+                    </div>
+                </div>
+
+                <!-- 银行卡支付表单 -->
+                <div class="payment-form" id="card-form" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">持卡人姓名</label>
+                        <input type="text" class="form-input" id="cardholder-name" placeholder="请输入持卡人姓名">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">卡号</label>
+                        <input type="text" class="form-input" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">有效期</label>
+                            <input type="text" class="form-input" id="expiry-date" placeholder="MM/YY" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CVV</label>
+                            <input type="text" class="form-input" id="cvv" placeholder="123" maxlength="4">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 安全信息 -->
+                <div class="security-info">
+                    <div class="security-text">
+                        您的支付信息通过SSL加密传输，我们不会存储您的银行卡信息
+                    </div>
+                </div>
+
+                <!-- 支付摘要 -->
+                <div class="payment-summary">
+                    <div class="summary-row">
+                        <span>选择计划:</span>
+                        <span id="selected-plan">请选择计划</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>支付方式:</span>
+                        <span id="selected-method">支付宝</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>总计:</span>
+                        <span id="total-amount">¥0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 捐赠部分 -->
+            <div class="payment-section" id="donation">
+                <div style="text-align: center; padding: 2rem;">
+                    <h3>支持 QUITTR 发展</h3>
+                    <p style="margin: 1rem 0; color: #666;">您的捐赠将帮助我们持续改进产品，帮助更多人戒色成功</p>
+                    
+                    <div class="plan-cards">
+                        <div class="plan-card" data-donation="30">
+                            <div class="plan-title">小额支持</div>
+                            <div class="plan-price">¥30</div>
+                            <div class="plan-period">一次性</div>
+                        </div>
+                        <div class="plan-card" data-donation="88">
+                            <div class="plan-title">标准支持</div>
+                            <div class="plan-price">¥88</div>
+                            <div class="plan-period">一次性</div>
+                        </div>
+                        <div class="plan-card" data-donation="custom">
+                            <div class="plan-title">自定义</div>
+                            <div class="plan-price">¥?</div>
+                            <div class="plan-period">任意金额</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="custom-amount" style="display: none; max-width: 300px; margin: 2rem auto;">
+                        <label class="form-label">捐赠金额</label>
+                        <input type="number" class="form-input" id="donation-amount" placeholder="请输入金额" min="1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 错误和成功消息 -->
+            <div class="error-message" id="error-message"></div>
+            <div class="success-message" id="success-message"></div>
+
+            <!-- 支付按钮 -->
+            <button class="pay-button" id="pay-button" disabled>
+                <span class="loading-spinner" id="loading-spinner"></span>
+                <span id="button-text">请选择计划</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="js/utils.js" defer></script>
+    <script src="js/security.js" defer></script>
+    <script src="js/payment.js" defer></script>
+</body>
+</html>
