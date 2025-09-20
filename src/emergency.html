@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUITTR - 紧急求助</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/darkmode.js"></script>
+    <style>
+        /* 呼吸动画增强 */
+        @keyframes breathe {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.8; }
+        }
+        
+        .breathing-circle {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 30px auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(33, 150, 243, 0.2) 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+        
+        .breathing-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
+        }
+        
+        .circle-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            animation: breathe 10s infinite ease-in-out;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .circle-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            z-index: 2;
+            font-size: 14px;
+        }
+        
+        .breathing-status {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+        
+        /* 活动项目交互效果 */
+        .activity-item {
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(76, 175, 80, 0.02) 100%);
+        }
+        
+        .activity-item:hover, .activity-item:active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+            border-color: var(--primary-color);
+        }
+        
+        /* 进度弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: var(--bg-color);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        /* 进度统计样式 */
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* 连续打卡日历 */
+        .streak-calendar {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+        
+        .streak-day {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--border-color);
+            font-size: 12px;
+        }
+        
+        .streak-day.completed {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .streak-text {
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        /* 里程碑进度条 */
+        .milestone-progress {
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .milestone-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+        }
+        
+        /* 联系人列表样式 */
+        .contact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-item:hover {
+            background-color: var(--primary-light);
+            border-color: var(--primary-color);
+        }
+        
+        .contact-item i:first-child {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-right: 15px;
+        }
+        
+        .contact-item div {
+            flex: 1;
+        }
+        
+        .contact-item h3 {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+        }
+        
+        .contact-item p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .contact-item i:last-child {
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+        
+        /* 活动计时器样式 */
+        .activity-timer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--bg-color);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            text-align: center;
+            min-width: 250px;
+        }
+        
+        .timer-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+        
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .timer-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .timer-btn.pause {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .timer-btn.stop {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        /* 聊天区域样式 */
+        .chat-area {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 15px 0;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        .chat-message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+
+        .chat-message.user {
+            background: var(--primary-color);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .chat-message.ai {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .message-content {
+            margin-bottom: 5px;
+        }
+
+        .message-time {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container emergency-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content">
+            <div class="emergency-header">
+                <h1>紧急求助</h1>
+                <p>我们在这里支持你，一起度过这个时刻</p>
+            </div>
+
+            <!-- 呼吸引导 -->
+            <div class="card emergency-card">
+                <h2>先深呼吸</h2>
+                <div class="breathing-circle" id="breathingCircle">
+                    <div class="circle-inner" id="circleInner"></div>
+                    <div class="circle-text">呼吸</div>
+                </div>
+                <div class="breathing-status" id="breathingStatus">吸气...</div>
+                <p class="text-center">跟随圆圈的节奏，吸气4秒，呼气6秒</p>
+            </div>
+
+            <!-- 紧急策略 -->
+            <div class="card emergency-card">
+                <h2>应对策略</h2>
+                <div class="strategy-list">
+                    <div class="strategy-item" onclick="alert('策略1：转移注意力 - 立即离开当前环境，转移到安全区域')">
+                        <div class="strategy-number">1</div>
+                        <div class="strategy-content">
+                            <h3>转移注意力</h3>
+                            <p>立即离开当前环境，转移到安全区域</p>
+                        </div>
+                    </div>
+                    <div class="strategy-item" onclick="alert('策略2：冷水冲洗 - 用冷水洗脸或冲洗手腕，重置大脑状态')">
+                        <div class="strategy-number">2</div>
+                        <div class="strategy-content">
+                            <h3>冷水冲洗</h3>
+                            <p>用冷水洗脸或冲洗手腕，重置大脑状态</p>
+                        </div>
+                    </div>
+                    <div class="strategy-item" onclick="alert('策略3：联系支持者 - 给你信任的朋友或家人打电话')">
+                        <div class="strategy-number">3</div>
+                        <div class="strategy-content">
+                            <h3>联系支持者</h3>
+                            <p>给你信任的朋友或家人打电话</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 替代活动 -->
+            <h2 class="mt-20">立即尝试这些活动</h2>
+            <div class="activity-grid">
+                <div class="activity-item" onclick="startActivity('快走5分钟', 5)">
+                    <i class="fas fa-running"></i>
+                    <span>快走5分钟</span>
+                </div>
+                <div class="activity-item" onclick="startActivity('冷水淋浴', 3)">
+                    <i class="fas fa-shower"></i>
+                    <span>冷水淋浴</span>
+                </div>
+                <div class="activity-item" onclick="startActivity('深呼吸练习', 2)">
+                    <i class="fas fa-wind"></i>
+                    <span>深呼吸练习</span>
+                </div>
+                <div class="activity-item" onclick="startActivity('听音乐', 10)">
+                    <i class="fas fa-music"></i>
+                    <span>听音乐</span>
+                </div>
+                <div class="activity-item" onclick="startActivity('写日记', 15)">
+                    <i class="fas fa-pen"></i>
+                    <span>写日记</span>
+                </div>
+                <div class="activity-item" onclick="startActivity('打电话给朋友', 10)">
+                    <i class="fas fa-phone"></i>
+                    <span>打电话</span>
+                </div>
+            </div>
+
+            <!-- 紧急联系人 -->
+            <div class="card emergency-card mt-20">
+                <h2>紧急联系人</h2>
+                <div class="contact-list">
+                    <div class="contact-item" onclick="callEmergencyContact('家人')">
+                        <i class="fas fa-home"></i>
+                        <div>
+                            <h3>家人</h3>
+                            <p>点击拨打</p>
+                        </div>
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <div class="contact-item" onclick="callEmergencyContact('朋友')">
+                        <i class="fas fa-user-friends"></i>
+                        <div>
+                            <h3>朋友</h3>
+                            <p>点击拨打</p>
+                        </div>
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <div class="contact-item" onclick="callEmergencyContact('心理咨询师')">
+                        <i class="fas fa-user-md"></i>
+                        <div>
+                            <h3>心理咨询师</h3>
+                            <p>专业支持</p>
+                        </div>
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 进度追踪 -->
+            <div class="card emergency-card mt-20">
+                <h2>记录这次经历</h2>
+                <p>记录你的感受和应对方式，帮助未来更好地处理</p>
+                <button class="btn btn-primary" onclick="showProgressModal()">查看我的进步</button>
+            </div>
+                <div class="activity-item" onclick="alert('阅读可以转移注意力')">
+                    <i class="fas fa-book"></i>
+                    <span>阅读</span>
+                </div>
+                <div class="activity-item" onclick="alert('开始做20个俯卧撑')">
+                    <i class="fas fa-dumbbell"></i>
+                    <span>20个俯卧撑</span>
+                </div>
+                <div class="activity-item" onclick="alert('写下你的感受和想法')">
+                    <i class="fas fa-pencil-alt"></i>
+                    <span>写日记</span>
+                </div>
+                <div class="activity-item" onclick="alert('播放你喜欢的放松音乐')">
+                    <i class="fas fa-music"></i>
+                    <span>听音乐</span>
+                </div>
+            </div>
+
+            <!-- 动机提醒 -->
+            <div class="card motivation-card mt-20">
+                <h2>记住你的"为什么"</h2>
+                <div class="motivation-quote">
+                    "我想要成为更好的自己，拥有真正的自由和控制力。"
+                </div>
+                <button class="btn btn-primary mt-10" onclick="showProgressModal()">查看我的进度</button>
+            </div>
+
+            <!-- 进度查看弹窗 -->
+            <div id="progressModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>我的恢复进度</h2>
+                        <span class="close-btn" onclick="closeProgressModal()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="progress-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">28</div>
+                                <div class="stat-label">已坚持天数</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">72%</div>
+                                <div class="stat-label">完成度</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">12</div>
+                                <div class="stat-label">克服渴望次数</div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-chart">
+                            <h3>近期表现</h3>
+                            <div class="streak-calendar">
+                                <div class="streak-day completed">一</div>
+                                <div class="streak-day completed">二</div>
+                                <div class="streak-day completed">三</div>
+                                <div class="streak-day completed">四</div>
+                                <div class="streak-day completed">五</div>
+                                <div class="streak-day completed">六</div>
+                                <div class="streak-day completed">日</div>
+                            </div>
+                            <div class="streak-text">当前连续坚持: <strong>7天</strong></div>
+                        </div>
+                        
+                        <div class="milestone-section">
+                            <h3>下一个里程碑</h3>
+                            <div class="milestone-progress">
+                                <div class="milestone-bar" style="width: 72%;"></div>
+                            </div>
+                            <div class="milestone-info">
+                                <span>30天里程碑</span>
+                                <span>还差2天</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary mt-20" onclick="closeProgressModal()">继续加油！</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI辅导 -->
+            <div class="card emergency-card mt-20">
+                <h2>联系AI辅导</h2>
+                <p>随时与我们的AI辅导交流，获取即时支持</p>
+                <div class="chat-input">
+                    <input type="text" placeholder="输入你的问题..." id="chatInput">
+                    <button onclick="handleChatInput()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tab-bar">
+            <div class="tab-item" onclick="navigateTo('home.html')">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="tab-item" onclick="navigateTo('tree.html')">
+                <i class="fas fa-tree"></i>
+                <span>生命树</span>
+            </div>
+            <div class="tab-item" onclick="navigateTo('recovery-plan.html')">
+                <i class="fas fa-calendar-alt"></i>
+                <span>计划</span>
+            </div>
+            <div class="tab-item" onclick="navigateTo('community.html')">
+                <i class="fas fa-users"></i>
+                <span>社区</span>
+            </div>
+            <div class="tab-item" onclick="navigateTo('settings.html')">
+                <i class="fas fa-cog"></i>
+                <span>设置</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 呼吸引导动画
+        const breathingCircle = document.getElementById('breathingCircle');
+        const breathingStatus = document.getElementById('breathingStatus');
+        let isInhaling = true;
+        
+        function toggleBreathing() {
+            if (isInhaling) {
+                breathingStatus.textContent = '呼气...';
+                isInhaling = false;
+            } else {
+                breathingStatus.textContent = '吸气...';
+                isInhaling = true;
+            }
+        }
+        
+        // 每5秒切换一次呼吸状态
+        setInterval(toggleBreathing, 5000);
+        
+        // 点击呼吸圆圈时的交互
+        breathingCircle.addEventListener('click', function() {
+            alert('保持专注于呼吸，让身体放松下来');
+        });
+        
+        // 开始活动计时器
+        function startActivity(activityName, minutes) {
+            // 创建计时器弹窗
+            const timerModal = document.createElement('div');
+            timerModal.className = 'activity-timer';
+            timerModal.innerHTML = `
+                <h3>${activityName}</h3>
+                <div class="timer-display" id="timerDisplay">${minutes}:00</div>
+                <p>专注于当前活动，让身心得到放松</p>
+                <div class="timer-controls">
+                    <button class="timer-btn pause" onclick="pauseTimer()">暂停</button>
+                    <button class="timer-btn stop" onclick="stopTimer()">结束</button>
+                </div>
+            `;
+            
+            document.body.appendChild(timerModal);
+            
+            // 开始倒计时
+            let totalSeconds = minutes * 60;
+            window.activityTimer = setInterval(() => {
+                totalSeconds--;
+                const mins = Math.floor(totalSeconds / 60);
+                const secs = totalSeconds % 60;
+                document.getElementById('timerDisplay').textContent = 
+                    `${mins}:${secs.toString().padStart(2, '0')}`;
+                
+                if (totalSeconds <= 0) {
+                    clearInterval(window.activityTimer);
+                    completeActivity(activityName);
+                }
+            }, 1000);
+        }
+        
+        // 暂停计时器
+        function pauseTimer() {
+            if (window.activityTimer) {
+                clearInterval(window.activityTimer);
+                window.activityTimer = null;
+                document.querySelector('.timer-btn.pause').textContent = '继续';
+                document.querySelector('.timer-btn.pause').onclick = resumeTimer;
+            }
+        }
+        
+        // 恢复计时器
+        function resumeTimer() {
+            const display = document.getElementById('timerDisplay');
+            const timeText = display.textContent;
+            const [mins, secs] = timeText.split(':').map(Number);
+            let totalSeconds = mins * 60 + secs;
+            
+            window.activityTimer = setInterval(() => {
+                totalSeconds--;
+                const newMins = Math.floor(totalSeconds / 60);
+                const newSecs = totalSeconds % 60;
+                display.textContent = `${newMins}:${newSecs.toString().padStart(2, '0')}`;
+                
+                if (totalSeconds <= 0) {
+                    clearInterval(window.activityTimer);
+                    completeActivity('活动');
+                }
+            }, 1000);
+            
+            document.querySelector('.timer-btn.pause').textContent = '暂停';
+            document.querySelector('.timer-btn.pause').onclick = pauseTimer;
+        }
+        
+        // 停止计时器
+        function stopTimer() {
+            if (window.activityTimer) {
+                clearInterval(window.activityTimer);
+            }
+            document.querySelector('.activity-timer').remove();
+        }
+        
+        // 完成活动
+        function completeActivity(activityName) {
+            document.querySelector('.activity-timer').remove();
+            alert(`太棒了！你完成了${activityName}。这是一个很好的应对方式，继续保持！`);
+            
+            // 记录活动完成
+            const completedActivities = JSON.parse(localStorage.getItem('completedActivities') || '[]');
+            completedActivities.push({
+                activity: activityName,
+                date: new Date().toISOString(),
+                type: 'emergency'
+            });
+            localStorage.setItem('completedActivities', JSON.stringify(completedActivities));
+        }
+        
+        // 拨打紧急联系人
+        function callEmergencyContact(contactType) {
+            const contacts = {
+                '家人': '请联系你的家人，他们会支持你度过这个困难时刻',
+                '朋友': '联系一个你信任的朋友，分享你的感受',
+                '心理咨询师': '专业的心理咨询师可以提供专业的指导和支持'
+            };
+            
+            if (confirm(`${contacts[contactType]}。是否现在就联系？`)) {
+                alert('正在为你连接联系人...');
+                // 这里可以集成真实的通话功能
+            }
+        }
+        
+        // 允许按Enter键发送消息
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleChatInput();
+            }
+        });
+        
+        // 页面导航
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+        
+        // 显示进度弹窗
+        function showProgressModal() {
+            const modal = document.getElementById('progressModal');
+            modal.style.display = 'flex';
+        }
+        
+        // 关闭进度弹窗
+        function closeProgressModal() {
+            const modal = document.getElementById('progressModal');
+            modal.style.display = 'none';
+        }
+        
+        // 点击弹窗外部关闭弹窗
+        window.onclick = function(event) {
+            const modal = document.getElementById('progressModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // 处理聊天输入
+        function handleChatInput() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                // 添加用户消息到聊天区域
+                addChatMessage(message, 'user');
+                
+                // 模拟AI回复
+                setTimeout(() => {
+                    const aiResponse = generateAIResponse(message);
+                    addChatMessage(aiResponse, 'ai');
+                }, 1000);
+                
+                input.value = '';
+            }
+        }
+        
+        // 添加聊天消息
+        function addChatMessage(message, sender) {
+            const chatArea = document.querySelector('.chat-area');
+            if (!chatArea) {
+                // 如果没有聊天区域，创建一个
+                const aiCard = document.querySelector('.ai-support');
+                const chatContainer = document.createElement('div');
+                chatContainer.className = 'chat-area';
+                aiCard.appendChild(chatContainer);
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}`;
+            messageDiv.innerHTML = `
+                <div class="message-content">${message}</div>
+                <div class="message-time">${new Date().toLocaleTimeString()}</div>
+            `;
+            
+            document.querySelector('.chat-area').appendChild(messageDiv);
+            document.querySelector('.chat-area').scrollTop = document.querySelector('.chat-area').scrollHeight;
+        }
+        
+        // 生成AI回复
+        function generateAIResponse(userMessage) {
+            const responses = [
+                '我理解你现在的感受。请记住，这种冲动是暂时的，会过去的。',
+                '你已经取得了很大的进步，不要放弃。每一天的坚持都很有意义。',
+                '试试深呼吸，或者做一些替代活动。你有能力度过这个困难时刻。',
+                '你的感受是正常的，但请记住你的目标和已经取得的成就。',
+                '考虑联系你的支持网络，或者尝试一些放松技巧。你并不孤单。'
+            ];
+            
+            // 根据关键词提供更针对性的回复
+            const lowerMessage = userMessage.toLowerCase();
+            if (lowerMessage.includes('想要') || lowerMessage.includes('冲动')) {
+                return '我理解这种冲动很强烈。试试5-4-3-2-1接地技巧：说出5样你能看到的东西，4样你能触摸的，3样你能听到的，2样你能闻到的，1样你能尝到的。';
+            } else if (lowerMessage.includes('压力') || lowerMessage.includes('焦虑')) {
+                return '压力和焦虑是戒断过程的正常反应。试试深呼吸练习，或者做一些轻松的运动。记住，这些感觉会过去的。';
+            } else if (lowerMessage.includes('孤独') || lowerMessage.includes('无助')) {
+                return '你并不孤单。考虑联系朋友、家人或专业人士。有很多人愿意支持你，包括我。';
+            }
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+        
+        // 进度弹窗控制
+        function showProgressModal() {
+            document.getElementById('progressModal').style.display = 'flex';
+        }
+        
+        function closeProgressModal() {
+            document.getElementById('progressModal').style.display = 'none';
+        }
+        
+        // 紧急联系人拨打
+        function callEmergencyContact(type) {
+            alert(`正在拨打${type}的电话...`);
+        }
+        
+        // 页面导航
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+        
+        // AI聊天处理
+        function handleChatInput() {
+            const input = document.getElementById('chatInput');
+            if (input.value.trim()) {
+                alert('AI正在处理您的问题...');
+                input.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
