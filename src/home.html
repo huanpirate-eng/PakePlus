@@ -1,0 +1,492 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUITTR - 首页</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/darkmode.js"></script>
+    <style>
+        /* 首页特定样式 */
+        .day-counter {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: center;
+            margin-top: 10px;
+            animation: pulse 2s infinite;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .day-counter:hover {
+            transform: scale(1.1);
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .day-label {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(76, 175, 80, 0.05) 100%);
+            border-radius: var(--border-radius);
+            padding: 18px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.15);
+            border-color: var(--primary-color);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .task-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .task-item:hover {
+            background-color: rgba(76, 175, 80, 0.05);
+            transform: translateX(5px);
+        }
+        
+        .achievement-card {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--card-color) 0%, rgba(255, 193, 7, 0.05) 100%);
+            border-radius: var(--border-radius);
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .achievement-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.15);
+            border-color: var(--warning-color);
+        }
+        
+        .achievement-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--warning-color) 0%, #FF8F00 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+        
+        .achievement-content {
+            flex: 1;
+        }
+        
+        .achievement-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .achievement-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        /* 卡片统一样式增强 */
+        .card {
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+        
+        .achievement-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .achievement-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .achievement-date {
+            font-size: 0.8rem;
+            color: #999;
+        }
+        
+        /* 紧急求助按钮样式 */
+        .emergency-button {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #30fff8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+            animation: pulse-emergency 2s infinite;
+        }
+        
+        @keyframes pulse-emergency {
+            0% { transform: scale(1); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 4px 20px rgba(255,59,48,0.4); }
+            100% { transform: scale(1); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        }
+    </style>
+</head>
+<style>
+    /* 首页特定样式 */
+    #dayCounter {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .day-counter {
+        animation: pulse 2s infinite ease-in-out;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .stat-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .task-item {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .task-item:hover {
+        background-color: rgba(0,0,0,0.03);
+    }
+    
+    .task-checkbox {
+        transition: all 0.3s ease;
+    }
+    
+    .task-item:hover .task-checkbox {
+        transform: scale(1.1);
+    }
+    
+    /* 弹窗样式 */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 12px;
+        width: 80%;
+        max-width: 300px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .modal-title {
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    
+    .modal-value {
+        font-size: 24px;
+        color: #007AFF;
+        margin-bottom: 10px;
+    }
+    
+    .modal-description {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .modal-button {
+        background-color: #007AFF;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 8px;
+        width: 100%;
+        font-size: 16px;
+    }
+</style>
+<body>
+    <!-- 统计详情弹窗 -->
+    <div class="modal" id="statModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">专注度</div>
+            <div class="modal-value" id="modalValue">87%</div>
+            <div class="modal-description" id="modalDescription">今日专注度比昨天提高了5%</div>
+            <button class="modal-button" onclick="closeModal()">确定</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content">
+            <div class="flex-between mb-20">
+                <h1>你好，李明</h1>
+                <div class="avatar" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'); background-size: cover;" onclick="alert('个人资料设置')"></div>
+            </div>
+
+            <!-- 天数计数器 -->
+            <div class="card" id="dayCounter">
+                <div class="day-counter">28</div>
+                <div class="day-label">连续天数</div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: 31%;"></div>
+                </div>
+                <div class="flex-between">
+                    <span class="text-small">90天计划</span>
+                    <span class="text-small text-primary">31%</span>
+                </div>
+            </div>
+
+            <!-- 今日状态 -->
+            <h2 class="mt-20">今日状态</h2>
+            <div class="stats-grid">
+                <div class="stat-card" onclick="showStatDetail('专注度', '87%', '今日专注度比昨天提高了5%')">
+                    <div class="stat-value">87%</div>
+                    <div class="stat-label">专注度</div>
+                </div>
+                <div class="stat-card" onclick="showStatDetail('情绪状态', '良好', '今日情绪稳定，无明显波动')">
+                    <div class="stat-value">良好</div>
+                    <div class="stat-label">情绪状态</div>
+                </div>
+                <div class="stat-card" onclick="showStatDetail('今日任务', '3/5', '已完成3项任务，还有2项待完成')">
+                    <div class="stat-value">3/5</div>
+                    <div class="stat-label">今日任务</div>
+                </div>
+                <div class="stat-card" onclick="showStatDetail('冥想时间', '15分钟', '今日已完成15分钟冥想，达成每日目标')">
+                    <div class="stat-value">15分钟</div>
+                    <div class="stat-label">冥想时间</div>
+                </div>
+            </div>
+
+            <!-- 今日任务 -->
+            <h2>今日任务</h2>
+            <div class="card">
+                <div class="task-item" onclick="toggleTask(this, true)">
+                    <div class="task-checkbox checked">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">晨间冥想</div>
+                        <div class="task-description">10分钟正念冥想</div>
+                    </div>
+                </div>
+                <div class="task-item" onclick="toggleTask(this, true)">
+                    <div class="task-checkbox checked">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">学习模块</div>
+                        <div class="task-description">完成"多巴胺与成瘾"课程</div>
+                    </div>
+                </div>
+                <div class="task-item" onclick="toggleTask(this, true)">
+                    <div class="task-checkbox checked">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">日记记录</div>
+                        <div class="task-description">记录今日感受与进展</div>
+                    </div>
+                </div>
+                <div class="task-item" onclick="toggleTask(this, false)">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">呼吸练习</div>
+                        <div class="task-description">5分钟深呼吸练习</div>
+                    </div>
+                </div>
+                <div class="task-item" onclick="toggleTask(this, false)">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">晚间回顾</div>
+                        <div class="task-description">回顾今日进展与明日计划</div>
+                    </div>
+                </div>
+                <div class="task-item" onclick="toggleTask(this, false)">
+                    <div class="task-checkbox">
+                        <i class="fas fa-check" style="opacity: 0;"></i>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">社区分享</div>
+                        <div class="task-description">在社区分享今日心得</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近解锁的成就 -->
+            <h2 class="mt-20">最近成就</h2>
+            <div class="achievement">
+                <div class="achievement-icon">
+                    <i class="fas fa-award"></i>
+                </div>
+                <div class="achievement-content">
+                    <div class="achievement-title">坚持不懈</div>
+                    <div class="achievement-description">连续完成25天恢复计划</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tab-bar">
+            <div class="tab-item active" onclick="navigateTo('home.html')">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="tab-item" onclick="navigateTo('tree.html')">
+                <i class="fas fa-tree"></i>
+                <span>生命树</span>
+            </div>
+            <div class="tab-item" onclick="navigateTo('learning.html')">
+                <i class="fas fa-book-open"></i>
+                <span>学习</span>
+            </div>
+            <div class="tab-item" onclick="navigateTo('community.html')">
+                <i class="fas fa-users"></i>
+                <span>社区</span>
+            </div>
+            <div class="tab-item" onclick="navigateTo('settings.html')">
+                <i class="fas fa-cog"></i>
+                <span>设置</span>
+            </div>
+        </div>
+
+        <!-- 紧急求助按钮 -->
+        <div class="emergency-button" onclick="navigateTo('emergency.html')">
+            <i class="fas fa-life-ring"></i>
+        </div>
+    </div>
+
+    <script>
+        // 显示统计详情弹窗
+        function showStatDetail(title, value, description) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalValue').textContent = value;
+            document.getElementById('modalDescription').textContent = description;
+            
+            const modal = document.getElementById('statModal');
+            modal.style.display = 'flex';
+        }
+        
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('statModal').style.display = 'none';
+        }
+        
+        // 页面导航
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+        
+        // 切换任务完成状态
+        function toggleTask(element, isCompleted) {
+            const checkbox = element.querySelector('.task-checkbox');
+            const checkIcon = checkbox.querySelector('i');
+            
+            if (checkbox.classList.contains('checked')) {
+                checkbox.classList.remove('checked');
+                checkIcon.style.opacity = '0';
+                alert('任务已标记为未完成');
+            } else {
+                checkbox.classList.add('checked');
+                checkIcon.style.opacity = '1';
+                alert('任务已标记为完成');
+            }
+        }
+        
+        // 天数计数器动画效果
+        const dayCounter = document.getElementById('dayCounter');
+        dayCounter.addEventListener('click', () => {
+            alert('恭喜你已坚持28天！继续保持！');
+        });
+    </script>
+</body>
+</html>
