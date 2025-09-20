@@ -1,32 +1,330 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="styles.css" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus App</title>
-        <script type="module" src="/main.js" defer></script>
-    </head>
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUITTR - 戒色助手</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120x120.png">
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#007AFF">
+    <meta name="msapplication-TileColor" content="#007AFF">
+    <meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+    
+    <!-- App Store Meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="QUITTR">
+    <meta name="description" content="专业的戒色辅助应用，帮助您科学戒色，重获健康生活">
+    <meta name="keywords" content="戒色,健康,生活方式,自我提升,习惯养成">
+    <meta name="author" content="QUITTR Team">
+    <meta property="og:title" content="QUITTR - 戒色助手">
+    <meta property="og:description" content="专业的戒色辅助应用，帮助您科学戒色，重获健康生活">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://quittr.app">
+    <meta property="og:image" content="icons/icon-180x180.png">
+    
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f7;
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+        }
+        
+        .title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .title h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .title p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .screens-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .screen-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .screen-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .screen-frame {
+            width: 320px;
+            height: 690px;
+            background-color: white;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border: 10px solid #111;
+            border-width: 10px 5px;
+        }
+        
+        .screen-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .screen-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background-color: #111;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 10;
+        }
+        
+        .navigation {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .navigation a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #0071e3;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .navigation a:hover {
+            background-color: #0051a3;
+        }
+        
+        @media (max-width: 1200px) {
+            .screens-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+                padding: 0 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .screens-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 0 15px;
+            }
+            
+            .screen-frame {
+                width: 100%;
+                max-width: 350px;
+                margin: 0 auto;
+            }
+            
+            .title h1 {
+                font-size: 2rem;
+            }
+            
+            .title p {
+                font-size: 0.9rem;
+            }
+            
+            .navigation {
+                flex-wrap: wrap;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .navigation a {
+                margin: 0;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .title {
+                padding: 20px;
+            }
+            
+            .title h1 {
+                font-size: 1.8rem;
+            }
+            
+            .title p {
+                font-size: 0.85rem;
+            }
+            
+            .screens-container {
+                padding: 0 10px;
+            }
+            
+            .screen-frame {
+                height: 500px;
+            }
+            
+            .navigation a {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (orientation: landscape) and (max-height: 600px) {
+            .screen-frame {
+                height: 400px;
+            }
+            
+            .title {
+                padding: 15px;
+            }
+            
+            .title h1 {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="title">
+        <h1>QUITTR 应用原型</h1>
+        <p>基于神经科学原理的90天恢复计划应用</p>
+    </div>
+    
+    <div class="screens-container">
+        <!-- 首页 -->
+        <div class="screen-wrapper">
+            <div class="screen-title">首页</div>
+            <div class="screen-frame">
+                <div class="screen-notch"></div>
+                <iframe src="home.html" title="首页"></iframe>
+            </div>
+        </div>
+        
+        <!-- 生命树 -->
+        <div class="screen-wrapper">
+            <div class="screen-title">生命树</div>
+            <div class="screen-frame">
+                <div class="screen-notch"></div>
+                <iframe src="tree.html" title="生命树"></iframe>
+            </div>
+        </div>
+        
+        <!-- 恢复计划 -->
+        <div class="screen-wrapper">
+            <div class="screen-title">恢复计划</div>
+            <div class="screen-frame">
+                <div class="screen-notch"></div>
+                <iframe src="recovery-plan.html" title="恢复计划"></iframe>
+            </div>
+        </div>
+        
+        <!-- 每日练习 -->
+        <div class="screen-wrapper">
+            <div class="screen-title">每日练习</div>
+            <div class="screen-frame">
+                <div class="screen-notch"></div>
+                <iframe src="practice.html" title="每日练习"></iframe>
+            </div>
+        </div>
+        
+        <!-- 学习中心 -->
+        <div class="screen-wrapper">
+            <div class="screen-title">学习中心</div>
+            <div class="screen-frame">
+                <div class="screen-notch"></div>
+                <iframe src="learning.html" title="学习中心"></iframe>
+            </div>
+        </div>
+        
+        <!-- 社区 -->
+        <div class="screen-wrapper">
+            <div class="screen-title">社区</div>
+            <div class="screen-frame">
+                <div class="screen-notch"></div>
+                <iframe src="community.html" title="社区"></iframe>
+            </div>
+        </div>
+        
+        <!-- 设置 -->
+        <div class="screen-wrapper">
+            <div class="screen-title">设置</div>
+            <div class="screen-frame">
+                <div class="screen-notch"></div>
+                <iframe src="settings.html" title="设置"></iframe>
+            </div>
+        </div>
+        
+        <!-- 紧急求助 -->
+        <div class="screen-wrapper">
+            <div class="screen-title">紧急求助</div>
+            <div class="screen-frame">
+                <div class="screen-notch"></div>
+                <iframe src="emergency.html" title="紧急求助"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <div class="navigation">
+        <a href="#" onclick="alert('这是一个原型演示，实际功能将在完整应用中实现。'); return false;">查看设计说明</a>
+        <a href="#" onclick="alert('感谢您查看QUITTR应用原型！'); return false;">了解更多</a>
+    </div>
 
-    <body>
-        <main class="container">
-            <h1>Welcome to PakePlus</h1>
-            <form class="row" id="greet-form">
-                <input id="inputValue" placeholder="Enter a something..." />
-            </form>
-            <div class="resultBox">
-                <span>result: </span>
-                <span id="result"></span>
-            </div>
-            <div class="invokeBox">
-                <button id="openUrl">open_url_browser</button>
-                <button id="openUrlNew">open_url_new</button>
-                <button id="runCommand">run_command</button>
-                <button id="downloadFile">download_file</button>
-                <button id="getExeDir">get_exe_dir</button>
-                <button id="getEnvVar">get_env_var</button>
-                <button id="findPort">find_port</button>
-            </div>
-        </main>
-    </body>
+    <script src="js/utils.js"></script>
+    <script src="js/loading.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/performance.js"></script>
+    <script src="js/validation.js"></script>
+    <script src="js/offline.js"></script>
+    <script src="js/darkmode.js"></script>
+    <script src="js/privacy-consent.js"></script>
+</body>
 </html>
